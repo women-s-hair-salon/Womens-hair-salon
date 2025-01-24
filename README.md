@@ -1,0 +1,2 @@
+# hairdresser
+django_project

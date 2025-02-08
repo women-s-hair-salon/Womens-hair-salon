@@ -1,0 +1,13 @@
+{% if messages %}
+  {% for message in messages %}
+    <p class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</p>
+  {% endfor %}
+{% endif %}
+
+<h2>Available Categories</h2>
+<!--{% for category in categories %}-->
+<!--  <div>-->
+<!--    <h3>{{ category.name }}</h3>-->
+<!--    <a href="{% url 'services-list' categories_id=category.id %}">View Services</a>-->
+<!--  </div>-->
+<!--{% endfor %}-->

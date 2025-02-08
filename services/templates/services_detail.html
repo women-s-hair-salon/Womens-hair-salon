@@ -1,0 +1,15 @@
+<h2>{{ services.name }}</h2>
+<p>{{ services.text }}</p>
+<p>Price: {{ services.price }} Toman</p>
+
+<form action="{% url 'book-service' categories_id=services.category.id service_id=services.id %}" method="post">
+    {% csrf_token %}
+
+    <label for="date">Select Date:</label>
+    <input type="date" name="date" required>
+
+    <label for="time">Select Time:</label>
+    <input type="time" name="time" required>
+
+    <button type="submit">Reserve and Pay</button>
+</form>

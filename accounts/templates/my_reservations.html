@@ -1,0 +1,8 @@
+<h2>My Reservations</h2>
+<ul>
+    {% for res in reservations %}
+        <li>{{ res.service }} - {{ res.date }} at {{ res.time }}</li>
+    {% empty %}
+        <li>No reservations yet.</li>
+    {% endfor %}
+</ul>

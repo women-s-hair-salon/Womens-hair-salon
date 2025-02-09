@@ -1,12 +1,79 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+{% load static %}
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <title>سالن زیبایی رویال</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-{% block content %}
-{% endblock %}
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- هدر -->
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <h1 class="text-2xl font-bold text-pink-600">💅 سالن زیبایی رویال</h1>
+            <!-- منوی موبایل -->
+            <button class="md:hidden text-pink-600 text-2xl" id="menu-toggle">☰</button>
+            <nav class="hidden md:flex space-x-6" id="menu">
+                <a href="#" class="text-gray-700 hover:text-pink-500">خانه</a>
+                <a href="#" class="text-gray-700 hover:text-pink-500">خدمات</a>
+                <a href="#" class="text-gray-700 hover:text-pink-500">درباره ما</a>
+                <a href="#" class="text-gray-700 hover:text-pink-500">تماس با ما</a>
+            </nav>
+        </div>
+        <!-- منوی موبایل -->
+        <div class="hidden md:hidden flex-col bg-white shadow-md text-center py-2 space-y-2" id="mobile-menu">
+            <a href="#" class="block py-2 hover:bg-pink-100">خانه</a>
+            <a href="#" class="block py-2 hover:bg-pink-100">خدمات</a>
+            <a href="#" class="block py-2 hover:bg-pink-100">درباره ما</a>
+            <a href="#" class="block py-2 hover:bg-pink-100">تماس با ما</a>
+        </div>
+    </header>
+
+    <!-- بخش معرفی -->
+    <section class="text-center py-16 bg-pink-100">
+        <h2 class="text-3xl md:text-4xl font-bold text-pink-700">زیبایی طبیعی شما، درخشش ماست! ✨</h2>
+        <p class="text-md md:text-lg text-gray-700 mt-4">با بهترین خدمات زیبایی در محیطی آرام و حرفه‌ای</p>
+        <a href="#" class="mt-6 inline-block bg-pink-600 text-white px-5 md:px-6 py-3 md:py-4 rounded-lg shadow-md hover:bg-pink-500 transition">رزرو نوبت</a>
+    </section>
+
+    <!-- بخش خدمات -->
+    <section class="container mx-auto py-16 px-4 md:px-10">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-10">💖 خدمات ما 💖</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-pink-600">💇‍♀️ کوتاهی و رنگ مو</h3>
+                <p class="text-gray-600 mt-2">انواع کوتاهی، رنگ و بالیاژ با جدیدترین متدها</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-pink-600">💆‍♀️ پاکسازی و فیشال</h3>
+                <p class="text-gray-600 mt-2">پوستی شاداب و درخشان با مراقبت‌های حرفه‌ای</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-pink-600">💅 کاشت و طراحی ناخن</h3>
+                <p class="text-gray-600 mt-2">جدیدترین مدل‌های کاشت و دیزاین ناخن</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- فوتر -->
+    <footer class="bg-gray-800 text-white py-8 text-center">
+        <p class="text-sm md:text-base">📍 آدرس: تهران، خیابان ولیعصر</p>
+        <p class="text-sm md:text-base">📞 تماس: ۰۹۱۲۳۴۵۶۷۸۹</p>
+        <div class="flex justify-center space-x-4 mt-4">
+            <a href="#" class="hover:text-pink-400">📸 اینستاگرام</a>
+            <a href="#" class="hover:text-pink-400">📘 فیس‌بوک</a>
+            <a href="#" class="hover:text-pink-400">📧 ایمیل</a>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById("menu-toggle").addEventListener("click", function() {
+            document.getElementById("mobile-menu").classList.toggle("hidden");
+        });
+    </script>
+
 </body>
 </html>

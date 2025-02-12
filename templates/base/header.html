@@ -1,0 +1,564 @@
+{##}
+{##}
+{#<body class="bg-gray-50 font-sans">#}
+{##}
+{#  <!-- هدر -->#}
+{#  <header id="header" class="bg-gradient-to-r from-indigo-500 to-blue-600 shadow-2xl z-50 w-full fixed top-0 left-0 right-0 transition-all duration-500 ease-in-out">#}
+{#    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between relative">#}
+{#      <!-- نسخه موبایل -->#}
+{#      <div class="lg:hidden flex items-center justify-between w-full">#}
+{#        <button id="menu-toggle" class="text-2xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">#}
+{#          <i data-lucide="menu"></i>#}
+{#        </button>#}
+{#        <!-- لوگو وسط -->#}
+{#        <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">#}
+{#          <span>لوگو</span>#}
+{#        </div>#}
+{#        <!-- دکمه رزرو نوبت -->#}
+{#        <a href="#" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">#}
+{#          رزرو نوبت#}
+{#        </a>#}
+{#      </div>#}
+{##}
+{#      <!-- نسخه دسکتاپ -->#}
+{#      <div class="hidden lg:flex items-center w-full justify-between space-x-12">#}
+{#        <div class="text-2xl font-extrabold text-white">#}
+{#          <span>لوگو</span>#}
+{#        </div>#}
+{#        <nav class="flex-1 flex justify-center space-x-12">#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2 pl-6">#}
+{#            <i data-lucide="home"></i> صفحه اصلی#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="briefcase"></i> خدمات#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="info"></i> درباره ما#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="phone"></i> تماس با ما#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="calendar"></i> رزرو نوبت#}
+{#          </a>#}
+{#        </nav>#}
+{#      </div>#}
+{#    </div>#}
+{#  </header>#}
+{##}
+{#  <!-- پس‌زمینه محو هنگام باز شدن منو -->#}
+{#  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-lg hidden transition-opacity duration-300 z-40"></div>#}
+{##}
+{#  <!-- منوی موبایل -->#}
+{#  <div id="mobile-menu" class="fixed top-0 right-0 w-64 h-full bg-white bg-opacity-95 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">#}
+{#    <nav class="flex flex-col p-5 space-y-4">#}
+{#      <button id="close-menu" class="text-2xl text-gray-600 hover:text-red-500 transition-all duration-300 self-start focus:outline-none">#}
+{#        <i data-lucide="x"></i>#}
+{#      </button>#}
+{#      <div class="text-xl font-extrabold text-gray-800 flex items-center gap-2 mb-6">#}
+{#        <span>لوگو</span>#}
+{#      </div>#}
+{#      <a href="#" class="flex items-center gap-2 text-gray-700 py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="home"></i> صفحه اصلی#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-gray-700 py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="briefcase"></i> خدمات#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-gray-700 py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="info"></i> درباره ما#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-gray-700 py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="phone"></i> تماس با ما#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-gray-700 py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="calendar"></i> رزرو نوبت#}
+{#      </a>#}
+{#    </nav>#}
+{#  </div>#}
+{##}
+{#  <!-- دکمه بازگشت به بالا -->#}
+{#  <button id="back-to-top" class="fixed bottom-10 right-10 bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">#}
+{#    <i data-lucide="arrow-up"></i>#}
+{#  </button>#}
+{##}
+{#  <script>#}
+{#    lucide.createIcons(); // فعال‌سازی آیکون‌های Lucide#}
+{##}
+{#    const menuToggle = document.getElementById('menu-toggle');#}
+{#    const closeMenu = document.getElementById('close-menu');#}
+{#    const mobileMenu = document.getElementById('mobile-menu');#}
+{#    const overlay = document.getElementById('overlay');#}
+{#    const backToTopButton = document.getElementById('back-to-top');#}
+{##}
+{#    // باز کردن منوی موبایل#}
+{#    menuToggle.addEventListener('click', () => {#}
+{#      mobileMenu.classList.remove('translate-x-full');#}
+{#      overlay.classList.remove('hidden');#}
+{#      mobileMenu.classList.add('open'); // اضافه کردن کلاس open برای انیمیشن#}
+{#    });#}
+{##}
+{#    // بستن منوی موبایل با کلیک بر روی دکمه بستن#}
+{#    closeMenu.addEventListener('click', () => {#}
+{#      mobileMenu.classList.add('translate-x-full');#}
+{#      overlay.classList.add('hidden');#}
+{#      mobileMenu.classList.remove('open');#}
+{#    });#}
+{##}
+{#    // بستن منوی موبایل با کلیک بر روی پس‌زمینه#}
+{#    overlay.addEventListener('click', () => {#}
+{#      mobileMenu.classList.add('translate-x-full');#}
+{#      overlay.classList.add('hidden');#}
+{#      mobileMenu.classList.remove('open');#}
+{#    });#}
+{##}
+{#    // نمایش و پنهان‌سازی دکمه بازگشت به بالا#}
+{#    window.addEventListener('scroll', () => {#}
+{#      if (window.scrollY > 300) {#}
+{#        backToTopButton.classList.remove('opacity-0', 'pointer-events-none');#}
+{#        backToTopButton.classList.add('opacity-100', 'pointer-events-auto');#}
+{#      } else {#}
+{#        backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');#}
+{#        backToTopButton.classList.add('opacity-0', 'pointer-events-none');#}
+{#      }#}
+{#    });#}
+{##}
+{#    // رفتن به بالای صفحه#}
+{#    backToTopButton.addEventListener('click', () => {#}
+{#      window.scrollTo({ top: 0, behavior: 'smooth' });#}
+{#    });#}
+{#  </script>#}
+{##}
+{#  <style>#}
+{#    /* اضافه کردن انیمیشن‌ها */#}
+{#    @keyframes menuFadeIn {#}
+{#      0% { opacity: 0; transform: translateX(100%); }#}
+{#      100% { opacity: 1; transform: translateX(0); }#}
+{#    }#}
+{##}
+{#    #mobile-menu.open {#}
+{#      animation: menuFadeIn 0.5s ease-out forwards;#}
+{#    }#}
+{##}
+{#    /* بهبود رنگ‌ها و طراحی */#}
+{#    header {#}
+{#      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);#}
+{#    }#}
+{##}
+{#    #back-to-top {#}
+{#      transition: transform 0.3s ease, opacity 0.3s ease;#}
+{#    }#}
+{##}
+{#    #back-to-top:hover {#}
+{#      transform: scale(1.2);#}
+{#    }#}
+{##}
+{#    /* رنگ‌ها و پس‌زمینه‌های جدید */#}
+{#    header {#}
+{#      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);#}
+{#    }#}
+{##}
+{#    /* بهبود افکت‌های hover در منو */#}
+{#    nav a {#}
+{#      position: relative;#}
+{#    }#}
+{##}
+{#    nav a:hover::after {#}
+{#      content: "";#}
+{#      position: absolute;#}
+{#      width: 100%;#}
+{#      height: 3px;#}
+{#      background-color: #4f46e5; /* آبی روشن */#}
+{#      bottom: 0;#}
+{#      left: 0;#}
+{#      transform: scaleX(0);#}
+{#      transform-origin: bottom right;#}
+{#      transition: transform 0.25s ease-out;#}
+{#    }#}
+{##}
+{#    nav a:hover::after {#}
+{#      transform: scaleX(1);#}
+{#      transform-origin: bottom left;#}
+{#    }#}
+{#  </style>#}
+{##}
+{#</body>#}
+{##}
+{##}
+{##}
+
+
+{#=========================================#}
+
+{#<body class="bg-gray-50 font-sans transition-all">#}
+{##}
+{#  <!-- هدر -->#}
+{#  <header id="header" class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 shadow-2xl z-50 w-full fixed top-0 left-0 right-0 transition-all duration-500 ease-in-out">#}
+{#    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between relative">#}
+{#      <!-- نسخه موبایل -->#}
+{#      <div class="lg:hidden flex items-center justify-between w-full">#}
+{#        <button id="menu-toggle" class="text-2xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">#}
+{#          <i data-lucide="menu"></i>#}
+{#        </button>#}
+{#        <!-- لوگو وسط -->#}
+{#        <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">#}
+{#          <span>لوگو</span>#}
+{#        </div>#}
+{#        <!-- دکمه رزرو نوبت -->#}
+{#        <a href="#" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">#}
+{#          رزرو نوبت#}
+{#        </a>#}
+{#      </div>#}
+{##}
+{#      <!-- نسخه دسکتاپ -->#}
+{#      <div class="hidden lg:flex items-center w-full justify-between space-x-12">#}
+{#        <div class="text-2xl font-extrabold text-white">#}
+{#          <span>لوگو</span>#}
+{#        </div>#}
+{#        <nav class="flex-1 flex justify-center space-x-12">#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2 pl-6">#}
+{#            <i data-lucide="home"></i> صفحه اصلی#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="briefcase"></i> خدمات#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="info"></i> درباره ما#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="phone"></i> تماس با ما#}
+{#          </a>#}
+{#          <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">#}
+{#            <i data-lucide="calendar"></i> رزرو نوبت#}
+{#          </a>#}
+{#        </nav>#}
+{#      </div>#}
+{#    </div>#}
+{#  </header>#}
+{##}
+{#  <!-- پس‌زمینه محو هنگام باز شدن منو -->#}
+{#  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-lg hidden transition-opacity duration-300 z-40"></div>#}
+{##}
+{#  <!-- منوی موبایل -->#}
+{#  <div id="mobile-menu" class="fixed top-0 right-0 w-64 h-full bg-gradient-to-tl from-indigo-400 to-purple-500 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">#}
+{#    <nav class="flex flex-col p-5 space-y-4">#}
+{#      <button id="close-menu" class="text-2xl text-gray-600 hover:text-red-500 transition-all duration-300 self-start focus:outline-none">#}
+{#        <i data-lucide="x"></i>#}
+{#      </button>#}
+{#      <div class="text-xl font-extrabold text-white flex items-center gap-2 mb-6">#}
+{#        <span>لوگو</span>#}
+{#      </div>#}
+{#      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="home"></i> صفحه اصلی#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="briefcase"></i> خدمات#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="info"></i> درباره ما#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="phone"></i> تماس با ما#}
+{#      </a>#}
+{#      <a href="#" class="flex items-center gap-2 text-white py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">#}
+{#        <i data-lucide="calendar"></i> رزرو نوبت#}
+{#      </a>#}
+{#    </nav>#}
+{#  </div>#}
+{##}
+{#  <!-- دکمه بازگشت به بالا -->#}
+{#  <button id="back-to-top" class="fixed bottom-10 right-10 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">#}
+{#    <i data-lucide="arrow-up"></i>#}
+{#  </button>#}
+{##}
+{#  <script>#}
+{#    lucide.createIcons(); // فعال‌سازی آیکون‌های Lucide#}
+{##}
+{#    const menuToggle = document.getElementById('menu-toggle');#}
+{#    const closeMenu = document.getElementById('close-menu');#}
+{#    const mobileMenu = document.getElementById('mobile-menu');#}
+{#    const overlay = document.getElementById('overlay');#}
+{#    const backToTopButton = document.getElementById('back-to-top');#}
+{##}
+{#    // باز کردن منوی موبایل#}
+{#    menuToggle.addEventListener('click', () => {#}
+{#      mobileMenu.classList.remove('translate-x-full');#}
+{#      overlay.classList.remove('hidden');#}
+{#      mobileMenu.classList.add('open'); // اضافه کردن کلاس open برای انیمیشن#}
+{#    });#}
+{##}
+{#    // بستن منوی موبایل با کلیک بر روی دکمه بستن#}
+{#    closeMenu.addEventListener('click', () => {#}
+{#      mobileMenu.classList.add('translate-x-full');#}
+{#      overlay.classList.add('hidden');#}
+{#      mobileMenu.classList.remove('open');#}
+{#    });#}
+{##}
+{#    // بستن منوی موبایل با کلیک بر روی پس‌زمینه#}
+{#    overlay.addEventListener('click', () => {#}
+{#      mobileMenu.classList.add('translate-x-full');#}
+{#      overlay.classList.add('hidden');#}
+{#      mobileMenu.classList.remove('open');#}
+{#    });#}
+{##}
+{#    // نمایش و پنهان‌سازی دکمه بازگشت به بالا#}
+{#    window.addEventListener('scroll', () => {#}
+{#      if (window.scrollY > 300) {#}
+{#        backToTopButton.classList.remove('opacity-0', 'pointer-events-none');#}
+{#        backToTopButton.classList.add('opacity-100', 'pointer-events-auto');#}
+{#      } else {#}
+{#        backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');#}
+{#        backToTopButton.classList.add('opacity-0', 'pointer-events-none');#}
+{#      }#}
+{#    });#}
+{##}
+{#    // رفتن به بالای صفحه#}
+{#    backToTopButton.addEventListener('click', () => {#}
+{#      window.scrollTo({ top: 0, behavior: 'smooth' });#}
+{#    });#}
+{#  </script>#}
+{##}
+{#</body>#}
+
+
+<body class="bg-gray-50 font-sans transition-all" id="body">
+
+  <!-- هدر -->
+  <header id="header" class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 shadow-2xl z-50 w-full fixed top-0 left-0 right-0 transition-all duration-500 ease-in-out">
+    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between relative">
+      <!-- نسخه موبایل -->
+      <div class="lg:hidden flex items-center justify-between w-full">
+        <button id="menu-toggle" class="text-2xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">
+          <i data-lucide="menu"></i>
+        </button>
+        <!-- لوگو وسط -->
+        <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">
+          <span>لوگو</span>
+        </div>
+        <!-- دکمه رزرو نوبت -->
+        <a href="#" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-transparent hover:border-indigo-500 hover:bg-indigo-600 flex items-center gap-2">
+            <i data-lucide="calendar"></i>
+            رزرو نوبت
+        </a>
+      </div>
+
+      <!-- نسخه دسکتاپ -->
+<div class="hidden lg:flex items-center w-full justify-between">
+  <!-- لوگو -->
+  <div class="text-2xl font-extrabold text-white ml-20">
+    <span>لوگو</span>
+  </div>
+
+  <!-- منو -->
+  <nav class="flex-1 flex justify-center space-x-12">
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2 pl-6">
+      <i data-lucide="home"></i> صفحه اصلی
+    </a>
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+      <i data-lucide="briefcase"></i> خدمات
+    </a>
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+      <i data-lucide="book"></i> آموزش ها
+    </a>
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+      <i data-lucide="info"></i> درباره ما
+    </a>
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+      <i data-lucide="phone"></i> تماس با ما
+    </a>
+    <a href="#" class="text-white bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+      <i data-lucide="calendar"></i> رزرو نوبت
+    </a>
+    <!-- گزینه تغییر تم -->
+    <a href="#" id="theme-toggle" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+      <i data-lucide="sun"></i> تغییر تم
+    </a>
+  </nav>
+
+  <!-- قسمت ورود و ثبت نام -->
+  <div class="flex items-center gap-4 ">
+    {% if not request.user.is_authenticated %}
+      <a href="#"
+         class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
+         ورود
+      </a>
+
+      <a href="#"
+         class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
+         ثبت نام
+      </a>
+    {% else %}
+      <a href="#"
+         class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
+         پروفایل
+      </a>
+      <a href="#" class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
+         خروج
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+    </div>
+  </header>
+
+  <!-- پس‌زمینه محو هنگام باز شدن منو -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-lg hidden transition-opacity duration-300 z-40"></div>
+
+  <!-- منوی موبایل -->
+  <div id="mobile-menu" class="fixed top-0 right-0 w-64 h-full bg-gradient-to-tl from-indigo-400 to-purple-500 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">
+    <nav class="flex flex-col p-5 space-y-4">
+      <button id="close-menu" class="text-2xl text-gray-600 hover:text-red-500 transition-all duration-300 self-start focus:outline-none">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="text-xl font-extrabold text-white flex items-center gap-2 mb-6">
+        <span>لوگو</span>
+      </div>
+        {% if not request.user.is_authenticated %}
+            <a href="#"
+               class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
+                ورود
+            </a>
+
+            <a href="#"
+               class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
+                ثبت نام
+            </a>
+
+
+        {% else %}
+            <a href="#"
+               class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
+                پروفایل
+            </a>
+            <a href="#" class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
+                خروج
+            </a>
+        {% endif %}
+      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="home"></i> صفحه اصلی
+      </a>
+      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="briefcase"></i> خدمات
+      </a>
+      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="book"></i> آموزش ها
+      </a>
+      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="info"></i> درباره ما
+      </a>
+      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="phone"></i> تماس با ما
+      </a>
+      <a href="#" class="flex items-center gap-2 text-white py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="calendar"></i> رزرو نوبت
+      </a>
+      <!-- گزینه تغییر تم -->
+      <a href="#" id="theme-toggle-mobile" class="flex items-center gap-2 text-white py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
+        <i data-lucide="sun"></i> تغییر تم
+      </a>
+    </nav>
+  </div>
+
+  <!-- دکمه بازگشت به بالا -->
+  <button id="back-to-top" class="fixed bottom-10 right-10 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">
+    <i data-lucide="arrow-up"></i>
+  </button>
+
+  <script>
+    lucide.createIcons(); // فعال‌سازی آیکون‌های Lucide
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeMenu = document.getElementById('close-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('overlay');
+    const backToTopButton = document.getElementById('back-to-top');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    const body = document.getElementById('body');
+
+    // باز کردن منوی موبایل
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.remove('translate-x-full');
+      overlay.classList.remove('hidden');
+      mobileMenu.classList.add('open'); // اضافه کردن کلاس open برای انیمیشن
+    });
+
+    // بستن منوی موبایل با کلیک بر روی دکمه بستن
+    closeMenu.addEventListener('click', () => {
+      mobileMenu.classList.add('translate-x-full');
+      overlay.classList.add('hidden');
+      mobileMenu.classList.remove('open');
+    });
+
+    // بستن منوی موبایل با کلیک بر روی پس‌زمینه
+    overlay.addEventListener('click', () => {
+      mobileMenu.classList.add('translate-x-full');
+      overlay.classList.add('hidden');
+      mobileMenu.classList.remove('open');
+    });
+
+    // نمایش و پنهان‌سازی دکمه بازگشت به بالا
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopButton.classList.remove('opacity-0', 'pointer-events-none');
+        backToTopButton.classList.add('opacity-100', 'pointer-events-auto');
+      } else {
+        backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');
+        backToTopButton.classList.add('opacity-0', 'pointer-events-none');
+      }
+    });
+
+    // رفتن به بالای صفحه
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // تغییر تم (دارک و لایت)
+    function toggleTheme() {
+      body.classList.toggle('dark');
+      if (body.classList.contains('dark')) {
+        themeToggle.innerHTML = '<i data-lucide="moon"></i> تم تاریک';
+        themeToggleMobile.innerHTML = '<i data-lucide="moon"></i> تم تاریک';
+      } else {
+        themeToggle.innerHTML = '<i data-lucide="sun"></i> تم روشن';
+        themeToggleMobile.innerHTML = '<i data-lucide="sun"></i> تم روشن';
+      }
+    }
+
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggleMobile.addEventListener('click', toggleTheme);
+
+  </script>
+
+  <style>
+          /* جلوگیری از شکستن متن در دکمه‌ها */
+      a, button {
+        white-space: nowrap;  /* جلوگیری از شکستن متن در خطوط مختلف */
+      }
+          /* استایل برای منوهای ناوبری */
+    nav a {
+      white-space: nowrap;  /* جلوگیری از شکستن متن در خطوط مختلف */
+      text-align: center;    /* برای اینکه متن‌های منو در وسط باشند */
+    }
+
+          /* برای بخش نسخه دسکتاپ */
+    nav {
+      display: flex;
+      justify-content: center;  /* منو را در وسط قرار می‌دهد */
+      margin-left: 40px;  /* این فاصله را به دلخواه تغییر دهید */
+    }
+
+    /* استایل برای تم روشن */
+    body {
+      background-color: #f9fafb; /* رنگ پس زمینه روشن */
+      color: #333; /* رنگ متن روشن */
+    }
+
+    /* استایل برای تم تاریک */
+    body.dark {
+      background-color: #1f2937; /* رنگ پس زمینه تاریک */
+      color: #e5e7eb; /* رنگ متن روشن برای تم تاریک */
+    }
+  </style>
+
+</body>

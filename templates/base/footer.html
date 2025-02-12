@@ -1,0 +1,123 @@
+<footer class="text-white py-12 px-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradientMove opacity-60"></div>
+    <div class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left animate-fadeUp relative z-10">
+
+        <!-- بخش آدرس و شماره تلفن -->
+        <div class="text-right border-r-2 border-gray-700 pr-4 hover:bg-gray-800 rounded-lg p-4 shadow-lg transition-all duration-300 hover:scale-105 transform-gpu hover:shadow-2xl">
+            <h3 class="text-2xl font-semibold mb-4 border-b-2 border-blue-500 pb-2 hover:text-yellow-400 transition-all duration-300">📍 آدرس</h3>
+            <p class="text-lg hover:text-gray-300 transition-all duration-300">تهران، خیابان ولیعصر</p>
+            <p class="text-lg mt-3">📞 <a href="tel:09123456789" class="text-blue-400 hover:text-blue-300 ripple">۰۹۱۲۳۴۵۶۷۸۹</a></p>
+            <p class="text-lg">📞 <a href="tel:09876543210" class="text-blue-400 hover:text-blue-300 ripple">۰۹۸۷۶۵۴۳۲۱۰</a></p>
+            <button class="text-sm text-blue-500 hover:text-blue-300 mt-3" onclick="copyPhoneNumber('09123456789')">
+                <i class="fas fa-copy"></i> کپی شماره
+            </button>
+        </div>
+
+        <!-- بخش شبکه‌های اجتماعی -->
+        <div class="text-center p-6 bg-white/10 backdrop-blur-lg rounded-lg shadow-xl hover:scale-105 transform-gpu transition-all duration-300 hover:shadow-2xl">
+            <h3 class="text-2xl font-semibold mb-4 border-b-2 border-green-500 pb-2 hover:text-yellow-400 transition-all duration-300">🌐 ارتباط با ما</h3>
+            <div class="grid grid-cols-2 gap-4 justify-items-center">
+                <a href="mailto:info@example.com" class="icon-box bg-blue-500 hover:scale-125 hover:shadow-lg hover:bg-blue-400" aria-label="ارسال ایمیل">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://wa.me/989123456789" class="icon-box bg-green-500 hover:scale-125 hover:shadow-lg hover:bg-green-400" aria-label="ارسال پیام در واتساپ">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="https://t.me/example" class="icon-box bg-blue-600 hover:scale-125 hover:shadow-lg hover:bg-blue-500" aria-label="تماس در تلگرام">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="https://instagram.com/example" class="icon-box bg-pink-500 hover:scale-125 hover:shadow-lg hover:bg-pink-400" aria-label="مشاهده اینستاگرام">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- بخش دسترسی سریع -->
+        <div class="text-right border-r-2 border-gray-700 pr-4 hover:bg-gray-800 rounded-lg p-4 shadow-lg transition-all duration-300 hover:scale-105 transform-gpu hover:shadow-2xl">
+            <h3 class="text-2xl font-semibold mb-4 border-b-2 border-yellow-500 pb-2 hover:text-yellow-400 transition-all duration-300">🚀 دسترسی سریع</h3>
+            <ul class="text-lg space-y-3">
+                <li><a href="#" class="text-blue-400 hover:text-blue-300 ripple hover:bg-blue-600 p-2 rounded-md transition-all duration-300">صفحه اصلی</a></li>
+                <li><a href="#" class="text-blue-400 hover:text-blue-300 ripple hover:bg-blue-600 p-2 rounded-md transition-all duration-300">درباره ما</a></li>
+                <li><a href="#" class="text-blue-400 hover:text-blue-300 ripple hover:bg-blue-600 p-2 rounded-md transition-all duration-300">خدمات</a></li>
+                <li><a href="#" class="text-blue-400 hover:text-blue-300 ripple hover:bg-blue-600 p-2 rounded-md transition-all duration-300">تماس با ما</a></li>
+            </ul>
+        </div>
+
+        <!-- بخش لوگوی سایت -->
+        <div class="flex justify-center md:justify-end">
+            <img src="logo.png" alt="لوگوی سایت" class="w-40 h-auto rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 transform-gpu">
+        </div>
+    </div>
+
+    <!-- دکمه برگشت به بالا -->
+{#    <button class="fixed bottom-8 right-8 bg-gradient-to-r from-teal-500 to-purple-700 text-white py-3 px-5 rounded-full shadow-lg hover:scale-110 transition-all duration-300 hover:shadow-2xl hover:ring-4 hover:ring-purple-400 pulse-effect">#}
+{#        ⬆️#}
+{#    </button>#}
+</footer>
+
+<!-- استایل‌ها -->
+<style>
+    .bg-gradientMove {
+        background: linear-gradient(45deg, #47051d, #53011c, #430959, #330345, #00b894);
+        background-size: 400% 400%;
+        animation: gradientMove 15s ease infinite;
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        25% { background-position: 50% 50%; }
+        50% { background-position: 100% 50%; }
+        75% { background-position: 50% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .icon-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-box:hover {
+        transform: scale(1.2);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+    }
+
+    .pulse-effect {
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .hover\\:scale-110:hover {
+        transform: scale(1.1);
+    }
+
+    /* انیمیشن متن */
+    @keyframes textAnimation {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-text {
+        animation: textAnimation 1s ease-out forwards;
+    }
+</style>
+
+<script>
+    function copyPhoneNumber(number) {
+        navigator.clipboard.writeText(number).then(function() {
+            alert("شماره تماس کپی شد: " + number);
+        });
+    }
+</script>

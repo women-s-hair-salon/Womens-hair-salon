@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+
+{% block main %}
+        <!-- صفحه اصلی -->
+    <section id="home" class="text-center py-32 bg-purple-100 mt-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-purple-700">زیبایی طبیعی شما، درخشش ماست! ✨</h2>
+        <p class="text-md md:text-lg text-gray-700 mt-4">با بهترین خدمات زیبایی در محیطی آرام و حرفه‌ای</p>
+        <a href="#booking" class="mt-6 inline-block bg-pink-600 text-white px-5 md:px-6 py-3 md:py-4 rounded-lg shadow-md hover:bg-pink-500 transition">رزرو نوبت</a>
+    </section>
+
+    <!-- بخش خدمات -->
+    <section id="services" class="container mx-auto py-32 px-4 md:px-10">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-10">💖 خدمات ما 💖</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-purple-600">💇‍♀️ کوتاهی و رنگ مو</h3>
+                <p class="text-gray-600 mt-2">انواع کوتاهی، رنگ و بالیاژ با جدیدترین متدها</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-purple-600">💆‍♀️ پاکسازی و فیشال</h3>
+                <p class="text-gray-600 mt-2">پوستی شاداب و درخشان با مراقبت‌های حرفه‌ای</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <h3 class="text-lg md:text-xl font-semibold text-purple-600">💅 کاشت و طراحی ناخن</h3>
+                <p class="text-gray-600 mt-2">جدیدترین مدل‌های کاشت و دیزاین ناخن</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- بخش رزرو نوبت -->
+    <section id="booking" class="bg-gray-100 py-32 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-purple-700">رزرو نوبت 📅</h2>
+        <p class="text-lg text-gray-700 mt-4 px-6">همین حالا نوبت خود را آنلاین رزرو کنید و درخششی تازه را تجربه کنید! 💖</p>
+        <a href="#" class="mt-6 inline-block bg-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-pink-500 transition">رزرو آنلاین</a>
+    </section>
+
+{% endblock %}

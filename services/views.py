@@ -14,10 +14,14 @@ class CategoriesView(ListView):
     model =Categories
     template_name = 'categories.html'
     context_object_name = 'categories'
+
+
 class ServicesListView(ListView):
     model =Service
     template_name = 'services.html'
     context_object_name = 'services'
+
+
 class ServicesDetailView(DetailView):
     model =Service
     template_name = 'services_detail.html'

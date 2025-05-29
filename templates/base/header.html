@@ -326,77 +326,87 @@
   <header id="header" class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 shadow-2xl z-50 w-full fixed top-0 left-0 right-0 transition-all duration-500 ease-in-out">
     <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between relative">
       <!-- نسخه موبایل -->
-      <div class="lg:hidden flex items-center justify-between w-full">
-        <button id="menu-toggle" class="text-2xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">
-          <i data-lucide="menu"></i>
-        </button>
-        <!-- لوگو وسط -->
-        <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">
-          <span>لوگو</span>
-        </div>
-        <!-- دکمه رزرو نوبت -->
-        <a href="#" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-4 border-transparent hover:border-indigo-500 hover:bg-indigo-600 flex items-center gap-2">
-            <i data-lucide="calendar"></i>
-            رزرو نوبت
-        </a>
-      </div>
+<div class="lg:hidden flex items-center justify-between w-full">
+  <!-- آیکون منو با فاصله -->
+  <button id="menu-toggle" class="text-2xl text-white focus:outline-none mr-2 focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">
+    <i data-lucide="menu"></i>
+  </button>
+
+  <!-- لوگو وسط -->
+  <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">
+    <span>لوگو</span>
+  </div>
+
+  <!-- دکمه رزرو نوبت متعادل -->
+  <a href="#"
+     class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+    <i data-lucide="calendar"></i>
+     نوبت
+  </a>
+</div>
+
 
       <!-- نسخه دسکتاپ -->
 <div class="hidden lg:flex items-center w-full justify-between">
   <!-- لوگو -->
-  <div class="text-2xl font-extrabold text-white ml-20">
+  <div class="text-2xl font-extrabold text-white ml-40">
     <span>لوگو</span>
   </div>
 
   <!-- منو -->
-  <nav class="flex-1 flex justify-center space-x-12">
-    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2 pl-6">
+  <nav class="flex-1 flex justify-center gap-8">
+    <a href="{% url 'home' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
       <i data-lucide="home"></i> صفحه اصلی
     </a>
-    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
       <i data-lucide="briefcase"></i> خدمات
     </a>
-    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
-      <i data-lucide="book"></i> آموزش ها
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
+      <i data-lucide="book"></i> آموزش‌ها
     </a>
-    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
       <i data-lucide="info"></i> درباره ما
     </a>
-    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+    <a href="#" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
       <i data-lucide="phone"></i> تماس با ما
     </a>
-    <a href="#" class="text-white bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+
+    <!-- دکمه رزرو نوبت -->
+    <a href="#" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
       <i data-lucide="calendar"></i> رزرو نوبت
     </a>
+
     <!-- گزینه تغییر تم -->
-    <a href="#" id="theme-toggle" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:translate-y-1 flex items-center gap-2">
+    <a href="javascript:void(0)" id="theme-toggle"
+       class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">
       <i data-lucide="sun"></i> تغییر تم
     </a>
   </nav>
 
-  <!-- قسمت ورود و ثبت نام -->
-  <div class="flex items-center gap-4 ">
+  <!-- ورود و ثبت‌نام -->
+  <div class="flex items-center gap-3 mr-6">
     {% if not request.user.is_authenticated %}
-      <a href="#"
+      <a href="{% url 'login' %}"
          class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
          ورود
       </a>
-
-      <a href="#"
+      <a href="{% url 'signup' %}"
          class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
-         ثبت نام
+         ثبت‌نام
       </a>
     {% else %}
-      <a href="#"
+      <a href="{% url 'profile' %}"
          class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
          پروفایل
       </a>
-      <a href="#" class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
+      <a href="{% url 'logout' %}"
+         class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
          خروج
       </a>
     {% endif %}
   </div>
 </div>
+
 
     </div>
   </header>
@@ -405,59 +415,76 @@
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-lg hidden transition-opacity duration-300 z-40"></div>
 
   <!-- منوی موبایل -->
-  <div id="mobile-menu" class="fixed top-0 right-0 w-64 h-full bg-gradient-to-tl from-indigo-400 to-purple-500 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">
-    <nav class="flex flex-col p-5 space-y-4">
-      <button id="close-menu" class="text-2xl text-gray-600 hover:text-red-500 transition-all duration-300 self-start focus:outline-none">
-        <i data-lucide="x"></i>
-      </button>
-      <div class="text-xl font-extrabold text-white flex items-center gap-2 mb-6">
-        <span>لوگو</span>
-      </div>
-        {% if not request.user.is_authenticated %}
-            <a href="#"
-               class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
-                ورود
-            </a>
+<div id="mobile-menu"
+     class="fixed top-0 right-0 w-64 h-full bg-gradient-to-tl from-indigo-600 to-purple-700 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">
+  <nav class="flex flex-col p-5 space-y-4 text-white">
 
-            <a href="#"
-               class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
-                ثبت نام
-            </a>
+    <!-- دکمه بستن -->
+    <button id="close-menu"
+            class="text-2xl text-gray-200 hover:text-red-400 transition-all duration-300 self-start focus:outline-none">
+      <i data-lucide="x"></i>
+    </button>
 
+    <!-- لوگو -->
+    <div class="text-xl font-extrabold text-white flex items-center gap-2 mb-6">
+      <i data-lucide="shield-check"></i>
+      <span>لوگو</span>
+    </div>
 
-        {% else %}
-            <a href="#"
-               class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">
-                پروفایل
-            </a>
-            <a href="#" class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">
-                خروج
-            </a>
-        {% endif %}
-      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="home"></i> صفحه اصلی
+    <!-- اگر وارد نشده -->
+    {% if not request.user.is_authenticated %}
+      <a href="{% url 'login' %}"
+         class="text-yellow-300 font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-105">
+        ورود
       </a>
-      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="briefcase"></i> خدمات
+
+      <a href="{% url 'signup' %}"
+         class="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-yellow-400 transition-transform duration-300 transform hover:scale-105">
+        ثبت نام
       </a>
-      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="book"></i> آموزش ها
+    {% else %}
+      <a href="{% url 'profile' %}"
+         class="bg-yellow-400 text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-yellow-300 transition-transform duration-300 transform hover:scale-105">
+        پروفایل
       </a>
-      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="info"></i> درباره ما
+
+      <a href="{% url 'logout' %}"
+         class="text-yellow-300 font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-105">
+        خروج
       </a>
-      <a href="#" class="flex items-center gap-2 text-white py-3 border-b border-gray-200 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="phone"></i> تماس با ما
-      </a>
-      <a href="#" class="flex items-center gap-2 text-white py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="calendar"></i> رزرو نوبت
-      </a>
-      <!-- گزینه تغییر تم -->
-      <a href="#" id="theme-toggle-mobile" class="flex items-center gap-2 text-white py-3 hover:text-indigo-600 hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:translate-x-2">
-        <i data-lucide="sun"></i> تغییر تم
-      </a>
-    </nav>
-  </div>
+    {% endif %}
+
+    <!-- آیتم‌های منو -->
+    <a href="{% url 'home' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">
+      <i data-lucide="home"></i> صفحه اصلی
+    </a>
+    <a href="#" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">
+      <i data-lucide="briefcase"></i> خدمات
+    </a>
+    <a href="#" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">
+      <i data-lucide="book"></i> آموزش‌ها
+    </a>
+    <a href="#" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">
+      <i data-lucide="info"></i> درباره ما
+    </a>
+    <a href="#" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">
+      <i data-lucide="phone"></i> تماس با ما
+    </a>
+
+    <!-- دکمه رزرو نوبت -->
+    <a href="#"
+       class="bg-blue-500 text-white text-sm flex items-center gap-2 justify-center px-4 py-2 rounded-xl shadow-lg hover:bg-blue-400 transition-all duration-300">
+      <i data-lucide="calendar"></i> رزرو نوبت
+    </a>
+
+    <!-- تغییر تم -->
+    <a href="javascript:void(0)" id="theme-toggle-mobile"
+       class="flex items-center gap-2 py-3 text-white hover:text-yellow-300 transition-all duration-300 px-3">
+      <i data-lucide="sun"></i> تغییر تم
+    </a>
+  </nav>
+</div>
+
 
   <!-- دکمه بازگشت به بالا -->
   <button id="back-to-top" class="fixed bottom-10 right-10 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">
@@ -465,70 +492,86 @@
   </button>
 
   <script>
-    lucide.createIcons(); // فعال‌سازی آیکون‌های Lucide
+  // Lucide icon setup
+  lucide.createIcons();
 
-    const menuToggle = document.getElementById('menu-toggle');
-    const closeMenu = document.getElementById('close-menu');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const overlay = document.getElementById('overlay');
-    const backToTopButton = document.getElementById('back-to-top');
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-    const body = document.getElementById('body');
+  const menuToggle = document.getElementById('menu-toggle');
+  const closeMenu = document.getElementById('close-menu');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const overlay = document.getElementById('overlay');
+  const backToTopButton = document.getElementById('back-to-top');
+  {#const themeToggle = document.getElementById('theme-toggle');#}
+  {#const themeToggleMobile = document.getElementById('theme-toggle-mobile');#}
+  {#const body = document.getElementById('body');#}
 
-    // باز کردن منوی موبایل
-    menuToggle.addEventListener('click', () => {
-      mobileMenu.classList.remove('translate-x-full');
-      overlay.classList.remove('hidden');
-      mobileMenu.classList.add('open'); // اضافه کردن کلاس open برای انیمیشن
-    });
+  // تابع ذخیره و بارگذاری تم از localStorage
+  {#function loadThemeFromStorage() {#}
+  {#  const storedTheme = localStorage.getItem('site-theme');#}
+  {#  if (storedTheme === 'dark') {#}
+  {#    body.classList.add('dark');#}
+  {#    updateThemeIcons('moon');#}
+  {#  } else {#}
+  {#    body.classList.remove('dark');#}
+  {#    updateThemeIcons('sun');#}
+  {#  }#}
+  {#}#}
+  {##}
+  {#function toggleTheme() {#}
+  {#  body.classList.toggle('dark');#}
+  {#  const isDark = body.classList.contains('dark');#}
+  {#  localStorage.setItem('site-theme', isDark ? 'dark' : 'light');#}
+  {#  updateThemeIcons(isDark ? 'moon' : 'sun');#}
+  {#}#}
+  {##}
+  {#function updateThemeIcons(icon) {#}
+  {#  themeToggle.innerHTML = `<i data-lucide="${icon}"></i> تغییر تم`;#}
+  {#  themeToggleMobile.innerHTML = `<i data-lucide="${icon}"></i> تغییر تم`;#}
+  {#  lucide.createIcons();#}
+  {#}#}
+  {##}
+  {#// رویدادهای تغییر تم#}
+  {#themeToggle.addEventListener('click', toggleTheme);#}
+  {#themeToggleMobile.addEventListener('click', toggleTheme);#}
+  {#loadThemeFromStorage();#}
 
-    // بستن منوی موبایل با کلیک بر روی دکمه بستن
-    closeMenu.addEventListener('click', () => {
-      mobileMenu.classList.add('translate-x-full');
-      overlay.classList.add('hidden');
-      mobileMenu.classList.remove('open');
-    });
+  // باز کردن منوی موبایل
+  menuToggle.addEventListener('click', () => {
+    mobileMenu.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+    mobileMenu.classList.add('open');
+  });
 
-    // بستن منوی موبایل با کلیک بر روی پس‌زمینه
-    overlay.addEventListener('click', () => {
-      mobileMenu.classList.add('translate-x-full');
-      overlay.classList.add('hidden');
-      mobileMenu.classList.remove('open');
-    });
+  // بستن منوی موبایل
+  closeMenu.addEventListener('click', () => {
+    mobileMenu.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+    mobileMenu.classList.remove('open');
+  });
 
-    // نمایش و پنهان‌سازی دکمه بازگشت به بالا
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        backToTopButton.classList.remove('opacity-0', 'pointer-events-none');
-        backToTopButton.classList.add('opacity-100', 'pointer-events-auto');
-      } else {
-        backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');
-        backToTopButton.classList.add('opacity-0', 'pointer-events-none');
-      }
-    });
+  overlay.addEventListener('click', () => {
+    mobileMenu.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+    mobileMenu.classList.remove('open');
+  });
 
-    // رفتن به بالای صفحه
-    backToTopButton.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // تغییر تم (دارک و لایت)
-    function toggleTheme() {
-      body.classList.toggle('dark');
-      if (body.classList.contains('dark')) {
-        themeToggle.innerHTML = '<i data-lucide="moon"></i> تم تاریک';
-        themeToggleMobile.innerHTML = '<i data-lucide="moon"></i> تم تاریک';
-      } else {
-        themeToggle.innerHTML = '<i data-lucide="sun"></i> تم روشن';
-        themeToggleMobile.innerHTML = '<i data-lucide="sun"></i> تم روشن';
-      }
+  // نمایش/پنهان‌سازی دکمه برگشت به بالا
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      backToTopButton.classList.remove('opacity-0', 'pointer-events-none');
+      backToTopButton.classList.add('opacity-100', 'pointer-events-auto');
+    } else {
+      backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');
+      backToTopButton.classList.add('opacity-0', 'pointer-events-none');
     }
+  });
 
-    themeToggle.addEventListener('click', toggleTheme);
-    themeToggleMobile.addEventListener('click', toggleTheme);
+  backToTopButton.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
 
-  </script>
+
+
 
   <style>
           /* جلوگیری از شکستن متن در دکمه‌ها */

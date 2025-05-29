@@ -1,13 +1,91 @@
-<!DOCTYPE html>
-<html lang="per">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>Welcome, {{ user.full_name }}</h1>
-<h1>{{user.referral_code}}</h1>
+{% extends 'base/base.html' %}
+{% load static %}
+{% load custom_filters %}
 
-    <a href="passwordchange">Change Password</a>
-</body>
-</html>
+{% block title %}پروفایل من{% endblock %}
+
+{% block main %}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto bg-white shadow-2xl rounded-2xl p-10 space-y-10 border border-gray-200">
+    <h2 class="text-4xl font-bold text-center text-pink-600 tracking-tight">ویرایش پروفایل</h2>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- نام -->
+      <div>
+        <label for="first_name" class="block text-sm font-semibold text-gray-700 mb-1">نام</label>
+        <input type="text" name="first_name" id="first_name"
+               value="{{ form.first_name.value|default_if_none:'' }}"
+               class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out" />
+      </div>
+
+      <!-- نام خانوادگی -->
+      <div>
+        <label for="last_name" class="block text-sm font-semibold text-gray-700 mb-1">نام خانوادگی</label>
+        <input type="text" name="last_name" id="last_name"
+               value="{{ form.last_name.value|default_if_none:'' }}"
+               class="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out" />
+      </div>
+
+      <!-- تاریخ تولد پیشرفته با آیکون -->
+<div x-data="{ open: false }" class="relative bg-pink-50 border border-pink-200 rounded-lg p-6 shadow-inner space-y-4">
+  <button type="button" @click="open = !open"
+          class="w-full flex items-center justify-between px-4 py-2 bg-white rounded-md shadow border border-gray-300 focus:outline-none">
+    <span class="text-gray-700 font-medium">
+      انتخاب تاریخ تولد (شمسی)
+    </span>
+    <i data-lucide="calendar" class="w-5 h-5 text-pink-500"></i>
+  </button>
+
+  <div x-show="open" x-transition class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- سال -->
+    <div>
+      <label for="year" class="block text-sm font-semibold text-gray-700 mb-1">سال</label>
+      <select id="year" name="year" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-pink-500 focus:border-pink-500">
+        <option disabled selected>سال</option>
+        {% for y in 1300|to:1403 %}
+          <option value="{{ y }}" {% if birth_year == y %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- ماه -->
+    <div>
+      <label for="month" class="block text-sm font-semibold text-gray-700 mb-1">ماه</label>
+      <select id="month" name="month" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-pink-500 focus:border-pink-500">
+        <option disabled selected>ماه</option>
+        {% for idx, name in months %}
+          <option value="{{ idx }}" {% if birth_month == idx %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- روز -->
+    <div>
+      <label for="day" class="block text-sm font-semibold text-gray-700 mb-1">روز</label>
+      <select id="day" name="day" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-pink-500 focus:border-pink-500">
+        <option disabled selected>روز</option>
+        {% for d in 1|to:32 %}
+          <option value="{{ d }}" {% if birth_day == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+
+      <!-- دکمه ذخیره -->
+      <div>
+        <button type="submit"
+                class="w-full flex justify-center py-3 px-6 border border-transparent text-sm font-bold rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 transition duration-200">
+          ذخیره تغییرات
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+{% endblock %}

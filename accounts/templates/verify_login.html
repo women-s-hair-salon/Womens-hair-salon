@@ -1,0 +1,236 @@
+<!-- templates/verify_login.html -->
+{#<!DOCTYPE html>#}
+{#<html lang="fa">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>تأیید کد</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h2>کد ارسال‌شده را وارد کنید</h2>#}
+{#    <form method="post">#}
+{#        {% csrf_token %}#}
+{#        {{ form.as_p }}#}
+{#        <button type="submit">ورود</button>#}
+{#    </form>#}
+{##}
+{#    {% if messages %}#}
+{#        <ul>#}
+{#        {% for message in messages %}#}
+{#            <li>{{ message }}</li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+{#    {% endif %}#}
+{#</body>#}
+{#</html>#}
+
+
+
+{# صفحه تایید کد OTP #}
+{#{% extends 'base/base.html' %}#}
+{#{% block title %}تایید کد{% endblock %}#}
+{#{% block main %}#}
+{#<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-pink-100 via-purple-100 to-red-100">#}
+{#  <div class="max-w-md w-full space-y-8 p-10 bg-white/90 backdrop-blur-md rounded-xl shadow-lg">#}
+{#    {% if messages %}#}
+{#      {% for message in messages %}#}
+{#        <div class="p-3 rounded-md text-sm font-medium text-center mb-4#}
+{#            {% if message.tags == 'success' %}bg-green-100 text-green-700#}
+{#            {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-100 text-red-700#}
+{#            {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800#}
+{#            {% else %}bg-blue-100 text-blue-700{% endif %}">#}
+{#          {{ message }}#}
+{#        </div>#}
+{#      {% endfor %}#}
+{#    {% endif %}#}
+{#    <div>#}
+{#      <h2 class="text-center text-3xl font-extrabold text-pink-700"> کد تایید پیامک شده</h2>#}
+{#      <p class="mt-2 text-center text-sm text-gray-600">#}
+{#        لطفاً کد تایید  <strong>{{ phone }}</strong>  را وارد کنید#}
+{#      </p>#}
+{#    </div>#}
+{#    <form class="mt-8 space-y-6" method="POST" action="{% url 'verify_login_code' %}">#}
+{#      {% csrf_token %}#}
+{#      <input type="hidden" name="phone" value="{{ phone }}">#}
+{#      <div class="rounded-md shadow-sm">#}
+{#        <div>#}
+{#          <label for="otp" class="sr-only">کد تایید</label>#}
+{#          <input id="otp" name="otp" type="text" required class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm" placeholder="کد تایید">#}
+{#        </div>#}
+{#      </div>#}
+{#      <div>#}
+{#        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">#}
+{#          تایید و ادامه#}
+{#        </button>#}
+{#      </div>#}
+{#    </form>#}
+{#    <p class="text-sm text-center mt-6">#}
+{#        کدی دریافت نکردید؟#}
+{#        <a href="{% url 'resend_code' %}" id="resend-link" style="pointer-events: none; color: grey;">#}
+{#            ارسال مجدد کد (<span id="timer">60</span> ثانیه)#}
+{#        </a>#}
+{#    </p>#}
+{#    <script>#}
+{#        const resendLink = document.getElementById("resend-link");#}
+{#        const timerSpan = document.getElementById("timer");#}
+{##}
+{#        const countdownDuration = 60;#}
+{#        const now = Math.floor(Date.now() / 1000);#}
+{#        let expiresAt = sessionStorage.getItem("otp_expires_at");#}
+{##}
+{#        if (!expiresAt || parseInt(expiresAt) < now) {#}
+{#            expiresAt = now + countdownDuration;#}
+{#            sessionStorage.setItem("otp_expires_at", expiresAt);#}
+{#        }#}
+{##}
+{#        const interval = setInterval(() => {#}
+{#            const current = Math.floor(Date.now() / 1000);#}
+{#            const remaining = parseInt(expiresAt) - current;#}
+{##}
+{#            if (remaining <= 0) {#}
+{#                clearInterval(interval);#}
+{#                resendLink.textContent = "ارسال مجدد کد";#}
+{#                resendLink.style.pointerEvents = "auto";#}
+{#                resendLink.style.color = "#007bff";#}
+{#                sessionStorage.removeItem("otp_expires_at");#}
+{#            } else {#}
+{#                timerSpan.textContent = remaining;#}
+{#            }#}
+{#        }, 1000);#}
+{#    </script>#}
+{#  </div>#}
+{#</div>#}
+{#{% endblock %}#}
+
+
+
+
+{% extends 'base/base.html' %}
+{% block title %}تأیید ورود{% endblock %}
+{% block main %}
+
+<style>
+  @keyframes slideFade {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-fade {
+    animation: slideFade 0.5s ease-out;
+  }
+</style>
+
+{#<audio id="toast-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_33e729e5a8.mp3" preload="auto"></audio>#}
+{#<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>#}
+
+<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-100 to-purple-100">
+  <div class="max-w-md w-full space-y-8 p-10 bg-white/90 backdrop-blur-md rounded-xl shadow-lg">
+
+    <div>
+      <h2 class="text-center text-3xl font-extrabold text-pink-700">تأیید ورود</h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        لطفاً کد تأیید ارسال شده به شماره <strong>{{ phone }}</strong> را وارد کنید
+      </p>
+    </div>
+
+    <form method="POST" class="mt-8 space-y-6" action="{% url 'verify_login_code' %}">
+      {% csrf_token %}
+      <div class="rounded-md shadow-sm">
+        <input id="otp" name="code" type="text" required
+               class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300
+               placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500
+               focus:z-10 sm:text-sm" placeholder="کد تأیید">
+      </div>
+      <div>
+        <button type="submit"
+                class="group relative w-full flex justify-center py-2 px-4 border border-transparent
+                       text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500
+                       hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2
+                       focus:ring-offset-2 focus:ring-pink-500">
+          ورود به حساب
+        </button>
+      </div>
+    </form>
+
+      <script>
+  // جلوگیری از کلیک مجدد روی دکمه
+  const form = document.querySelector("form");
+  const submitBtn = form?.querySelector("button[type=submit]");
+  form?.addEventListener("submit", () => {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "در حال ارسال...";
+      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+    }
+  });
+</script>
+
+
+    <p class="text-sm text-center mt-6">
+      کدی دریافت نکردید؟
+      <a href="{% url 'resend_code' %}" id="resend-link">
+        ارسال مجدد کد (<span id="timer">60</span> ثانیه)
+      </a>
+    </p>
+
+    <script>
+      const resendLink = document.getElementById("resend-link");
+      const timerSpan = document.getElementById("timer");
+
+      const sentTime = {{ otp_sent_at|default:"0" }};
+      const now = Math.floor(Date.now() / 1000);
+      let remaining = Math.floor(60 - (now - sentTime));
+
+      if (remaining <= 0) {
+        resendLink.innerHTML = "ارسال مجدد کد";
+        resendLink.style.pointerEvents = "auto";
+        resendLink.style.color = "#007bff";
+      } else {
+        resendLink.style.pointerEvents = "none";
+        resendLink.style.color = "grey";
+        timerSpan.textContent = remaining;
+
+        const interval = setInterval(() => {
+          remaining -= 1;
+          if (remaining <= 0) {
+            clearInterval(interval);
+            resendLink.innerHTML = "ارسال مجدد کد";
+            resendLink.style.pointerEvents = "auto";
+            resendLink.style.color = "#007bff";
+          } else {
+            timerSpan.textContent = remaining;
+          }
+        }, 1000);
+      }
+    </script>
+
+  </div>
+</div>
+
+{#{% if messages %}#}
+{#<script>#}
+{#  const toastContainer = document.getElementById('toast-container');#}
+{#  const toastSound = document.getElementById('toast-sound');#}
+{#  {% for message in messages %}#}
+{#    const toast = document.createElement('div');#}
+{#    toast.className = "animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300";#}
+{#    {% if message.tags == 'success' %}#}
+{#      toast.classList.add('bg-green-500');#}
+{#    {% elif message.tags == 'error' or message.tags == 'danger' %}#}
+{#      toast.classList.add('bg-red-500');#}
+{#    {% elif message.tags == 'warning' %}#}
+{#      toast.classList.add('bg-yellow-500', 'text-black');#}
+{#    {% else %}#}
+{#      toast.classList.add('bg-blue-500');#}
+{#    {% endif %}#}
+{#    toast.textContent = "{{ message|escapejs }}";#}
+{#    toastContainer.appendChild(toast);#}
+{#    toastSound.currentTime = 0;#}
+{#    toastSound.play();#}
+{#    setTimeout(() => {#}
+{#      toast.classList.add('opacity-0');#}
+{#      setTimeout(() => toast.remove(), 500);#}
+{#    }, 4000);#}
+{#  {% endfor %}#}
+{#</script>#}
+{#{% endif %}#}
+
+{% endblock %}

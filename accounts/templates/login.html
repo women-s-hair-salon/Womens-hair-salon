@@ -1,39 +1,113 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود به سیستم</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="text-center">ورود به سیستم</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if error %}
-                            <div class="alert alert-danger">{{ error }}</div>
-                        {% endif %}
-                        <form method="post" action="{% url 'login' %}">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="phone_number" class="form-label">شماره موبایل</label>
-                                <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">رمز عبور</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">ورود</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- templates/login.html -->
+{#<!DOCTYPE html>#}
+{#<html lang="fa">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>ورود با شماره تلفن</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h2>ورود با شماره تلفن</h2>#}
+{#    <form method="post">#}
+{#        {% csrf_token %}#}
+{#        {{ form.as_p }}#}
+{#        <button type="submit">ارسال کد</button>#}
+{#    </form>#}
+{##}
+{#    {% if messages %}#}
+{#        <ul>#}
+{#        {% for message in messages %}#}
+{#            <li>{{ message }}</li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+{#    {% endif %}#}
+{#</body>#}
+{#</html>#}
+
+
+{% extends 'base/base.html' %}
+{% block title %}ورود{% endblock %}
+{% block main %}
+
+<style>
+  @keyframes slideFade {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-fade {
+    animation: slideFade 0.5s ease-out;
+  }
+</style>
+
+{#<audio id="toast-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_33e729e5a8.mp3" preload="auto"></audio>#}
+{#<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>#}
+
+<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-100 to-purple-100">
+  <div class="max-w-md w-full space-y-8 p-10 bg-white/80 backdrop-blur-md rounded-xl shadow-lg">
+
+    <div>
+      <h2 class="text-center text-3xl font-extrabold text-pink-600">ورود با شماره تلفن</h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+         قبلاً ثبت‌نام نکرده‌اید؟
+        <a href="{% url 'signup' %}" class="font-medium text-indigo-600 hover:text-indigo-500">ثبت‌نام</a>
+      </p>
     </div>
-</body>
-</html>
+
+    <form class="mt-8 space-y-6" method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="rounded-md shadow-sm">
+        <div>
+          <label for="phone" class="sr-only">شماره تلفن</label>
+          <input id="phone_number" name="phone_number" type="text" required class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm" placeholder="شماره تلفن">
+        </div>
+      </div>
+      <div>
+        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+          ارسال کد تایید
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  // جلوگیری از کلیک مجدد روی دکمه
+  const form = document.querySelector("form");
+  const submitBtn = form?.querySelector("button[type=submit]");
+  form?.addEventListener("submit", () => {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "در حال ارسال...";
+      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+    }
+  });
+</script>
+
+
+{#{% if messages %}#}
+{#<script>#}
+{#  const toastContainer = document.getElementById('toast-container');#}
+{#  const toastSound = document.getElementById('toast-sound');#}
+{#  {% for message in messages %}#}
+{#    const toast = document.createElement('div');#}
+{#    toast.className = `animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300`;#}
+{#    {% if message.tags == 'success' %}#}
+{#      toast.classList.add('bg-green-500');#}
+{#    {% elif message.tags == 'error' or message.tags == 'danger' %}#}
+{#      toast.classList.add('bg-red-500');#}
+{#    {% elif message.tags == 'warning' %}#}
+{#      toast.classList.add('bg-yellow-500', 'text-black');#}
+{#    {% else %}#}
+{#      toast.classList.add('bg-blue-500');#}
+{#    {% endif %}#}
+{#    toast.textContent = "{{ message|escapejs }}";#}
+{#    toastContainer.appendChild(toast);#}
+{#    toastSound.currentTime = 0;#}
+{#    toastSound.play();#}
+{#    setTimeout(() => {#}
+{#      toast.classList.add('opacity-0');#}
+{#      setTimeout(() => toast.remove(), 500);#}
+{#    }, 4000);#}
+{#  {% endfor %}#}
+{#</script>#}
+{#{% endif %}#}
+
+{% endblock %}

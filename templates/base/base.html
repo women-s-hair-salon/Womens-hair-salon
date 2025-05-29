@@ -2,34 +2,146 @@
 {% load static %}
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>{% block title %}{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
 
-    <style>
-        html {
-            scroll-behavior: smooth; /* اسکرول نرم */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+<script>
+  // اعمال سریع کلاس 'dark' قبل از بارگذاری Tailwind برای جلوگیری از پرش تم
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark");
+  }
+</script>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <!-- فعال‌سازی دارک مود از LocalStorage قبل از Tailwind -->
+
+
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+
+    @keyframes slideFade {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-slide-fade {
+      animation: slideFade 0.5s ease-out;
+    }
+  </style>
 </head>
-<body>
+
+<body  id="body" class="bg-gray-50 font-sans transition-all">
+<!-- toast -->
+<div id="toast-container"
+     class="z-[9999] space-y-3 fixed top-4 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-sm sm:max-w-md text-sm text-center">
+</div>
+
+<!-- Header -->
 <header>
-    {% include 'base/header.html' %}
+  {% include 'base/header.html' %}
 </header>
-{% block main %}
-{% endblock %}
 
+<!-- Main -->
+<main>
+  {% block main %}{% endblock %}
+</main>
+
+<!-- Footer -->
 <footer>
-    {% include 'base/footer.html' %}
-
+  {% include 'base/footer.html' %}
 </footer>
+
+<!-- پیام‌ها -->
+{% if messages %}
+<script>
+  const toastContainer = document.getElementById('toast-container');
+
+  {% for message in messages %}
+    const toast = document.createElement('div');
+    toast.className = `animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300 w-full sm:w-auto max-w-sm text-sm text-center relative`;
+
+    {% if message.tags == 'success' %}
+      toast.classList.add('bg-green-500');
+    {% elif message.tags == 'error' or message.tags == 'danger' %}
+      toast.classList.add('bg-red-500');
+    {% elif message.tags == 'warning' %}
+      toast.classList.add('bg-yellow-400', 'text-black');
+    {% else %}
+      toast.classList.add('bg-blue-500');
+    {% endif %}
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = "{{ message|escapejs }}";
+    toast.appendChild(messageSpan);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.className = 'absolute top-1 right-2 text-white text-lg font-bold';
+    closeBtn.onclick = () => toast.remove();
+    toast.appendChild(closeBtn);
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('opacity-0');
+      setTimeout(() => toast.remove(), 500);
+    }, 4000);
+  {% endfor %}
+
+</script>
+{% endif %}
+
+<script>
+  const body = document.getElementById('body');
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+
+  // تابع تنظیم آیکون و متن دکمه‌ها بر اساس وضعیت تم
+  function updateThemeIcons() {
+    const isDark = body.classList.contains('dark');
+    const iconHTML = isDark ? '<i data-lucide="moon"></i> تم تاریک' : '<i data-lucide="sun"></i> تم روشن';
+
+    if (themeToggle) themeToggle.innerHTML = iconHTML;
+    if (themeToggleMobile) themeToggleMobile.innerHTML = iconHTML;
+
+    lucide.createIcons();
+  }
+
+  // بارگذاری تم از localStorage هنگام بارگذاری صفحه
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    body.classList.add('dark');
+  } else {
+    body.classList.remove('dark');
+  }
+  updateThemeIcons();
+
+  // تغییر تم و ذخیره آن در localStorage
+  function toggleTheme() {
+    body.classList.toggle('dark');
+    const theme = body.classList.contains('dark') ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+    updateThemeIcons();
+  }
+
+  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+  if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
+</script>
+
 </body>
 </html>

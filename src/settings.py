@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,6 +74,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'src.wsgi.application'
 
 
+MESSAGE_TAGS = {
+    messages.ERROR: 'error',
+    messages.SUCCESS: 'success',
+    messages.INFO: 'info',
+    messages.WARNING: 'warning',
+}
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -130,3 +138,36 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # لاگرهای پیش‌فرض Django خاموش نمی‌شن
+    'formatters': {
+        'detailed': {
+            'format': '[{asctime}] {levelname} {name} - {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',  # کمترین سطح برای ثبت
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'app.log'),  # مسیر فایل لاگ
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        'django': {  # لاگ‌های خود جنگو
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'accounts': {  # ← اسم اپلیکیشن خودتو دقیق اینجا بذار
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

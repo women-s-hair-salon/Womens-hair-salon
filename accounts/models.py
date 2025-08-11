@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 import uuid  # For generating unique recommender codes
 from django.utils import timezone
 from .managers import CustomUserManager
-
+from django.utils.functional import cached_property
 
 # Create your models here.
 
@@ -24,7 +24,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     @property
     def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name} "
+
+    @cached_property
+    def is_completed(self):
+        return all([
+            self.full_name and self.full_name.strip(),
+            self.phone_number and self.phone_number.strip(),
+            self.birthday
+        ])
 
     objects = CustomUserManager()
 

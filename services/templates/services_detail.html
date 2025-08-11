@@ -1,15 +1,68 @@
-<h2>{{ services.name }}</h2>
-<p>{{ services.text }}</p>
-<p>Price: {{ services.price }} Toman</p>
+{#{% extends 'base/base.html' %}#}
+{#{% load humanize %}#}
+{##}
+{#{% block main %}#}
+{#<div class="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-100 dark:to-gray-800 py-20 px-4 sm:px-6 lg:px-8">#}
+{#  <div class="max-w-2xl mx-auto bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-10 space-y-10 border border-gray-200 dark:border-gray-700">#}
+{#    <h2 class="text-3xl font-bold text-center text-pink-600 dark:text-pink-400 tracking-tight">ثبت تایم غیرقابل رزرو</h2>#}
+{##}
+{#    <form method="post" class="space-y-6">#}
+{#      {% csrf_token %}#}
+{##}
+{#      <!-- تاریخ -->#}
+{#      <div>#}
+{#        <label for="date" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">تاریخ</label>#}
+{#        <input type="date" name="date" id="date"#}
+{#               class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out" required />#}
+{#      </div>#}
+{##}
+{#      <!-- ساعت شروع -->#}
+{#      <div>#}
+{#        <label for="start_time" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">ساعت شروع</label>#}
+{#        <input type="time" name="start_time" id="start_time"#}
+{#               class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out" required />#}
+{#      </div>#}
+{##}
+{#      <!-- ساعت پایان -->#}
+{#      <div>#}
+{#        <label for="end_time" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">ساعت پایان</label>#}
+{#        <input type="time" name="end_time" id="end_time"#}
+{#               class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out" required />#}
+{#      </div>#}
+{##}
+{#      <!-- دلیل -->#}
+{#      <div>#}
+{#        <label for="reason" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">دلیل (اختیاری)</label>#}
+{#        <textarea name="reason" id="reason"#}
+{#                  class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md px-4 py-2 focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out"></textarea>#}
+{#      </div>#}
+{##}
+{#      <!-- دکمه ثبت -->#}
+{#      <div>#}
+{#        <button type="submit"#}
+{#                class="w-full flex justify-center py-3 px-6 border border-transparent text-sm font-bold rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 transition duration-200">#}
+{#          ثبت تایم مسدود شده#}
+{#        </button>#}
+{#      </div>#}
+{#    </form>#}
+{#  </div>#}
+{#</div>#}
+{#{% endblock %}#}
 
-<form action="{% url 'book-service' categories_id=services.category.id service_id=services.id %}" method="post">
-    {% csrf_token %}
 
-    <label for="date">Select Date:</label>
-    <input type="date" name="date" required>
 
-    <label for="time">Select Time:</label>
-    <input type="time" name="time" required>
+{#<!--<h2>{{ services.name }}</h2>-->#}
+{#<!--<p>{{ services.text }}</p>-->#}
+{#<!--<p>Price: {{ services.price }} Toman</p>-->#}
 
-    <button type="submit">Reserve and Pay</button>
-</form>
+{#<!--<form action="{% url 'book-service' categories_id=services.category.id service_id=services.id %}" method="post">-->#}
+{#<!--    {% csrf_token %}-->#}
+
+{#<!--    <label for="date">Select Date:</label>-->#}
+{#<!--    <input type="date" name="date" required>-->#}
+{##}
+{#<!--    <label for="time">Select Time:</label>-->#}
+{#<!--    <input type="time" name="time" required>-->#}
+{##}
+{#<!--    <button type="submit">Reserve and Pay</button>-->#}
+{#<!--</form>-->#}

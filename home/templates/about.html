@@ -1,0 +1,106 @@
+{#images/salon/kakashi-hatake-naruto.jpg#}
+
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}درباره ما{% endblock %}
+
+{% block main %}
+<div class="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-20">
+
+  <!-- Hero Section با تصویر و شعار -->
+  <section class="relative h-[60vh] rounded-xl overflow-hidden mb-16 shadow-lg">
+    <img src="{% static 'images/about-hero.jpg' %}" alt="سالن زیبایی" class="absolute inset-0 w-full h-full object-cover object-center">
+    <div class="absolute inset-0 bg-pink-700 bg-opacity-50 dark:bg-black dark:bg-opacity-60 flex flex-col items-center justify-center text-white px-4 text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-2">زیبایی تو، مأموریت ماست ✨</h1>
+      <p class="text-lg">تجربه‌ای متفاوت از خدمات زیبایی در قلب تهران</p>
+    </div>
+  </section>
+
+  <!-- معرفی کلی -->
+  <section class="text-center" data-aos="fade-up">
+    <h2 class="text-4xl font-bold text-pink-600 dark:text-pink-400 mb-4">درباره ما</h2>
+    <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed max-w-2xl mx-auto">
+      سالن زیبایی ما از سال ۱۳۹۷ با هدف ارائه خدمات باکیفیت در فضایی آرام و دلنشین شروع به کار کرد. ما باور داریم که زیبایی، اعتماد به‌نفس می‌آورد و هدف ما کمک به درخشش شماست.
+    </p>
+  </section>
+
+  <!-- مزایا به صورت کارت + SVG متحرک -->
+  <section data-aos="fade-up">
+    <h3 class="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">چرا ما را انتخاب می‌کنید؟</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
+        <lord-icon src="https://cdn.lordicon.com/qhviklyi.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
+        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">محصولات باکیفیت</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">استفاده از برندهای معتبر و اصل</p>
+      </div>
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
+        <lord-icon src="https://cdn.lordicon.com/udwhdpod.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
+        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">تیم حرفه‌ای</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">متخصصان آموزش‌دیده و با تجربه</p>
+      </div>
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
+        <lord-icon src="https://cdn.lordicon.com/dnoiydox.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
+        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">محیط بهداشتی</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">فضای آرام، پاکیزه و ایمن</p>
+      </div>
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
+        <lord-icon src="https://cdn.lordicon.com/yqiuuheo.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
+        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">رضایت مشتریان</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">افتخار به بازخورد مثبت مشتریان</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- تصاویر سالن با افکت پارالاکس -->
+  <section data-aos="fade-up" class="relative">
+    <div class="absolute inset-0 bg-fixed bg-center bg-cover bg-[url('/static/images/salon-bg.jpg')] opacity-10 dark:opacity-5"></div>
+    <div class="relative z-10">
+      <h3 class="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">تصاویری از سالن ما</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {% for i in "1234" %}
+        <div class="aspect-w-1 aspect-h-1">
+          <img src="{% static 'images/salon'|add:i|add:'.jpg' %}" alt="نمای داخلی سالن {{ i }}" class="rounded-xl shadow-md w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- اطلاعات تماس -->
+  <section class="text-center space-y-4 px-6 py-8 rounded-xl bg-pink-50 dark:bg-[#3a0b31] shadow-md" data-aos="fade-up">
+    <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">راه‌های ارتباطی</h3>
+    <p class="text-lg text-gray-700 dark:text-gray-200">آدرس: تهران، بلوار مدیریت، سالن زیبایی فلورا</p>
+    <p class="text-lg text-gray-700 dark:text-gray-200">
+      تلفن تماس: <a href="tel:09121234567" class="text-blue-500 hover:underline">۰۹۱۲۱۲۳۴۵۶۷</a>
+    </p>
+  </section>
+
+  <!-- CTA + لوکیشن -->
+  <section class="text-center space-y-4" data-aos="fade-up">
+    <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">دوست دارید خدمات ما را تجربه کنید؟</h3>
+    <div class="flex justify-center gap-4 flex-wrap">
+      <a href="{% url 'reservation_step_one' %}" class="bg-gradient-to-r from-pink-500 to-fuchsia-500 hover:from-pink-600 hover:to-fuchsia-600 text-white px-6 py-3 rounded-lg shadow-md transition">رزرو نوبت</a>
+      <a href="{% url 'contact' %}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md transition">تماس با ما</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=35.77271102801292,51.37177763824688" target="_blank"
+         class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 transition">
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+        مسیر در Google Map
+      </a>
+    </div>
+
+    <!-- Google Map Embed -->
+    <div class="mt-8 max-w-3xl mx-auto rounded-xl overflow-hidden shadow-lg">
+      <iframe class="w-full h-72 sm:h-96 border-none" loading="lazy" allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3238.8750068188586!2d51.36958347650204!3d35.77270917258582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8e06171cbf7e33%3A0x9db19a2e3f57f863!2sQ9FC%2B3PJ%20Tehran%2C%20Tehran%20Province%2C%20Iran!5e0!3m2!1sen!2s!4v1717930101760!5m2!1sen!2s">
+      </iframe>
+    </div>
+  </section>
+
+</div>
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<script>
+  lucide.createIcons();
+  AOS.init({ duration: 700, once: true });
+</script>
+{% endblock %}

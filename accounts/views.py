@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -14,6 +15,7 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 import jdatetime
 from datetime import datetime
+from django.http import JsonResponse
 
 # register
 
@@ -340,24 +342,44 @@ class ProfileUpdateView(LoginRequiredMixin, View):
                 user.birthday = g_date
                 user.save()
 
-                messages.success(request, 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد.')
-                return redirect('profile')
+                return JsonResponse({
+                    'success': True,
+                    'message': 'اطلاعات پروفایل با موفقیت ذخیره شد.'
+                })
             except (ValueError, TypeError):
-                messages.error(request, 'تاریخ وارد شده معتبر نیست.')
+                return JsonResponse({
+                    'success': False,
+                    'message': 'تاریخ وارد شده معتبر نیست.'
+                })
         else:
-            messages.error(request, 'لطفاً اطلاعات را به‌درستی وارد کنید.')
+            return JsonResponse({
+                'success': False,
+                'message': 'لطفاً اطلاعات را به‌درستی وارد کنید.'
+            })
 
-        # اگر خطایی رخ دهد، داده‌های انتخابی دوباره ارسال شوند
-        months = list(enumerate([
-            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-        ], start=1))
 
-        context = {
-            'form': form,
-            'months': months,
-            'birth_year': request.POST.get('year'),
-            'birth_month': request.POST.get('month'),
-            'birth_day': request.POST.get('day'),
-        }
-        return render(request, self.template_name, context)
+#
+# @login_required
+# def reservation_view(request):
+#     print(f"full_name: [{request.user.full_name}]")
+#     print(f"phone_number: [{request.user.phone_number}]")
+#     print(f"birthday: [{request.user.birthday}]")
+#     print(f"is_completed: [{request.user.is_completed}]")
+#
+#     context = {
+#         'user_completed': request.user.is_completed
+#     }
+#     return render(request, 'step_one.html', context)
+
+# @login_required
+# def reservation_view(request):
+#     form = ProfileUpdateForm(instance=request.user)
+#
+#     if not form.is_valid():
+#         user_completed = False
+#     else:
+#         user_completed = True
+#
+#     return render(request, 'reservation.html', {
+#         'user_completed': user_completed
+#     })

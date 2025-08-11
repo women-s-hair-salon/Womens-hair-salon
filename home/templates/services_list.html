@@ -1,0 +1,18 @@
+{% extends 'base/base.html' %}
+{% block title %}خدمات{% endblock %}
+{% block main %}
+<section class="max-w-6xl mx-auto py-16 px-4">
+  <h1 class="text-4xl font-bold text-pink-600 dark:text-pink-400 text-center mb-12">خدمات ما</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+    {% for category in service_categories %}
+    <a href="{% url 'service_category_detail' category.slug %}" class="group rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 transition-transform transform hover:-translate-y-1">
+      <img src="{{ category.image.url }}" alt="{{ category.title }}" class="w-full h-48 object-cover">
+      <div class="p-6 text-center">
+        <h3 class="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-2">{{ category.title }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-300">{{ category.description|truncatewords:15 }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

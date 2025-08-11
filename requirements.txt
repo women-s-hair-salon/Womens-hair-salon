@@ -11,3 +11,4 @@ tzdata==2025.1
 urllib3==2.3.0
 kavenegar==1.1.2
 jdatetime==5.2.0
+pytz==2025.2

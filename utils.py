@@ -1,6 +1,17 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from kavenegar import *
 
+from datetime import datetime
+from django.utils import timezone
+import pytz
+
+def make_tehran_aware(dt: datetime) -> datetime:
+    """تبدیل datetime naive به datetime با منطقه زمانی تهران"""
+    if timezone.is_naive(dt):
+        tehran_tz = pytz.timezone("Asia/Tehran")
+        return tehran_tz.localize(dt)
+    return timezone.localtime(dt, pytz.timezone("Asia/Tehran"))
+
 
 def send_otp_code(phone_number, code):
 	try:
@@ -21,3 +32,5 @@ def send_otp_code(phone_number, code):
 class IsAdminUserMixin(UserPassesTestMixin):
 	def test_func(self):
 		return self.request.user.is_authenticated and self.request.user.is_admin
+
+

@@ -1,405 +1,367 @@
-<header x-data="uiController()" x-init="init()" class="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 shadow-lg fixed w-full z-50 transition-all duration-500">
+{% load static %}
+{% with current=request.resolver_match.url_name %}
+<header class="fixed top-0 inset-x-0 z-40">
+  <!-- هدر ثابت صفحه -->
+  <div class="backdrop-blur-md bg-white/70 dark:bg-zinc-900/60 ring-1 ring-gray-200 dark:ring-zinc-800">
+    <div class="max-w-screen-xl mx-auto px-4">
+      <div class="h-20 flex items-center justify-between gap-3">
 
-  <div class="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-3">
+        <!-- برند (دسکتاپ) -->
+        <a href="{% url 'home' %}" class="hidden lg:flex items-center gap-2">
+          <div class="leading-tight">
+            <div class="text-xl md:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+              Sindokht Beauty
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">سلامت و زیبایی، تجربه‌ای متفاوت</div>
+          </div>
+        </a>
 
-    <!-- موبایل -->
-    <div class="lg:hidden flex items-center w-full justify-between">
-      <button @click="toggleMobileMenu" class="text-white text-3xl">
-        <i data-lucide="menu"></i>
-      </button>
+        <!-- ناوبری دسکتاپ -->
+        <nav class="hidden lg:flex items-center gap-6">
+          <a href="{% url 'home' %}"
+             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'home' %}text-pink-600{% endif %}">
+            <i data-lucide="home" class="w-5 h-5"></i> صفحه اصلی
+          </a>
 
-      <div class="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold text-white">
-        Sindokht
+          <a href="{% url 'servicesss_list' %}"
+             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'servicesss_list' %}text-pink-600{% endif %}">
+            <i data-lucide="briefcase" class="w-5 h-5"></i> خدمات
+          </a>
+
+          <a href="{% url 'tutorials' %}"
+             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'tutorials' %}text-pink-600{% endif %}">
+            <i data-lucide="book" class="w-5 h-5"></i> آموزش‌ها
+          </a>
+
+          <a href="{% url 'aboutus' %}"
+             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'aboutus' %}text-pink-600{% endif %}">
+            <i data-lucide="info" class="w-5 h-5"></i> درباره ما
+          </a>
+
+          <a href="{% url 'contact' %}"
+             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'contact' %}text-pink-600{% endif %}">
+            <i data-lucide="phone" class="w-5 h-5"></i> تماس با ما
+          </a>
+        </nav>
+
+        <!-- اکشن‌ها دسکتاپ -->
+        <div class="hidden lg:flex items-center gap-3">
+          <button type="button" @click="$store.ui.toggleTheme()" class="btn btn-outline">
+            <span x-text="$store.ui.themeLabel"></span>
+          </button>
+
+          <a href="{% url 'services_list' %}" class="btn-primary">
+            <i data-lucide="calendar"></i><span>رزرو نوبت</span>
+          </a>
+            {% if request.user.is_authenticated and request.user.is_staff or perms.services.view_appointmentslot %}
+                <a href="{% url 'staff_dashboard' %}" class="btn !bg-amber-400 hover:!bg-amber-500 !text-black">
+                    پنل مدیریت </a>
+            {% endif %}
+            {% if not request.user.is_authenticated %}
+                <a href="{% url 'login' %}" class="btn btn-outline">ورود
+                </a>
+                <a href="{% url 'signup' %}" class="btn-primary">
+                    ثبت‌نام</a>
+            {% else %}
+                <a href="{% url 'profile' %}" class="btn-primary">
+                    پروفایل</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline">
+                    خروج</a>
+            {% endif %}
+        </div>
+
+
+
+        <!-- موبایل: راست دکمه‌ها | چپ برند (با Spacer) -->
+        <div class="lg:hidden flex items-center w-full">
+          <!-- دکمه‌ها (سمت راست) -->
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" @click="$store.ui.openMobile()" class="btn btn-outline !px-3 !py-2" aria-label="منو">
+              <i data-lucide="menu"></i>
+            </button>
+            <a href="{% url 'services_list' %}" class="btn-primary !px-3 !py-2" aria-label="رزرو">
+              <i data-lucide="calendar"></i>
+            </a>
+          </div>
+
+          <!-- Spacer که دو گروه را از هم جدا می‌کند -->
+          <div class="flex-1"></div>
+
+          <!-- برند (سمت چپ) -->
+          <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0">
+            <span class="text-base font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+              Sindokht Beauty
+            </span>
+          </a>
+        </div>
+
       </div>
+    </div>
+  </div>
 
-      <a href="{% url 'reservation' %}" class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-xl text-white transition text-sm shadow">
-        <i data-lucide="calendar"></i> نوبت
+  <!-- اورلی -->
+  <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+       x-show="$store.ui.mobileMenu" x-transition.opacity @click="$store.ui.closeMobile()"></div>
+
+  <!-- منوی موبایل (رنگ ثابت، مستقل از تم) -->
+  <aside class="fixed top-0 right-0 z-40 w-80 h-full transform transition-transform duration-300
+                bg-white text-gray-800 ring-1 ring-gray-200 p-5 translate-x-full"
+         :class="{'!translate-x-0': $store.ui.mobileMenu}" @keydown.escape="$store.ui.closeMobile()">
+
+    <!-- هدر منو -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <img src="{% static 'images/logo.png' %}" class="w-8 h-8 rounded-lg" alt="">
+        <div class="text-lg font-extrabold">Sindokht</div>
+      </div>
+      <button class="btn btn-outline !px-2 !py-1" @click="$store.ui.closeMobile()" aria-label="بستن">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- نوار «شما اینجایید» (ثابت و خوانا) -->
+    <div class="mb-4 form-input !bg-gray-50 !border-none flex items-center gap-2">
+      <i data-lucide="navigation"></i>
+      <span class="text-sm">شما اینجایید:</span>
+      <strong class="text-sm">
+        {% if current == 'home' %}صفحه اصلی
+        {% elif current == 'servicesss_list' %}خدمات
+        {% elif current == 'tutorials' %}آموزش‌ها
+        {% elif current == 'aboutus' %}درباره ما
+        {% elif current == 'contact' %}تماس با ما
+        {% else %}—{% endif %}
+      </strong>
+    </div>
+
+    <!-- لینک‌ها -->
+    <nav class="flex flex-col gap-2">
+      <a href="{% url 'home' %}" class="btn btn-outline justify-start {% if current == 'home' %}!bg-gray-100{% endif %}">
+        <i data-lucide="home" class="w-5 h-5"></i> صفحه اصلی
+      </a>
+      <a href="{% url 'servicesss_list' %}" class="btn btn-outline justify-start {% if current == 'servicesss_list' %}!bg-gray-100{% endif %}">
+        <i data-lucide="briefcase" class="w-5 h-5"></i> خدمات
+      </a>
+      <a href="{% url 'tutorials' %}" class="btn btn-outline justify-start {% if current == 'tutorials' %}!bg-gray-100{% endif %}">
+        <i data-lucide="book" class="w-5 h-5"></i> آموزش‌ها
+      </a>
+      <a href="{% url 'aboutus' %}" class="btn btn-outline justify-start {% if current == 'aboutus' %}!bg-gray-100{% endif %}">
+        <i data-lucide="info" class="w-5 h-5"></i> درباره ما
+      </a>
+      <a href="{% url 'contact' %}" class="btn btn-outline justify-start {% if current == 'contact' %}!bg-gray-100{% endif %}">
+        <i data-lucide="phone" class="w-5 h-5"></i> تماس با ما
+      </a>
+    </nav>
+
+    <!-- اَکشن‌ها -->
+    <div class="mt-6 flex gap-2">
+      <button type="button" @click="$store.ui.toggleTheme()" class="btn btn-outline">
+        <span x-text="$store.ui.themeLabel"></span>
+      </button>
+      <a href="{% url 'services_list' %}" class="btn-primary flex-1">
+        <i data-lucide="calendar"></i><span>رزرو</span>
       </a>
     </div>
 
-    <!-- دسکتاپ -->
-    <div class="hidden lg:flex justify-between w-full items-center">
-      <div class="text-2xl font-extrabold text-white">Sindokht Beauty</div>
-
-      <nav class="flex gap-6 text-white text-lg">
-        <a href="{% url 'home' %}" class="hover:text-yellow-300 transition">صفحه اصلی</a>
-        <a href="{% url 'services_list' %}" class="hover:text-yellow-300 transition">خدمات</a>
-        <a href="{% url 'tutorials' %}" class="hover:text-yellow-300 transition">آموزش‌ها</a>
-        <a href="{% url 'aboutus' %}" class="hover:text-yellow-300 transition">درباره ما</a>
-        <a href="{% url 'contact' %}" class="hover:text-yellow-300 transition">تماس با ما</a>
-      </nav>
-
-      <div class="flex items-center gap-4">
-        <!-- تغییر تم دسکتاپ -->
-        <button @click="toggleTheme" class="bg-gray-800 text-white rounded-full p-2 hover:bg-gray-700 transition">
-{#          <i :data-lucide="isDark ? 'moon' : 'sun'"></i>#}
-            <span x-text="isDark ? 'تم تاریک' : 'تم روشن'"></span>
-        </button>
-
-        <a href="{% url 'reservation' %}" class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-xl text-white transition text-sm shadow">
-          <i data-lucide="calendar"></i> رزرو نوبت
-        </a>
-
-        {% if not request.user.is_authenticated %}
-          <a href="{% url 'login' %}" class="text-yellow-300 font-bold border-2 border-yellow-400 px-4 py-2 rounded-md text-sm hover:bg-yellow-400 hover:text-black transition">ورود</a>
-          <a href="{% url 'signup' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold px-4 py-2 rounded-md text-sm shadow-md hover:shadow-xl transition">ثبت‌نام</a>
-        {% else %}
-          <a href="{% url 'profile' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold px-4 py-2 rounded-md text-sm shadow-md hover:shadow-xl transition">پروفایل</a>
-          <a href="{% url 'logout' %}" class="text-yellow-300 font-bold border-2 border-yellow-400 px-4 py-2 rounded-md text-sm hover:bg-yellow-400 hover:text-black transition">خروج</a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- بلور بکگراند -->
-<div class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-300"
-     x-show="mobileMenu" @click="closeMobileMenu()" x-transition.opacity></div>
-
-
-  <!-- خود منو کشویی -->
-<div class="fixed top-0 right-0 w-72 h-full bg-gradient-to-tr from-[#3f0d50] to-[#6c0a72] shadow-2xl transform transition-transform duration-500 z-50 p-5"
-     :class="{'translate-x-full': !mobileMenu, 'translate-x-0': mobileMenu}">
-
-  <button @click="closeMobileMenu" class="text-white text-3xl mb-6">
-    <i data-lucide="x"></i>
-  </button>
-{# <!-- بخش ورود/ثبت‌نام/پروفایل -->#}
-{#  <div class="mt-10 space-y-4">#}
-{#    {% if not request.user.is_authenticated %}#}
-{#      <a href="{% url 'login' %}" class="bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:bg-yellow-300 transition w-full">ورود</a>#}
-{#      <a href="{% url 'signup' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-xl transition w-full">ثبت‌نام</a>#}
-{#    {% else %}#}
-{#      <a href="{% url 'profile' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-xl transition w-full">پروفایل</a>#}
-{#      <a href="{% url 'logout' %}" class="bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:bg-yellow-300 transition w-full">خروج</a>#}
-{#    {% endif %}#}
-{#  </div>#}
-    <!-- منو اصلی -->
-  <nav class="flex flex-col gap-4 text-white text-lg">
-    <a href="{% url 'home' %}" class="bg-white/10 py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition">صفحه اصلی</a>
-    <a href="{% url 'services_list' %}" class="bg-white/10 py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition">خدمات</a>
-    <a href="{% url 'tutorials' %}" class="bg-white/10 py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition">آموزش‌ها</a>
-    <a href="{% url 'aboutus' %}" class="bg-white/10 py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition">درباره ما</a>
-    <a href="{% url 'contact' %}" class="bg-white/10 py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition">تماس با ما</a>
-  </nav>
-
-  <!-- دکمه تغییر تم -->
-  <div class="mt-8">
-    <button @click="toggleTheme"
-            class="flex items-center gap-2 justify-center bg-white/10 text-white py-3 px-4 rounded-xl shadow-md hover:bg-white/20 transition w-full">
-      <i :data-lucide="isDark ? 'moon' : 'sun'"></i>
-      <span x-text="isDark ? 'تم تاریک' : 'تم روشن'"></span>
-    </button>
-  </div>
-
-  <!-- دکمه رزرو -->
-  <div class="mt-6">
-    <a href="{% url 'reservation' %}" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-xl text-white transition text-sm shadow w-full">
-      <i data-lucide="calendar"></i> رزرو نوبت
-    </a>
-  </div>
-
- <!-- بخش ورود/ثبت‌نام/پروفایل -->
-  <div class="mt-10 space-y-4">
-    {% if not request.user.is_authenticated %}
-      <a href="{% url 'login' %}" class="bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:bg-yellow-300 transition w-full">ورود</a>
-      <a href="{% url 'signup' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-xl transition w-full">ثبت‌نام</a>
-    {% else %}
-      <a href="{% url 'profile' %}" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-xl transition w-full">پروفایل</a>
-      <a href="{% url 'logout' %}" class="bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:bg-yellow-300 transition w-full">خروج</a>
+    {% if request.user.is_authenticated and request.user.is_staff or perms.services.view_appointmentslot %}
+      <a href="{% url 'staff_dashboard' %}" class="btn !bg-amber-400 hover:!bg-amber-500 !text-black mt-6 w-full">
+        پنل مدیریت
+      </a>
     {% endif %}
-  </div>
 
-</div>
-
+    <div class="mt-8 space-y-2">
+      {% if not request.user.is_authenticated %}
+        <a href="{% url 'login' %}" class="btn btn-outline w-full">ورود</a>
+        <a href="{% url 'signup' %}" class="btn-primary w-full">ثبت‌نام</a>
+      {% else %}
+        <a href="{% url 'profile' %}" class="btn-primary w-full">پروفایل</a>
+        <a href="{% url 'logout' %}" class="btn btn-outline w-full">خروج</a>
+      {% endif %}
+    </div>
+  </aside>
 </header>
-
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('uiController', () => ({
-      isDark: localStorage.getItem('theme') === 'dark',
-      mobileMenu: false,
-
-      toggleTheme() {
-        this.isDark = !this.isDark;
-        document.documentElement.classList.toggle('dark', this.isDark);
-        localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-        lucide.createIcons();
-      },
-
-      toggleMobileMenu() {
-        this.mobileMenu = true;
-      },
-
-      closeMobileMenu() {
-        this.mobileMenu = false;
-      },
-
-      init() {
-        document.documentElement.classList.toggle('dark', this.isDark);
-        lucide.createIcons();
-      }
-    }))
-  });
-
-  lucide.createIcons();
-</script>
+{% endwith %}
 
 
 
 
-
-
-{#<body class="bg-gray-50 font-sans transition-all" id="body">#}
+{#{% load static %}#}
+{#{% with current=request.resolver_match.url_name %}#}
+{#<header class="fixed top-0 inset-x-0 z-40">#}
+{#  <!-- هدر ثابت صفحه -->#}
+{#  <div class="backdrop-blur-md bg-white/70 dark:bg-zinc-900/60 ring-1 ring-gray-200 dark:ring-zinc-800">#}
+{#    <div class="max-w-screen-xl mx-auto px-4">#}
+{#      <div class="h-20 flex items-center justify-between gap-3">#}
 {##}
-{#  <!-- هدر -->#}
-{#  <header id="header" class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 shadow-2xl z-50 w-full fixed top-0 left-0 right-0 transition-all duration-500 ease-in-out">#}
-{#    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between relative">#}
-{#      <!-- نسخه موبایل -->#}
-{#<div class="lg:hidden flex items-center justify-between w-full">#}
-{#  <!-- آیکون منو با فاصله -->#}
-{#  <button id="menu-toggle" class="text-2xl text-white focus:outline-none mr-2 focus:ring-2 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-110 hover:text-indigo-200">#}
-{#    <i data-lucide="menu"></i>#}
-{#  </button>#}
+{#        <!-- برند (دسکتاپ) -->#}
+{#        <a href="{% url 'home' %}" class="hidden lg:flex items-center gap-2">#}
+{#          <img src="{% static 'images/logo.png' %}" alt="Sindokht" class="w-10 h-10 rounded-xl shadow" loading="lazy">#}
+{#          <div class="leading-tight">#}
+{#            <div class="text-xl md:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">#}
+{#              Sindokht Beauty#}
+{#            </div>#}
+{#            <div class="text-xs text-gray-500 dark:text-gray-400">سلامت و زیبایی، تجربه‌ای متفاوت</div>#}
+{#          </div>#}
+{#        </a>#}
 {##}
-{#  <!-- لوگو وسط -->#}
-{#  <div class="text-xl font-extrabold text-white absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 cursor-pointer">#}
-{#    <span>Sindokht</span>#}
-{#  </div>#}
+{#        <!-- ناوبری دسکتاپ -->#}
+{#        <nav class="hidden lg:flex items-center gap-6">#}
+{#          <a href="{% url 'home' %}"#}
+{#             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'home' %}text-pink-600{% endif %}">#}
+{#            صفحه اصلی#}
+{#            <span class="absolute -bottom-1 inset-x-0 h-0.5 rounded bg-gradient-to-r from-pink-600 to-purple-600#}
+{#                         scale-x-0 group-hover:scale-x-100 transition origin-right {% if current == 'home' %}scale-x-100{% endif %}"></span>#}
+{#          </a>#}
 {##}
-{#  <!-- دکمه رزرو نوبت متعادل -->#}
-{#  <a href="{% url 'reservation_step_one' %}"#}
-{#     class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">#}
-{#    <i data-lucide="calendar"></i>#}
-{#     نوبت#}
-{#  </a>#}
-{#</div>#}
+{#          <a href="{% url 'servicesss_list' %}"#}
+{#             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'servicesss_list' %}text-pink-600{% endif %}">#}
+{#            خدمات#}
+{#            <span class="absolute -bottom-1 inset-x-0 h-0.5 rounded bg-gradient-to-r from-pink-600 to-purple-600#}
+{#                         scale-x-0 group-hover:scale-x-100 transition origin-right {% if current == 'servicesss_list' %}scale-x-100{% endif %}"></span>#}
+{#          </a>#}
 {##}
+{#          <a href="{% url 'tutorials' %}"#}
+{#             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'tutorials' %}text-pink-600{% endif %}">#}
+{#            آموزش‌ها#}
+{#            <span class="absolute -bottom-1 inset-x-0 h-0.5 rounded bg-gradient-to-r from-pink-600 to-purple-600#}
+{#                         scale-x-0 group-hover:scale-x-100 transition origin-right {% if current == 'tutorials' %}scale-x-100{% endif %}"></span>#}
+{#          </a>#}
 {##}
-{#      <!-- نسخه دسکتاپ -->#}
-{#<div class="hidden lg:flex items-center w-full justify-between">#}
-{#  <!-- لوگو -->#}
-{#  <div class="text-2xl font-extrabold text-white ml-40">#}
-{#    <span>سالن زیبایی سیندخت</span>#}
-{#    <span>سالن زیبایی سیندخت</span>#}
-{#    <span>Sindokht Beauty</span>#}
-{#  </div>#}
+{#          <a href="{% url 'aboutus' %}"#}
+{#             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'aboutus' %}text-pink-600{% endif %}">#}
+{#            درباره ما#}
+{#            <span class="absolute -bottom-1 inset-x-0 h-0.5 rounded bg-gradient-to-r from-pink-600 to-purple-600#}
+{#                         scale-x-0 group-hover:scale-x-100 transition origin-right {% if current == 'aboutus' %}scale-x-100{% endif %}"></span>#}
+{#          </a>#}
 {##}
-{#  <!-- منو -->#}
-{#  <nav class="flex-1 flex justify-center gap-8">#}
-{#    <a href="{% url 'home' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="home"></i> صفحه اصلی#}
-{#    </a>#}
-{#    <a href="{% url 'services_list' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="briefcase"></i> خدمات#}
-{#    </a>#}
-{#    <a href="{% url 'tutorials' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="book"></i> آموزش‌ها#}
-{#    </a>#}
-{#    <a href="{% url 'aboutus' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="info"></i> درباره ما#}
-{#    </a>#}
-{#    <a href="{% url 'contact' %}" class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="phone"></i> تماس با ما#}
-{#    </a>#}
+{#          <a href="{% url 'contact' %}"#}
+{#             class="relative py-1 text-[15px] hover:text-pink-600 transition {% if current == 'contact' %}text-pink-600{% endif %}">#}
+{#            تماس با ما#}
+{#            <span class="absolute -bottom-1 inset-x-0 h-0.5 rounded bg-gradient-to-r from-pink-600 to-purple-600#}
+{#                         scale-x-0 group-hover:scale-x-100 transition origin-right {% if current == 'contact' %}scale-x-100{% endif %}"></span>#}
+{#          </a>#}
+{#        </nav>#}
 {##}
-{#    <!-- دکمه رزرو نوبت -->#}
-{#    <a href="{% url 'reservation_step_one' %}" class="text-sm bg-gradient-to-r from-indigo-700 to-blue-800 text-white px-4 py-2 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">#}
-{#      <i data-lucide="calendar"></i> رزرو نوبت#}
-{#    </a>#}
+{#        <!-- اکشن‌ها دسکتاپ -->#}
+{#        <div class="hidden lg:flex items-center gap-3">#}
+{#          <button type="button" @click="$store.ui.toggleTheme()" class="btn btn-outline">#}
+{#            <span x-text="$store.ui.themeLabel"></span>#}
+{#          </button>#}
 {##}
-{#    <!-- گزینه تغییر تم -->#}
-{#    <a href="javascript:void(0)" id="theme-toggle"#}
-{#       class="text-white hover:text-indigo-200 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-2">#}
-{#      <i data-lucide="sun"></i> تغییر تم#}
-{#    </a>#}
-{#  </nav>#}
+{#          <a href="{% url 'services_list' %}" class="btn-primary">#}
+{#            <i data-lucide="calendar"></i><span>رزرو نوبت</span>#}
+{#          </a>#}
 {##}
-{#  <!-- ورود و ثبت‌نام -->#}
-{#  <div class="flex items-center gap-3 mr-6">#}
-{#    {% if not request.user.is_authenticated %}#}
-{#      <a href="{% url 'login' %}"#}
-{#         class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">#}
-{#         ورود#}
-{#      </a>#}
-{#      <a href="{% url 'signup' %}"#}
-{#         class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">#}
-{#         ثبت‌نام#}
-{#      </a>#}
-{#    {% else %}#}
-{#      <a href="{% url 'profile' %}"#}
-{#         class="text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-amber-300 bg-gradient-to-r from-[#a67c00] via-[#f0d678] to-[#a67c00] shadow-lg transition-transform duration-300 transform hover:scale-110 hover:shadow-xl">#}
-{#         پروفایل#}
-{#      </a>#}
-{#      <a href="{% url 'logout' %}"#}
-{#         class="text-[#ddb63e] font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-[#ddb63e] hover:bg-transparent hover:text-[#ddb63e] transition-all duration-300 hover:scale-105 hover:border-amber-300">#}
-{#         خروج#}
-{#      </a>#}
-{#    {% endif %}#}
-{#  </div>#}
-{#</div>#}
+{#          {% if request.user.is_authenticated and request.user.is_staff or perms.services.view_appointmentslot %}#}
+{#            <a href="{% url 'staff_dashboard' %}" class="btn !bg-amber-400 hover:!bg-amber-500 !text-black">#}
+{#              پنل مدیریت#}
+{#            </a>#}
+{#          {% endif %}#}
 {##}
+{#          {% if not request.user.is_authenticated %}#}
+{#            <a href="{% url 'login' %}" class="btn btn-outline">ورود</a>#}
+{#            <a href="{% url 'signup' %}" class="btn-primary">ثبت‌نام</a>#}
+{#          {% else %}#}
+{#            <a href="{% url 'profile' %}" class="btn-primary">پروفایل</a>#}
+{#            <a href="{% url 'logout' %}" class="btn btn-outline">خروج</a>#}
+{#          {% endif %}#}
+{#        </div>#}
 {##}
+{#                    <!-- موبایل: راست دکمه‌ها | چپ برند (با Spacer) -->#}
+{#            <div class="lg:hidden flex items-center w-full">#}
+{#              <!-- دکمه‌ها (سمت راست) -->#}
+{#              <div class="flex items-center gap-2 shrink-0">#}
+{#                <button type="button" @click="$store.ui.openMobile()" class="btn btn-outline !px-3 !py-2" aria-label="منو">#}
+{#                  <i data-lucide="menu"></i>#}
+{#                </button>#}
+{#                <a href="{% url 'services_list' %}" class="btn-primary !px-3 !py-2" aria-label="رزرو">#}
+{#                  <i data-lucide="calendar"></i>#}
+{#                </a>#}
+{#              </div>#}
+{##}
+{#              <!-- Spacer که دو گروه را از هم جدا می‌کند -->#}
+{#              <div class="flex-1"></div>#}
+{##}
+{#              <!-- برند (سمت چپ) -->#}
+{#              <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0">#}
+{#                <img src="{% static 'images/logo.png' %}" alt="Sindokht" class="w-9 h-9 rounded-lg shadow" loading="lazy">#}
+{#                <span class="text-base font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">#}
+{#                  Sindokht Beauty#}
+{#                </span>#}
+{#              </a>#}
+{#            </div>#}
+{##}
+{#      </div>#}
 {#    </div>#}
-{#  </header>#}
+{#  </div>#}
 {##}
-{#  <!-- پس‌زمینه محو هنگام باز شدن منو -->#}
-{#  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-lg hidden transition-opacity duration-300 z-40"></div>#}
+{#  <!-- اورلی -->#}
+{#  <div class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-300"#}
+{#       x-show="$store.ui.mobileMenu" x-transition.opacity @click="$store.ui.closeMobile()"></div>#}
 {##}
-{#  <!-- منوی موبایل -->#}
-{#<div id="mobile-menu"#}
-{#     class="fixed top-0 right-0 w-64 h-full bg-gradient-to-tl from-indigo-600 to-purple-700 shadow-xl transform translate-x-full transition-transform duration-700 ease-in-out rounded-l-xl z-50">#}
-{#  <nav class="flex flex-col p-5 space-y-4 text-white">#}
+{#  <!-- منوی موبایل (رنگ ثابت، مستقل از تم) -->#}
+{#  <aside class="fixed top-0 right-0 z-40 w-80 h-full transform transition-transform duration-300#}
+{#                bg-white text-gray-800 ring-1 ring-gray-200 p-5 translate-x-full"#}
+{#         :class="{'!translate-x-0': $store.ui.mobileMenu}" @keydown.escape="$store.ui.closeMobile()">#}
 {##}
-{#    <!-- دکمه بستن -->#}
-{#    <button id="close-menu"#}
-{#            class="text-2xl text-gray-200 hover:text-red-400 transition-all duration-300 self-start focus:outline-none">#}
-{#      <i data-lucide="x"></i>#}
-{#    </button>#}
-{##}
-{#    <!-- لوگو -->#}
-{#    <div class="text-xl font-extrabold text-white flex items-center gap-2 mb-6">#}
-{#      <i data-lucide="shield-check"></i>#}
-{#      <span>لوگو</span>#}
+{#    <!-- هدر منو -->#}
+{#    <div class="flex items-center justify-between mb-4">#}
+{#      <div class="flex items-center gap-2">#}
+{#        <img src="{% static 'images/logo.png' %}" class="w-8 h-8 rounded-lg" alt="">#}
+{#        <div class="text-lg font-extrabold">Sindokht</div>#}
+{#      </div>#}
+{#      <button class="btn btn-outline !px-2 !py-1" @click="$store.ui.closeMobile()" aria-label="بستن">#}
+{#        <i data-lucide="x"></i>#}
+{#      </button>#}
 {#    </div>#}
 {##}
-{#    <!-- اگر وارد نشده -->#}
-{#    {% if not request.user.is_authenticated %}#}
-{#      <a href="{% url 'login' %}"#}
-{#         class="text-yellow-300 font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-105">#}
-{#        ورود#}
-{#      </a>#}
+{#    <!-- نوار «شما اینجایید» (ثابت و خوانا) -->#}
+{#    <div class="mb-4 form-input !bg-gray-50 !border-none flex items-center gap-2">#}
+{#      <i data-lucide="navigation"></i>#}
+{#      <span class="text-sm">شما اینجایید:</span>#}
+{#      <strong class="text-sm">#}
+{#        {% if current == 'home' %}صفحه اصلی#}
+{#        {% elif current == 'servicesss_list' %}خدمات#}
+{#        {% elif current == 'tutorials' %}آموزش‌ها#}
+{#        {% elif current == 'aboutus' %}درباره ما#}
+{#        {% elif current == 'contact' %}تماس با ما#}
+{#        {% else %}—{% endif %}#}
+{#      </strong>#}
+{#    </div>#}
 {##}
-{#      <a href="{% url 'signup' %}"#}
-{#         class="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-yellow-400 transition-transform duration-300 transform hover:scale-105">#}
-{#        ثبت نام#}
-{#      </a>#}
-{#    {% else %}#}
-{#      <a href="{% url 'profile' %}"#}
-{#         class="bg-yellow-400 text-black font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide hover:bg-yellow-300 transition-transform duration-300 transform hover:scale-105">#}
-{#        پروفایل#}
-{#      </a>#}
+{#    <!-- لینک‌ها -->#}
+{#    <nav class="flex flex-col gap-2">#}
+{#      <a href="{% url 'home' %}" class="btn btn-outline justify-start {% if current == 'home' %}!bg-gray-100{% endif %}">صفحه اصلی</a>#}
+{#      <a href="{% url 'servicesss_list' %}" class="btn btn-outline justify-start {% if current == 'servicesss_list' %}!bg-gray-100{% endif %}">خدمات</a>#}
+{#      <a href="{% url 'tutorials' %}" class="btn btn-outline justify-start {% if current == 'tutorials' %}!bg-gray-100{% endif %}">آموزش‌ها</a>#}
+{#      <a href="{% url 'aboutus' %}" class="btn btn-outline justify-start {% if current == 'aboutus' %}!bg-gray-100{% endif %}">درباره ما</a>#}
+{#      <a href="{% url 'contact' %}" class="btn btn-outline justify-start {% if current == 'contact' %}!bg-gray-100{% endif %}">تماس با ما</a>#}
+{#    </nav>#}
 {##}
-{#      <a href="{% url 'logout' %}"#}
-{#         class="text-yellow-300 font-bold py-2 px-4 rounded-md text-sm uppercase tracking-wide border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-105">#}
-{#        خروج#}
+{#    <!-- اَکشن‌ها -->#}
+{#    <div class="mt-6 flex gap-2">#}
+{#      <button type="button" @click="$store.ui.toggleTheme()" class="btn btn-outline">#}
+{#        <span x-text="$store.ui.themeLabel"></span>#}
+{#      </button>#}
+{#      <a href="{% url 'services_list' %}" class="btn-primary flex-1">#}
+{#        <i data-lucide="calendar"></i><span>رزرو</span>#}
+{#      </a>#}
+{#    </div>#}
+{##}
+{#    {% if request.user.is_authenticated and request.user.is_staff or perms.services.view_appointmentslot %}#}
+{#      <a href="{% url 'staff_dashboard' %}" class="btn !bg-amber-400 hover:!bg-amber-500 !text-black mt-6 w-full">#}
+{#        پنل مدیریت#}
 {#      </a>#}
 {#    {% endif %}#}
 {##}
-{#    <!-- آیتم‌های منو -->#}
-{#    <a href="{% url 'home' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">#}
-{#      <i data-lucide="home"></i> صفحه اصلی#}
-{#    </a>#}
-{#    <a href="{% url 'services_list' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">#}
-{#      <i data-lucide="briefcase"></i> خدمات#}
-{#    </a>#}
-{#    <a href="{% url 'tutorials' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">#}
-{#      <i data-lucide="book"></i> آموزش‌ها#}
-{#    </a>#}
-{#    <a href="{% url 'aboutus' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">#}
-{#      <i data-lucide="info"></i> درباره ما#}
-{#    </a>#}
-{#    <a href="{% url 'contact' %}" class="flex items-center gap-2 py-3 border-b border-gray-400 hover:bg-indigo-800 transition-all duration-300 rounded-md px-3 hover:translate-x-2">#}
-{#      <i data-lucide="phone"></i> تماس با ما#}
-{#    </a>#}
-{##}
-{#    <!-- دکمه رزرو نوبت -->#}
-{#    <a href="{% url 'reservation_step_one' %}"#}
-{#       class="bg-blue-500 text-white text-sm flex items-center gap-2 justify-center px-4 py-2 rounded-xl shadow-lg hover:bg-blue-400 transition-all duration-300">#}
-{#      <i data-lucide="calendar"></i> رزرو نوبت#}
-{#    </a>#}
-{##}
-{#    <!-- تغییر تم -->#}
-{#    <a href="javascript:void(0)" id="theme-toggle-mobile"#}
-{#       class="flex items-center gap-2 py-3 text-white hover:text-yellow-300 transition-all duration-300 px-3">#}
-{#      <i data-lucide="sun"></i> تغییر تم#}
-{#    </a>#}
-{#  </nav>#}
-{#</div>#}
-{##}
-{##}
-{#  <!-- دکمه بازگشت به بالا -->#}
-{#  <button id="back-to-top" class="fixed bottom-10 right-10 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-110 opacity-0 pointer-events-none">#}
-{#    <i data-lucide="arrow-up"></i>#}
-{#  </button>#}
-{##}
-{#  <script>#}
-{#  // Lucide icon setup#}
-{#  lucide.createIcons();#}
-{##}
-{#  const menuToggle = document.getElementById('menu-toggle');#}
-{#  const closeMenu = document.getElementById('close-menu');#}
-{#  const mobileMenu = document.getElementById('mobile-menu');#}
-{#  const overlay = document.getElementById('overlay');#}
-{#  const backToTopButton = document.getElementById('back-to-top');#}
-{##}
-{#  // باز کردن منوی موبایل#}
-{#  menuToggle.addEventListener('click', () => {#}
-{#    mobileMenu.classList.remove('translate-x-full');#}
-{#    overlay.classList.remove('hidden');#}
-{#    mobileMenu.classList.add('open');#}
-{#  });#}
-{##}
-{#  // بستن منوی موبایل#}
-{#  closeMenu.addEventListener('click', () => {#}
-{#    mobileMenu.classList.add('translate-x-full');#}
-{#    overlay.classList.add('hidden');#}
-{#    mobileMenu.classList.remove('open');#}
-{#  });#}
-{##}
-{#  overlay.addEventListener('click', () => {#}
-{#    mobileMenu.classList.add('translate-x-full');#}
-{#    overlay.classList.add('hidden');#}
-{#    mobileMenu.classList.remove('open');#}
-{#  });#}
-{##}
-{#  // نمایش/پنهان‌سازی دکمه برگشت به بالا#}
-{#  window.addEventListener('scroll', () => {#}
-{#    if (window.scrollY > 300) {#}
-{#      backToTopButton.classList.remove('opacity-0', 'pointer-events-none');#}
-{#      backToTopButton.classList.add('opacity-100', 'pointer-events-auto');#}
-{#    } else {#}
-{#      backToTopButton.classList.remove('opacity-100', 'pointer-events-auto');#}
-{#      backToTopButton.classList.add('opacity-0', 'pointer-events-none');#}
-{#    }#}
-{#  });#}
-{##}
-{#  backToTopButton.addEventListener('click', () => {#}
-{#    window.scrollTo({ top: 0, behavior: 'smooth' });#}
-{#  });#}
-{#</script>#}
-{##}
-{##}
-{##}
-{##}
-{#  <style>#}
-{#          /* جلوگیری از شکستن متن در دکمه‌ها */#}
-{#      a, button {#}
-{#        white-space: nowrap;  /* جلوگیری از شکستن متن در خطوط مختلف */#}
-{#      }#}
-{#          /* استایل برای منوهای ناوبری */#}
-{#    nav a {#}
-{#      white-space: nowrap;  /* جلوگیری از شکستن متن در خطوط مختلف */#}
-{#      text-align: center;    /* برای اینکه متن‌های منو در وسط باشند */#}
-{#    }#}
-{##}
-{#          /* برای بخش نسخه دسکتاپ */#}
-{#    nav {#}
-{#      display: flex;#}
-{#      justify-content: center;  /* منو را در وسط قرار می‌دهد */#}
-{#      margin-left: 40px;  /* این فاصله را به دلخواه تغییر دهید */#}
-{#    }#}
-{##}
-{#    /* استایل برای تم روشن */#}
-{#    body {#}
-{#      background-color: #f9fafb; /* رنگ پس زمینه روشن */#}
-{#      color: #333; /* رنگ متن روشن */#}
-{#    }#}
-{##}
-{#    /* استایل برای تم تاریک */#}
-{#    body.dark {#}
-{#      background-color: #1f2937; /* رنگ پس زمینه تاریک */#}
-{#      color: #e5e7eb; /* رنگ متن روشن برای تم تاریک */#}
-{#    }#}
-{#  </style>#}
-{##}
-{#</body>#}
+{#    <div class="mt-8 space-y-2">#}
+{#      {% if not request.user.is_authenticated %}#}
+{#        <a href="{% url 'login' %}" class="btn btn-outline w-full">ورود</a>#}
+{#        <a href="{% url 'signup' %}" class="btn-primary w-full">ثبت‌نام</a>#}
+{#      {% else %}#}
+{#        <a href="{% url 'profile' %}" class="btn-primary w-full">پروفایل</a>#}
+{#        <a href="{% url 'logout' %}" class="btn btn-outline w-full">خروج</a>#}
+{#      {% endif %}#}
+{#    </div>#}
+{#  </aside>#}
+{#</header>#}
+{#{% endwith %}#}

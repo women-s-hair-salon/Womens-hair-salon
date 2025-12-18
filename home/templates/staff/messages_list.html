@@ -1,0 +1,161 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}پیام‌های کاربران{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* دکمه حذف ثابت (قبلی) */
+  .btn-delete-local{
+    background-color:#dc2626 !important; /* red-600 */
+    color:#fff !important;
+    border:0 !important;
+    border-radius:.75rem;
+    padding:.5rem .8rem;
+    font-weight:800;
+    display:inline-flex; align-items:center; gap:.4rem;
+    box-shadow:0 1px 2px rgb(0 0 0 / 0.05);
+    transition:background-color .15s ease;
+  }
+  .btn-delete-local:hover{ background-color:#b91c1c !important; } /* red-700 */
+  .dark .btn-delete-local{ background-color:#dc2626 !important; color:#fff !important; }
+  .btn-delete-local .txt{ line-height:1; }
+
+  /* دکمه‌های ثابت برای بالای صفحه (بدون تغییر با تم) */
+  .btn-static{
+    display:inline-flex; align-items:center; gap:.45rem; font-weight:800; text-decoration:none;
+    padding:.55rem .9rem; border-radius:.75rem;
+    background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff !important;
+    box-shadow:0 6px 16px rgba(236,72,153,.25);
+  }
+  .btn-static-outline{
+    display:inline-flex; align-items:center; gap:.45rem; font-weight:800; text-decoration:none;
+    padding:.5rem .85rem; border-radius:.75rem;
+    background:#ffffff !important; color:#111827 !important; border:1px solid #e5e7eb;
+  }
+
+
+ .btn-delete-all{
+    background:linear-gradient(135deg,#ef4444,#b91c1c) !important;
+    color:#fff !important; border:0 !important; border-radius:.75rem;
+    padding:.55rem .9rem; font-weight:800;
+    display:inline-flex; align-items:center; gap:.45rem;
+    box-shadow:0 8px 18px rgba(239,68,68,.25);
+    transition:filter .15s ease;
+  }
+  .btn-delete-all:hover{ filter:brightness(.96) }
+  .btn-delete-all[disabled]{ opacity:.5; cursor:not-allowed }
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="max-w-6xl mx-auto p-4 space-y-6">
+
+  <div class="card p-5 md:p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl md:text-2xl font-extrabold">پیام‌های کاربران</h1>
+        <nav class="mt-2 text-xs md:text-sm text-gray-500 dark:text-gray-400" aria-label="Breadcrumb">
+          <ol class="flex items-center gap-1">
+            <li><a href="{% url 'staff_dashboard' %}" class="btn-outline !py-1 !px-2">داشبورد</a></li>
+            <li>›</li>
+            <li><span class="text-gray-700 dark:text-gray-300">پیام‌ها</span></li>
+          </ol>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+          تعداد پیام‌ها: <strong class="tabular-nums">{{ page_obj.paginator.count }}</strong>
+        </span>
+        <!-- دکمه بازگشت -->
+        <a href="{% url 'staff_dashboard' %}" class="btn-static-outline" aria-label="بازگشت">
+          <i data-lucide="corner-up-left" class="w-4 h-4"></i><span>بازگشت</span>
+        </a>
+        <!-- دکمه داشبورد با لیبل -->
+{#        <a href="{% url 'staff_dashboard' %}" class="btn-static" aria-label="داشبورد">#}
+{#          <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>داشبورد</span>#}
+        <form method="post" action="{% url 'staff_messages_delete_all' %}"
+            onsubmit="return confirm('همهٔ پیام‌های کاربران حذف شوند؟ این عملیات قابل بازگشت نیست.');">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete-all" {% if page_obj.paginator.count == 0 %}disabled{% endif %}>
+              <i data-lucide="trash-2" class="w-4 h-4"></i><span>حذف همه موارد</span>
+            </button>
+          </form>
+      </div>
+    </div>
+
+    <form method="get" class="mt-4 flex flex-col md:flex-row gap-3">
+      <input type="text" name="q" value="{{ request.GET.q|default_if_none:'' }}" class="form-input flex-1"
+             placeholder="جستجو بر اساس نام، ایمیل، تلفن یا متن پیام…">
+      <select name="state" class="form-select">
+        <option value="all" {% if request.GET.state == 'all' or not request.GET.state %}selected{% endif %}>همه</option>
+        <option value="new" {% if request.GET.state == 'new' %}selected{% endif %}>جدید</option>
+        <option value="replied" {% if request.GET.state == 'replied' %}selected{% endif %}>پاسخ‌داده‌شده</option>
+      </select>
+      <button class="btn btn-primary">اعمال</button>
+      {% if request.GET.q or request.GET.state %}
+        <a href="{% url 'staff_messages' %}" class="btn btn-outline">حذف فیلتر</a>
+      {% endif %}
+    </form>
+  </div>
+
+  {% if items %}
+    <div class="grid grid-cols-1 gap-4">
+      {% for m in items %}
+      <article class="rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="font-bold truncate">
+              {{ m.full_name }}
+              <span class="text-xs text-gray-500">({{ m.email }})</span>
+              {% if m.phone %}<span class="text-xs text-gray-500"> • {{ m.phone }}</span>{% endif %}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              ارسال: {{ m.created_at|to_jalali_date }} - {{ m.created_at|time:"H:i" }}
+              {% if m.is_replied and m.replied_at %} • پاسخ: {{ m.replied_at|to_jalali_date }} - {{ m.replied_at|time:"H:i" }}{% endif %}
+            </div>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{{ m.message }}</p>
+          </div>
+          <div class="shrink-0 flex flex-col gap-2">
+            <a href="{% url 'staff_message_reply' m.pk %}" class="btn btn-outline !px-3 !py-1.5">
+              {% if m.is_replied %}مشاهده/ارسال مجدد{% else %}مشاهده/پاسخ{% endif %}
+            </a>
+            <form method="post" action="{% url 'staff_message_delete' m.pk %}"
+                  onsubmit="return confirm('پیام حذف شود؟')">
+              {% csrf_token %}
+              <button class="btn-delete-local" aria-label="حذف پیام">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span class="txt">حذف</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="mt-4 flex justify-center gap-2">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}"
+           class="btn btn-outline">قبلی</a>
+      {% endif %}
+      <span class="badge">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}"
+           class="btn btn-outline">بعدی</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  {% else %}
+    <div class="card p-6 text-center text-sm text-gray-500 dark:text-gray-400">پیامی یافت نشد.</div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,6 +1,53 @@
 {
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13"
+  },
+  "name": "womens-hair-salon",
+  "version": "1.0.0",
+  "description": "django_project",
+  "main": "index.js",
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.8",
-    "tailwindcss": "^4.1.8"
-  }
+    "browserslist": "^4.25.4",
+    "caniuse-lite": "^1.0.30001741",
+    "cssesc": "^3.0.0",
+    "electron-to-chromium": "^1.5.214",
+    "escalade": "^3.2.0",
+    "fraction.js": "^4.3.7",
+    "lodash.castarray": "^4.4.0",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.merge": "^4.6.2",
+    "mini-svg-data-uri": "^1.4.4",
+    "nanoid": "^3.3.11",
+    "node-releases": "^2.0.20",
+    "normalize-range": "^0.1.2",
+    "picocolors": "^1.1.1",
+    "postcss-selector-parser": "^6.0.10",
+    "postcss-value-parser": "^4.2.0",
+    "source-map-js": "^1.2.1",
+    "update-browserslist-db": "^1.1.3",
+    "util-deprecate": "^1.0.2"
+  },
+  "scripts": {
+    "dev:css": "npx @tailwindcss/cli -i ./assets/css/input.css -o ./static/css/output.css -w",
+    "build:css": "npx @tailwindcss/cli -i ./assets/css/input.css -o ./static/css/output.css -m",
+    "dev": "concurrently -k -n CSS,DJANGO -c \"blue,magenta\" \"npm:dev:css\" \"python manage.py runserver 0.0.0.0:8000\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/women-s-hair-salon/Womens-hair-salon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/women-s-hair-salon/Womens-hair-salon/issues"
+  },
+  "homepage": "https://github.com/women-s-hair-salon/Womens-hair-salon#readme"
 }

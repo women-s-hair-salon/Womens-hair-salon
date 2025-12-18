@@ -1,96 +1,306 @@
-{#images/salon/kakashi-hatake-naruto.jpg#}
-
 {% extends 'base/base.html' %}
 {% load static %}
 {% block title %}درباره ما{% endblock %}
 
+{% block extra_head %}
+<style>
+/* قاب استاندارد گالری: 4:3 */
+.thumb-std{
+  position:relative; border-radius:16px; overflow:hidden;
+}
+.thumb-std::before{
+  content:""; display:block; padding-top:75%; /* 4:3  → اگر 16:9 می‌خوای: 56.25% | مربع: 100% */
+}
+.thumb-std > img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
+}
+
+/* اسکلت داخل قاب */
+.thumb-std .skeleton{position:absolute; inset:0; border-radius:inherit}
+
+
+  .gradient-ring{position:relative;border-radius:16px}
+  .gradient-ring::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+    background:linear-gradient(135deg, rgba(244,63,94,.35), rgba(236,72,153,.35), rgba(167,139,250,.35));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+  }
+
+  /* موج صورتی پایین هِرو */
+  .wave-bottom{position:absolute;left:0;right:0;bottom:-1px;overflow:hidden;line-height:0;transform:rotate(180deg)}
+  .wave-bottom svg{display:block;width:calc(120% + 1.3px);height:88px}
+  .wave-bottom .shape-fill{fill:rgba(244,63,94,.92)} /* pink-500 */
+
+  /* اسکلت‌لودر گالری */
+  .skeleton{position:relative;overflow:hidden;border-radius:14px}
+  .skeleton::before{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.08));
+    background-size:200% 100%,100% 100%; animation:shimmer 1.6s linear infinite; filter:blur(.3px)
+  }
+  @keyframes shimmer{to{background-position:-200% 0, 0 0}}
+
+  /* FAQ */
+  .faq details{border-radius:16px}
+  .faq summary{list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq details[open] .chev{transform:rotate(180deg)}
+  .faq .chev{transition:transform .25s ease}
+
+  /* اسکرول‌بار ظریف */
+  *{scrollbar-width:thin; scrollbar-color:rgba(236,72,153,.45) transparent}
+  *::-webkit-scrollbar{height:8px;width:8px}
+  *::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#f43f5e77,#ec489977);border-radius:999px}
+  *::-webkit-scrollbar-track{background:transparent}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition:none !important}
+  }
+
+
+/* Hero as a uniform card */
+.hero-card{
+  position:relative; overflow:hidden; border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.12);
+}
+.hero-media{
+  position:relative; width:100%;
+  aspect-ratio:4/3;            /* موبایل: قد بلندتر */
+}
+@media (min-width:768px){
+  .hero-media{ aspect-ratio:21/9; }  /* دسکتاپ: عریض و سینمایی */
+}
+.hero-media > img, .hero-media > video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
+}
+/* هم‌نشینی با حلقه‌ی گرادیانی فعلی */
+.gradient-ring{position:relative; border-radius:16px}
+.gradient-ring::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
+  background:linear-gradient(135deg, rgba(244,63,94,.35), rgba(236,72,153,.35), rgba(167,139,250,.35));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+/* موج پایین (صورتی) مثل قبل */
+.wave-bottom{position:absolute; left:0; right:0; bottom:-1px; overflow:hidden; line-height:0; transform:rotate(180deg)}
+.wave-bottom svg{display:block; width:calc(120% + 1.3px); height:88px}
+.wave-bottom .shape-fill{fill:rgba(244,63,94,.92)}
+/* لایه‌ی گرادیانی داخل هیرو */
+.hero-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(236,72,153,.55), rgba(147,51,234,.45));
+  mix-blend:multiply;
+}
+
+</style>
+{% endblock %}
+
 {% block main %}
-<div class="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-20">
+<div class="max-w-6xl mx-auto py-12 md:py-16 px-4 space-y-20">
 
-  <!-- Hero Section با تصویر و شعار -->
-  <section class="relative h-[60vh] rounded-xl overflow-hidden mb-16 shadow-lg">
-    <img src="{% static 'images/about-hero.jpg' %}" alt="سالن زیبایی" class="absolute inset-0 w-full h-full object-cover object-center">
-    <div class="absolute inset-0 bg-pink-700 bg-opacity-50 dark:bg-black dark:bg-opacity-60 flex flex-col items-center justify-center text-white px-4 text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold mb-2">زیبایی تو، مأموریت ماست ✨</h1>
-      <p class="text-lg">تجربه‌ای متفاوت از خدمات زیبایی در قلب تهران</p>
-    </div>
-  </section>
+  <!-- HERO -->
+  <section class="hero-card gradient-ring">
+  <div class="hero-media">
+    <img src="{% static 'images/4_20241111_151105_0000.png' %}" alt="سالن زیبایی">
+    <div class="hero-overlay"></div>
 
-  <!-- معرفی کلی -->
-  <section class="text-center" data-aos="fade-up">
-    <h2 class="text-4xl font-bold text-pink-600 dark:text-pink-400 mb-4">درباره ما</h2>
-    <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed max-w-2xl mx-auto">
-      سالن زیبایی ما از سال ۱۳۹۷ با هدف ارائه خدمات باکیفیت در فضایی آرام و دلنشین شروع به کار کرد. ما باور داریم که زیبایی، اعتماد به‌نفس می‌آورد و هدف ما کمک به درخشش شماست.
-    </p>
-  </section>
+    <!-- محتوا -->
+    <div class="absolute inset-0 z-10 flex flex-col items-center justify-center text-white px-6 text-center">
+      <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">زیبایی تو، مأموریت ماست ✨</h1>
+      <p class="mt-3 md:mt-4 text-base md:text-lg opacity-95">تجربه‌ای متفاوت از خدمات زیبایی در قلب تهران</p>
 
-  <!-- مزایا به صورت کارت + SVG متحرک -->
-  <section data-aos="fade-up">
-    <h3 class="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">چرا ما را انتخاب می‌کنید؟</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
-        <lord-icon src="https://cdn.lordicon.com/qhviklyi.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
-        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">محصولات باکیفیت</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-300">استفاده از برندهای معتبر و اصل</p>
-      </div>
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
-        <lord-icon src="https://cdn.lordicon.com/udwhdpod.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
-        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">تیم حرفه‌ای</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-300">متخصصان آموزش‌دیده و با تجربه</p>
-      </div>
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
-        <lord-icon src="https://cdn.lordicon.com/dnoiydox.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
-        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">محیط بهداشتی</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-300">فضای آرام، پاکیزه و ایمن</p>
-      </div>
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-transform duration-300 hover:scale-105">
-        <lord-icon src="https://cdn.lordicon.com/yqiuuheo.json" trigger="loop" delay="2000" colors="primary:#e11d48" style="width:50px;height:50px;margin:auto"></lord-icon>
-        <h4 class="font-bold text-lg mb-2 dark:text-white mt-4">رضایت مشتریان</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-300">افتخار به بازخورد مثبت مشتریان</p>
+      <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
+        <a href="{% url 'services_list' %}" class="btn-primary !bg-pink-500 hover:!bg-pink-600">
+          <i data-lucide="calendar"></i><span>رزرو نوبت</span>
+        </a>
+        <a href="{% url 'contact' %}" class="btn btn-outline !text-white !border-white/60 hover:!bg-white/10">
+          تماس با ما
+        </a>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- تصاویر سالن با افکت پارالاکس -->
-  <section data-aos="fade-up" class="relative">
-    <div class="absolute inset-0 bg-fixed bg-center bg-cover bg-[url('/static/images/salon-bg.jpg')] opacity-10 dark:opacity-5"></div>
-    <div class="relative z-10">
-      <h3 class="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">تصاویری از سالن ما</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {% for i in "1234" %}
-        <div class="aspect-w-1 aspect-h-1">
-          <img src="{% static 'images/salon'|add:i|add:'.jpg' %}" alt="نمای داخلی سالن {{ i }}" class="rounded-xl shadow-md w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+  <!-- موج صورتی پایین -->
+{#  <div class="wave-bottom">#}
+{#    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">#}
+{#      <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.53-17.28-168.86-6.19-250.14,16.22#}
+{#      C393,56.63,310.51,93.21,231.54,109.36c-57.8,12-114,9.36-171.21-3.15V120H1200V0C1132.19,28.6,1058.07,112.43,985.66,92.83Z"#}
+{#            class="shape-fill"></path>#}
+{#    </svg>#}
+{#  </div>#}
+</section>
+
+
+  <!-- درباره ما + چرا ما -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
+    <div class="lg:col-span-2 card p-6 md:p-8">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-pink-600 dark:text-pink-400">درباره ما</h2>
+      <p class="mt-4 text-gray-700 dark:text-gray-200 leading-8">
+        سالن زیبایی ما از سال ۱۳۹۷ با هدف ارائه خدمات باکیفیت در فضایی آرام و دلنشین شروع به کار کرد.
+        ما باور داریم زیبایی، اعتمادبه‌نفس می‌آورد و مأموریت ما کمک به درخشش توست.
+      </p>
+
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+        <div class="gradient-ring rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-5">
+          <div class="flex items-center gap-3">
+            <i data-lucide="sparkles" class="w-6 h-6 text-pink-500"></i>
+            <div class="font-bold">محصولات اصل و باکیفیت</div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">فقط از برندهای معتبر استفاده می‌کنیم.</p>
         </div>
-        {% endfor %}
+        <div class="gradient-ring rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-5">
+          <div class="flex items-center gap-3">
+            <i data-lucide="users" class="w-6 h-6 text-pink-500"></i>
+            <div class="font-bold">تیم حرفه‌ای</div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">متخصصان آموزش‌دیده و به‌روز.</p>
+        </div>
+        <div class="gradient-ring rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-5">
+          <div class="flex items-center gap-3">
+            <i data-lucide="shield-check" class="w-6 h-6 text-pink-500"></i>
+            <div class="font-bold">بهداشت و ایمنی</div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">محیطی پاکیزه، ایمن و آرام.</p>
+        </div>
+        <div class="gradient-ring rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-5">
+          <div class="flex items-center gap-3">
+            <i data-lucide="heart" class="w-6 h-6 text-pink-500"></i>
+            <div class="font-bold">رضایت مشتریان</div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">افتخار می‌کنیم به بازخوردهای عالی شما.</p>
+        </div>
       </div>
     </div>
+
+    <!-- راه‌های ارتباطی -->
+    <aside class="card p-6 md:p-8">
+      <h3 class="text-lg font-bold mb-4">راه‌های ارتباطی</h3>
+      <ul class="space-y-3 text-gray-700 dark:text-gray-200">
+        <li class="flex items-start gap-3">
+          <i data-lucide="map-pin" class="w-5 h-5 text-pink-500 mt-0.5"></i>
+          <div>تهران، بلوار مدیریت، سالن زیبایی فلورا</div>
+        </li>
+        <li class="flex items-center gap-3">
+          <i data-lucide="phone" class="w-5 h-5 text-pink-500"></i>
+          <a href="tel:09356169569" class="hover:text-pink-600">09356169569</a>
+        </li>
+        <li class="flex items-center gap-3">
+          <i data-lucide="clock" class="w-5 h-5 text-pink-500"></i>
+          <span>ساعت کاری: هر روز ۱۰ تا ۲۰</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i>
+          <a href="#" class="hover:text-pink-600">@sindokht_beauty</a>
+        </li>
+      </ul>
+    </aside>
   </section>
 
-  <!-- اطلاعات تماس -->
-  <section class="text-center space-y-4 px-6 py-8 rounded-xl bg-pink-50 dark:bg-[#3a0b31] shadow-md" data-aos="fade-up">
-    <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">راه‌های ارتباطی</h3>
-    <p class="text-lg text-gray-700 dark:text-gray-200">آدرس: تهران، بلوار مدیریت، سالن زیبایی فلورا</p>
-    <p class="text-lg text-gray-700 dark:text-gray-200">
-      تلفن تماس: <a href="tel:09121234567" class="text-blue-500 hover:underline">۰۹۱۲۱۲۳۴۵۶۷</a>
-    </p>
+  <!-- سؤالات پرتکرار -->
+  <section class="faq card p-6 md:p-8">
+    <h3 class="text-2xl font-semibold mb-4">سؤالات پرتکرار</h3>
+    <div class="space-y-3">
+      <details class="ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-4 rounded-2xl">
+        <summary class="flex items-center justify-between cursor-pointer">
+          <span class="font-bold">چطور نوبت رزرو کنم؟</span>
+          <i data-lucide="chevron-down" class="chev w-5 h-5 text-pink-500"></i>
+        </summary>
+        <p class="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-7">
+          از منوی بالا «رزرو نوبت» را بزنید، خدمت موردنظر و زمان دلخواه را انتخاب کنید و تأیید نهایی بزنید.
+        </p>
+      </details>
+
+      <details class="ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-4 rounded-2xl">
+        <summary class="flex items-center justify-between cursor-pointer">
+          <span class="font-bold">جابجایی نوبت چگونه است؟</span>
+          <i data-lucide="chevron-down" class="chev w-5 h-5 text-pink-500"></i>
+        </summary>
+        <p class="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-7">
+          حداقل ۲۴ ساعت قبل از زمان رزرو با ما تماس بگیرید.
+        </p>
+      </details>
+
+      <details class="ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 p-4 rounded-2xl">
+        <summary class="flex items-center justify-between cursor-pointer">
+          <span class="font-bold">آیا امکان مشاوره قبل از خدمت هست؟</span>
+          <i data-lucide="chevron-down" class="chev w-5 h-5 text-pink-500"></i>
+        </summary>
+        <p class="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-7">
+          بله، مشاوره رایگان حضوری/تلفنی داریم.
+        </p>
+      </details>
+
+
+    </div>
   </section>
 
-  <!-- CTA + لوکیشن -->
-  <section class="text-center space-y-4" data-aos="fade-up">
-    <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">دوست دارید خدمات ما را تجربه کنید؟</h3>
-    <div class="flex justify-center gap-4 flex-wrap">
-      <a href="{% url 'reservation_step_one' %}" class="bg-gradient-to-r from-pink-500 to-fuchsia-500 hover:from-pink-600 hover:to-fuchsia-600 text-white px-6 py-3 rounded-lg shadow-md transition">رزرو نوبت</a>
-      <a href="{% url 'contact' %}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md transition">تماس با ما</a>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=35.77271102801292,51.37177763824688" target="_blank"
-         class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 transition">
-        <i data-lucide="map-pin" class="w-5 h-5"></i>
-        مسیر در Google Map
-      </a>
+  <!-- گالری (فاصله‌ی بیشتر و قاب ظریف) -->
+  <section class="relative">
+  <div class="absolute inset-0 bg-fixed bg-center bg-cover bg-[url('/static/images/salon-bg.jpg')] opacity-10 dark:opacity-5"></div>
+  <div class="relative z-10 card p-6 md:p-8">
+    <h3 class="text-2xl font-semibold text-center mb-6">تصاویری از سالن</h3>
+
+    {% if gallery %}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {% for item in gallery %}
+            <div class="rounded-2xl overflow-hidden shadow ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/70 dark:bg-zinc-900/40 p-1">
+              <div class="thumb-std">
+                <div class="skeleton"></div>
+                <img
+                  src="{{ item.image.url }}"
+                  alt="{{ item.title|default:'عکس سالن' }}"
+                  loading="lazy" decoding="async"
+                  onload="this.previousElementSibling && this.previousElementSibling.remove()">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+    {% else %}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {% for i in "1234" %}
+            <div class="rounded-2xl overflow-hidden shadow ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/70 dark:bg-zinc-900/40 p-1">
+              <div class="thumb-std">
+                <div class="skeleton"></div>
+                <img
+                  src="{% static 'images/salon'|add:i|add:'.jpg' %}"
+                  alt="نمای سالن {{ i }}"
+                  loading="lazy" decoding="async"
+                  onload="this.previousElementSibling && this.previousElementSibling.remove()">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+    {% endif %}
+  </div>
+</section>
+
+  <!-- CTA + نقشه -->
+  <section class="space-y-6">
+    <div class="card p-6 md:p-8 text-center">
+      <h3 class="text-2xl font-semibold">دوست دارید خدمات ما را تجربه کنید؟</h3>
+      <div class="mt-4 flex justify-center gap-3 flex-wrap">
+        <a href="{% url 'services_list' %}" class="btn-primary">
+          <i data-lucide="calendar"></i><span>رزرو نوبت</span>
+        </a>
+        <a href="{% url 'contact' %}" class="btn btn-outline">
+          <i data-lucide="phone"></i><span>تماس با ما</span>
+        </a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=35.77271102801292,51.37177763824688"
+           target="_blank" class="btn btn-outline">
+          <i data-lucide="map-pin"></i><span>مسیر در Google Map</span>
+        </a>
+      </div>
     </div>
 
-    <!-- Google Map Embed -->
-    <div class="mt-8 max-w-3xl mx-auto rounded-xl overflow-hidden shadow-lg">
-      <iframe class="w-full h-72 sm:h-96 border-none" loading="lazy" allowfullscreen
+    <div class="rounded-2xl overflow-hidden shadow-xl gradient-ring">
+      <iframe class="w-full h-72 sm:h-96 border-0" loading="lazy" allowfullscreen
               referrerpolicy="no-referrer-when-downgrade"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3238.8750068188586!2d51.36958347650204!3d35.77270917258582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8e06171cbf7e33%3A0x9db19a2e3f57f863!2sQ9FC%2B3PJ%20Tehran%2C%20Tehran%20Province%2C%20Iran!5e0!3m2!1sen!2s!4v1717930101760!5m2!1sen!2s">
       </iframe>
@@ -98,9 +308,10 @@
   </section>
 
 </div>
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
-<script>
-  lucide.createIcons();
-  AOS.init({ duration: 700, once: true });
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
 </script>
 {% endblock %}

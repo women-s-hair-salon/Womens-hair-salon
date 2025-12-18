@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+{% block title %}نتیجه پرداخت{% endblock %}
+{% block page_title %}نتیجه پرداخت{% endblock %}
+{% block main %}
+{% if reservation %}
+  {% if reservation.status == 'booked' %}
+  <div class="rounded-xl border border-green-300 bg-green-50 text-green-900 p-4">
+    پرداخت موفق بود. کد رهگیری: {{ reservation.zarinpal_ref_id }}<br>
+    خدمت: {{ reservation.service.title }} — تاریخ: {{ reservation.slot.date }} — ساعت: {{ reservation.slot.start_time|time:'H:i' }} تا {{ reservation.slot.end_time|time:'H:i' }}
+  </div>
+  {% else %}
+  <div class="rounded-xl border border-red-300 bg-red-50 text-red-900 p-4">پرداخت ناموفق یا لغو شد. لطفاً دوباره تلاش کنید.</div>
+  {% endif %}
+{% else %}<p>اطلاعات پرداخت یافت نشد.</p>{% endif %}
+{% endblock %}

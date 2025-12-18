@@ -1,0 +1,10 @@
+# چیزهایی که نباید وارد build context شوند
+certbot/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+.git/
+.gitignore
+.env

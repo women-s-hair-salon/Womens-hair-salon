@@ -10,12 +10,12 @@
 
     <div>
       <h3 class="text-xl font-bold mb-4">درباره سیندخت</h3>
-      <p class="text-sm leading-7">تجربه متفاوتی از خدمات زیبایی و سلامت در قلب تهران با تیم حرفه‌ای و به روزترین متدهای زیبایی.</p>
+      <p class="text-base leading-7">تجربه متفاوتی از خدمات زیبایی و سلامت در قلب تهران با تیم حرفه‌ای و به روزترین متدهای زیبایی.</p>
     </div>
 
     <div>
       <h3 class="text-xl font-bold mb-4">دسترسی سریع</h3>
-      <ul class="space-y-3 text-sm">
+      <ul class="space-y-3 text-base">
         <li><a href="{% url 'home' %}" class="hover:text-[#facc15] transition">صفحه اصلی</a></li>
         <li><a href="{% url 'services_list' %}" class="hover:text-[#facc15] transition">خدمات</a></li>
         <li><a href="{% url 'aboutus' %}" class="hover:text-[#facc15] transition">درباره ما</a></li>
@@ -23,19 +23,57 @@
       </ul>
     </div>
 
-    <div>
-      <h3 class="text-xl font-bold mb-4">راه‌های ارتباط</h3>
-      <ul class="space-y-3 text-sm">
-        <li><a href="tel:09356169569" class="hover:text-[#facc15] transition">📞 09356169569</a></li>
-        <li><a href="mailto:info@example.com" class="hover:text-[#facc15] transition">📧 info@example.com</a></li>
-        <li><a href="https://wa.me/989356169569" class="hover:text-[#facc15] transition">💬 واتساپ</a></li>
-        <li><a href="https://t.me/example" class="hover:text-[#facc15] transition">📨 تلگرام</a></li>
-        <li><a href="https://instagram.com/example" class="hover:text-[#facc15] transition">📸 اینستاگرام</a></li>
-      </ul>
-    </div>
+    <!-- راه‌های ارتباط: با آیکن‌های lucide و بج‌های هماهنگ -->
+   <div>
+  <h3 class="text-xl font-bold mb-4">راه‌های ارتباط</h3>
+  <ul class="space-y-2 text-sm">
+    <li>
+      <a href="tel:09356169569" class="group flex items-center gap-2 hover:text-[#facc15] transition">
+        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/10 to-purple-500/10 ring-1 ring-black/5 dark:ring-white/10 flex items-center justify-center">
+          <i data-lucide="phone" class="w-4 h-4"></i>
+        </span>
+        <span class="ltr:font-mono">09356169569</span>
+      </a>
+    </li>
+    <li>
+      <a href="mailto:info@example.com" class="group flex items-center gap-2 hover:text-[#facc15] transition">
+        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/10 to-purple-500/10 ring-1 ring-black/5 dark:ring-white/10 flex items-center justify-center">
+          <i data-lucide="mail" class="w-4 h-4"></i>
+        </span>
+        <span class="ltr:font-mono">info@example.com</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://wa.me/989356169569" target="_blank" rel="noopener" class="group flex items-center gap-2 hover:text-[#facc15] transition">
+        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/10 to-purple-500/10 ring-1 ring-black/5 dark:ring-white/10 flex items-center justify-center">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+        </span>
+        <span>واتساپ</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://t.me/example" target="_blank" rel="noopener" class="group flex items-center gap-2 hover:text-[#facc15] transition">
+        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/10 to-purple-500/10 ring-1 ring-black/5 dark:ring-white/10 flex items-center justify-center">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </span>
+        <span>تلگرام</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://instagram.com/example" target="_blank" rel="noopener" class="group flex items-center gap-2 hover:text-[#facc15] transition">
+        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500/10 to-purple-500/10 ring-1 ring-black/5 dark:ring-white/10 flex items-center justify-center">
+          <i data-lucide="instagram" class="w-4 h-4"></i>
+        </span>
+        <span>اینستاگرام</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
 
     <div class="flex justify-center md:justify-end items-center">
-      <img src="{% static 'images/logo.png' %}" alt="Sindokht Logo" class="w-32 h-auto rounded-xl shadow-lg hover:scale-110 transition">
+      <img src="{% static 'images/sindokht_beauty_salon_aligned.png' %}" alt="Sindokht Logo" class="w-32 h-auto rounded-xl shadow-lg hover:scale-110 transition">
     </div>
   </div>
 

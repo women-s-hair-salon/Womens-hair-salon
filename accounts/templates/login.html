@@ -1,113 +1,126 @@
-<!-- templates/login.html -->
-{#<!DOCTYPE html>#}
-{#<html lang="fa">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <title>ورود با شماره تلفن</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h2>ورود با شماره تلفن</h2>#}
-{#    <form method="post">#}
-{#        {% csrf_token %}#}
-{#        {{ form.as_p }}#}
-{#        <button type="submit">ارسال کد</button>#}
-{#    </form>#}
-{##}
-{#    {% if messages %}#}
-{#        <ul>#}
-{#        {% for message in messages %}#}
-{#            <li>{{ message }}</li>#}
-{#        {% endfor %}#}
-{#        </ul>#}
-{#    {% endif %}#}
-{#</body>#}
-{#</html>#}
-
-
 {% extends 'base/base.html' %}
 {% block title %}ورود{% endblock %}
+
 {% block main %}
+<div class="min-h-[70vh] bg-gradient-to-br from-pink-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12">
+  <div class="max-w-md mx-auto px-4">
+    <div class="card p-6 space-y-6">
 
-<style>
-  @keyframes slideFade {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  .animate-slide-fade {
-    animation: slideFade 0.5s ease-out;
-  }
-</style>
-
-{#<audio id="toast-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_33e729e5a8.mp3" preload="auto"></audio>#}
-{#<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>#}
-
-<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-100 to-purple-100">
-  <div class="max-w-md w-full space-y-8 p-10 bg-white/80 backdrop-blur-md rounded-xl shadow-lg">
-
-    <div>
-      <h2 class="text-center text-3xl font-extrabold text-pink-600">ورود با شماره تلفن</h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-         قبلاً ثبت‌نام نکرده‌اید؟
-        <a href="{% url 'signup' %}" class="font-medium text-indigo-600 hover:text-indigo-500">ثبت‌نام</a>
-      </p>
-    </div>
-
-    <form class="mt-8 space-y-6" method="POST" action="{% url 'login' %}">
-      {% csrf_token %}
-      <div class="rounded-md shadow-sm">
-        <div>
-          <label for="phone" class="sr-only">شماره تلفن</label>
-          <input id="phone_number" name="phone_number" type="text" required class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm" placeholder="شماره تلفن">
+      <!-- عنوان و زیرعنوان -->
+      <header class="text-center space-y-2">
+          <div
+          class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600
+                 flex items-center justify-center shadow-md text-white">
+          <i data-lucide="smartphone" class="w-6 h-6"></i>
         </div>
-      </div>
-      <div>
-        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
-          ارسال کد تایید
-        </button>
-      </div>
-    </form>
+        <h1 class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600 inline-flex items-center gap-2">
+          <i data-lucide="phone" class="w-5 h-5 text-pink-500"></i>
+          ورود با شماره موبایل
+        </h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          کد تأیید به شماره شما پیامک می‌شود.
+        </p>
+
+      </header>
+
+      {# خطاهای کلی فرم (مثلاً ValidationError غیر فیلدی) #}
+      {% if form and form.non_field_errors %}
+        <div class="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm px-3 py-2">
+          {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- فرم -->
+      <form id="login-form" class="space-y-5" method="POST" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+
+        <div>
+          <label for="phone_number" class="form-label">شماره موبایل</label>
+
+          {# حالت ۱: از Django Form استفاده می‌کنیم (پیشنهادی) #}
+          {% if form and form.phone_number %}
+            {{ form.phone_number }}
+          {% else %}
+          {# حالت ۲: اگر از فرم استفاده نشده، ورودی را دستی می‌سازیم #}
+            <input id="phone_number"
+                   name="phone_number"
+                   type="text"
+                   dir="ltr"
+                   inputmode="numeric"
+                   autocomplete="tel"
+                   placeholder="مثال: 0912xxxxxxx"
+                   required
+                   maxlength="11"
+                   pattern="09\d{9}"
+                   title="شماره موبایل باید ۱۱ رقم و با 09 شروع شود"
+                   class="form-input ltr" />
+          {% endif %}
+
+          {# خطاهای فیلد (سمت سرور) #}
+          {% if form and form.phone_number and form.phone_number.errors %}
+            {% for e in form.phone_number.errors %}
+              <p class="text-red-600 text-xs mt-1">{{ e }}</p>
+            {% endfor %}
+          {% endif %}
+
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            فرمت مجاز: ۱۱ رقم و با 09 شروع شود.
+          </p>
+        </div>
+
+        <div class="pt-1">
+          <button type="submit" class="btn btn-primary w-full">
+            <i data-lucide="send"></i>
+          <span>ارسال کد تأیید</span>
+          </button>
+        </div>
+      <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+          حساب ندارید؟
+          <a href="{% url 'signup' %}" class="font-bold text-pink-600 hover:underline">ثبت‌نام</a>
+        </p>
+
+      </form>
+
+    </div>
   </div>
 </div>
-<script>
-  // جلوگیری از کلیک مجدد روی دکمه
-  const form = document.querySelector("form");
-  const submitBtn = form?.querySelector("button[type=submit]");
-  form?.addEventListener("submit", () => {
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "در حال ارسال...";
-      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+
+  // جلوگیری از کلیک دوباره روی دکمه
+  (function () {
+    const form = document.getElementById('login-form');
+    if (!form) return;
+    const btn = form.querySelector('button[type=submit]');
+    form.addEventListener('submit', function () {
+      if (!btn) return;
+      btn.disabled = true;
+      btn.classList.add('opacity-60','cursor-not-allowed');
+      btn.textContent = 'در حال ارسال...';
+    });
+  })();
+
+  // UX بهتر: تبدیل ارقام فارسی/عربی به انگلیسی و محدود کردن به 11 رقم
+  (function () {
+    const inp = document.getElementById('phone_number');
+    if (!inp) return;
+
+    function fa2en(str) {
+      if (!str) return '';
+      const map = {'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+      return str.replace(/[۰-۹٠-٩]/g, d => map[d] || d);
     }
-  });
+
+    inp.addEventListener('input', () => {
+      let v = fa2en(inp.value).replace(/[^0-9]/g, '');
+      // اگر کاربر با 9 شروع کند، خودمان 0 را پیش بگذاریم (برای UX بهتر)
+      if (v.length > 0 && v[0] === '9') v = '0' + v;
+      if (v.length > 11) v = v.slice(0, 11);
+      inp.value = v;
+    });
+  })();
 </script>
-
-
-{#{% if messages %}#}
-{#<script>#}
-{#  const toastContainer = document.getElementById('toast-container');#}
-{#  const toastSound = document.getElementById('toast-sound');#}
-{#  {% for message in messages %}#}
-{#    const toast = document.createElement('div');#}
-{#    toast.className = `animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300`;#}
-{#    {% if message.tags == 'success' %}#}
-{#      toast.classList.add('bg-green-500');#}
-{#    {% elif message.tags == 'error' or message.tags == 'danger' %}#}
-{#      toast.classList.add('bg-red-500');#}
-{#    {% elif message.tags == 'warning' %}#}
-{#      toast.classList.add('bg-yellow-500', 'text-black');#}
-{#    {% else %}#}
-{#      toast.classList.add('bg-blue-500');#}
-{#    {% endif %}#}
-{#    toast.textContent = "{{ message|escapejs }}";#}
-{#    toastContainer.appendChild(toast);#}
-{#    toastSound.currentTime = 0;#}
-{#    toastSound.play();#}
-{#    setTimeout(() => {#}
-{#      toast.classList.add('opacity-0');#}
-{#      setTimeout(() => toast.remove(), 500);#}
-{#    }, 4000);#}
-{#  {% endfor %}#}
-{#</script>#}
-{#{% endif %}#}
-
 {% endblock %}

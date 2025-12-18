@@ -1,0 +1,103 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}مدیریت تایم‌ها{% endblock %}
+
+{% block extra_head %}
+<style>
+  .btn-static{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.55rem .9rem;border-radius:.75rem;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff !important;box-shadow:0 6px 16px rgba(236,72,153,.25)}
+  .btn-static-outline{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb}
+  .btn-static-light{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#f3f4f6;color:#111827;border:1px solid #e5e7eb}
+  .pill{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:.6rem;font-weight:800;font-size:.75rem}
+  .pill-gray{background:#f3f4f6;color:#111827;border:1px solid #e5e7eb}
+  .pill-green{background:#059669;color:#fff;border:0}
+  .btn-edit{background:#f59e0b;color:#111827;border:0;border-radius:.6rem;padding:.4rem .7rem;font-weight:800}
+  .table-wrap{overflow:auto;border-radius:1rem;border:1px solid #e5e7eb;background:#fff;box-shadow:0 6px 20px rgba(17,24,39,.06)}
+  thead th{background:#fafafa;color:#374151;font-weight:800}
+  tbody td{color:#111827}
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="max-w-screen-xl mx-auto p-4 space-y-6">
+
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-xl md:text-2xl font-extrabold">مدیریت تایم‌ها</h1>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'staff_slot_create' %}" class="btn-static">+ ایجاد تایم جدید</a>
+      <a href="{% url 'staff_slot_bulk' %}" class="btn-static">ایجاد گروهی تایم‌ها</a>
+      <a href="{% url 'staff_dashboard' %}" class="btn-static-outline">بازگشت</a>
+    </div>
+  </div>
+
+  {% if services %}
+  <form method="get" class="flex flex-col md:flex-row items-stretch md:items-center gap-2">
+    <select name="service" class="form-select md:w-72">
+      <option value="">همهٔ سرویس‌ها</option>
+      {% for s in services %}
+        <option value="{{ s.id }}" {% if request.GET.service == s.id|stringformat:"s" %}selected{% endif %}>{{ s.title }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn-static-light">اعمال فیلتر</button>
+    {% if request.GET.service %}
+      <a href="{% url 'staff_slots' %}" class="btn-static-outline">حذف فیلتر</a>
+    {% endif %}
+  </form>
+  {% endif %}
+
+  <div class="table-wrap">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-right w-16">ردیف</th>
+          <th class="px-4 py-3 text-right">سرویس</th>
+          <th class="px-4 py-3 text-right">تاریخ</th>
+          <th class="px-4 py-3 text-right">ساعت</th>
+          <th class="px-4 py-3 text-right">ظرفیت</th>
+          <th class="px-4 py-3 text-right">آرشیو؟</th>
+          <th class="px-4 py-3 text-left">عملیات</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for slot in slots %}
+        <tr>
+          <td class="px-4 py-3 text-gray-500">
+            {% if is_paginated %}
+              {% with n=page_obj.start_index|add:forloop.counter0 %}{{ n }}{% endwith %}
+            {% else %}{{ forloop.counter }}{% endif %}
+          </td>
+          <td class="px-4 py-3">{{ slot.service.title }}</td>
+          <td class="px-4 py-3">{{ slot.date|persian_weekday }} — {{ slot.date|to_jalali_date }}</td>
+          <td class="px-4 py-3">{{ slot.start_time|time:"H:i" }} تا {{ slot.end_time|time:"H:i" }}</td>
+          <td class="px-4 py-3">{{ slot.capacity }}</td>
+          <td class="px-4 py-3">
+            {% if slot.is_archived %}<span class="pill pill-gray">بله</span>
+            {% else %}<span class="pill pill-green">خیر</span>{% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2">
+              <a href="{% url 'staff_slot_edit' slot.pk %}" class="btn-edit">ویرایش</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="px-4 py-6 text-gray-500 text-center">تایمی یافت نشد.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="mt-4 flex flex-wrap gap-2">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.service %}&service={{ request.GET.service }}{% endif %}" class="btn-static-outline">قبلی</a>
+    {% endif %}
+    <span class="btn-static-light">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.service %}&service={{ request.GET.service }}{% endif %}" class="btn-static-outline">بعدی</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}<script>if(window.lucide) lucide.createIcons();</script>{% endblock %}

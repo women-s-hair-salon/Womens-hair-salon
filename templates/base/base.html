@@ -1,251 +1,139 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="scroll-smooth">
 <head>
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script>
-    if (localStorage.getItem("theme") === "dark") {
-      document.documentElement.classList.add("dark");
-    }
+  {% block meta %}
+  <title>{% block title %}Sindokht Beauty{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}سالن زیبایی سیندخت؛ رزرو آنلاین، خدمات تخصصی و آموزش‌های حرفه‌ای.{% endblock %}">
+  <meta name="theme-color" content="#ffffff" id="meta-theme-color">
+  {% endblock %}
+
+  <!-- جلوگیری از فلیکر تم -->
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      const isDark = localStorage.getItem('theme') === 'dark';
+      if (isDark) document.documentElement.classList.add('dark');
+      const meta = document.getElementById('meta-theme-color');
+      if (meta) meta.setAttribute('content', isDark ? '#000000' : '#f3f4f6');
+    })();
   </script>
 
+  <!-- فونت -->
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 
+  <!-- فقط CSS محلی -->
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- آیکن‌ها و Alpine -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        fontFamily: {
-          sans: ['Vazirmatn', 'sans-serif']
-        }
-      }
-    }
-  </script>
-
+  {% block extra_head %}{% endblock %}
 </head>
 
-<body id="body" x-data="uiController()" x-init="init()" class="bg-gray-50 font-sans transition-all">
+<body x-data class="min-h-screen flex flex-col bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100 font-[Vazirmatn] antialiased">
 
-<div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm space-y-3"></div>
+  <!-- لینک دسترسی سریع برای دسترس‌پذیری -->
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:right-2 focus:z-50 focus:bg-amber-300 focus:text-black focus:px-3 focus:py-1 rounded">پرش به محتوا</a>
 
-<header>{% include 'base/header.html' %}</header>
+  <!-- Toasts -->
+  <div id="toast-container"
+       class="fixed z-50 top-4 md:top-6 left-1/2 md:left-auto md:right-6 -translate-x-1/2 md:translate-x-0 w-[92%] md:w-96 space-y-3"></div>
 
-<main class="pt-[100px]">{% block main %}{% endblock %}</main>
+  <!-- هدر -->
+  <header>{% include 'base/header.html' %}</header>
 
-<footer>{% include 'base/footer.html' %}</footer>
+  <!-- فاصله برای فیکس‌هدِر -->
+  <main id="main" class="pt-24 flex-1">
+    {% block main %}{% endblock %}
+  </main>
 
-{% if messages %}
-<script>
-  const container = document.getElementById('toast-container');
-  {% for message in messages %}
-    const toast = document.createElement('div');
-    toast.className = "px-4 py-3 rounded shadow text-white transition-opacity duration-300";
-    {% if message.tags == 'success' %} toast.classList.add("bg-green-500");
-    {% elif message.tags == 'error' or message.tags == 'danger' %} toast.classList.add("bg-red-500");
-    {% elif message.tags == 'warning' %} toast.classList.add("bg-yellow-400", "text-black");
-    {% else %} toast.classList.add("bg-blue-500"); {% endif %}
-    toast.innerText = "{{ message|escapejs }}";
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = 0; }, 4000);
-  {% endfor %}
-</script>
-{% endif %}
+  <!-- فوتر -->
+  <footer class="mt-16">{% include 'base/footer.html' %}</footer>
 
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('uiController', () => ({
-      isDark: localStorage.getItem('theme') === 'dark',
-      mobileMenu: false,
+  <!-- نمایش پیام‌های Django به صورت Toast -->
+  {% if messages %}
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      const container = document.getElementById('toast-container');
 
-      toggleTheme() {
-        this.isDark = !this.isDark;
-        document.documentElement.classList.toggle('dark', this.isDark);
-        localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-        lucide.createIcons();
-      },
+      function pushToast(text, level) {
+        const wrap = document.createElement('div');
+        wrap.className = "card shadow-lg flex items-start gap-3 p-3 border border-gray-200";
+        const color = ({
+          success: 'bg-emerald-500',
+          error:   'bg-red-500',
+          warning: 'bg-amber-400',
+          info:    'bg-blue-500',
+          debug:   'bg-zinc-500'
+        })[level] || 'bg-blue-500';
 
-      toggleMobileMenu() {
-        this.mobileMenu = true;
-      },
-
-      closeMobileMenu() {
-        this.mobileMenu = false;
-      },
-
-      init() {
-        document.documentElement.classList.toggle('dark', this.isDark);
-        lucide.createIcons();
+        wrap.innerHTML = `
+          <div class="w-1.5 ${color} rounded"></div>
+          <div class="flex-1">
+            <div class="text-sm leading-6">${text}</div>
+            <div class="h-1 mt-2 rounded bg-gray-200/70 overflow-hidden">
+              <div class="h-full ${color} w-full animate-[shrink_4s_linear_forwards] origin-left"></div>
+            </div>
+          </div>
+          <button class="btn btn-outline !px-2 !py-1 !text-xs" aria-label="بستن" title="بستن">&times;</button>
+        `;
+        wrap.querySelector('button').addEventListener('click', () => wrap.remove());
+        container.appendChild(wrap);
+        setTimeout(() => wrap.remove(), 4200);
       }
-    }))
-  });
 
-  lucide.createIcons();
-</script>
-{% block extra_scripts %}{% endblock %}
+      {% for message in messages %}
+        pushToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+      {% endfor %}
+    })();
+  </script>
+  {% endif %}
+
+  <!-- Alpine Store سراسری برای تم و منوی موبایل (نسخه پایدار) -->
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      function initUIStore() {
+        const savedDark = localStorage.getItem('theme') === 'dark';
+
+        Alpine.store('ui', {
+          isDark: savedDark,
+          mobileMenu: false,
+
+          get themeLabel() {
+            return this.isDark ? 'تم روشن' : 'تم تاریک';
+          },
+
+          toggleTheme() {
+            this.isDark = !this.isDark;
+            document.documentElement.classList.toggle('dark', this.isDark);
+            localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+            const meta = document.getElementById('meta-theme-color');
+            if (meta) meta.setAttribute('content', this.isDark ? '#000000' : '#f3f4f6');
+            if (window.lucide) requestAnimationFrame(() => lucide.createIcons());
+          },
+
+          openMobile()  { this.mobileMenu = true;  },
+          closeMobile() { this.mobileMenu = false; },
+        });
+
+        // اعمال تم بر اساس مقدار ذخیره‌شده
+        document.documentElement.classList.toggle('dark', Alpine.store('ui').isDark);
+        if (window.lucide) lucide.createIcons();
+      }
+
+      if (window.Alpine) {
+        initUIStore();
+      } else {
+        document.addEventListener('alpine:init', initUIStore);
+      }
+    })();
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>
 
-
-
-
-
-{#<!DOCTYPE html>#}
-{#{% load static %}#}
-{#<html lang="fa" dir="rtl">#}
-{#<head>#}
-{##}
-{#  <meta charset="UTF-8">#}
-{#  <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#  <title>{% block title %}{% endblock %}</title>#}
-{#<script>#}
-{#  // اعمال سریع کلاس 'dark' قبل از بارگذاری Tailwind برای جلوگیری از پرش تم#}
-{#  if (localStorage.getItem("theme") === "dark") {#}
-{#    document.documentElement.classList.add("dark");#}
-{#  }#}
-{#</script>#}
-{##}
-{#  <link rel="stylesheet" href="{% static 'css/style.css' %}">#}
-{##}
-{#  <!-- فعال‌سازی دارک مود از LocalStorage قبل از Tailwind -->#}
-{#<!-- Jalaali Datepicker -->#}
-{#  <script src="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@latest/dist/jalalidatepicker.min.js"></script>#}
-{##}
-{#  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">#}
-{#  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>#}
-{#  <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>#}
-{#  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>#}
-{#  <script src="https://cdn.tailwindcss.com"></script>#}
-{#  <script src="https://unpkg.com/lucide@latest"></script>#}
-{#  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>#}
-{##}
-{##}
-{##}
-{#  <script>#}
-{#    tailwind.config = {#}
-{#      darkMode: 'class',#}
-{#    }#}
-{#  </script>#}
-{##}
-{#  <style>#}
-{#    html { scroll-behavior: smooth; }#}
-{##}
-{#    @keyframes slideFade {#}
-{#      0% { opacity: 0; transform: translateY(20px); }#}
-{#      100% { opacity: 1; transform: translateY(0); }#}
-{#    }#}
-{##}
-{#    .animate-slide-fade {#}
-{#      animation: slideFade 0.5s ease-out;#}
-{#    }#}
-{#  </style>#}
-{#</head>#}
-{##}
-{#<body  id="body" class="bg-gray-50 font-sans transition-all">#}
-{#<!-- toast -->#}
-{#<div id="toast-container"#}
-{#     class="z-[9999] space-y-3 fixed top-4 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-sm sm:max-w-md text-sm text-center">#}
-{#</div>#}
-{##}
-{#<!-- Header -->#}
-{#<header>#}
-{#  {% include 'base/header.html' %}#}
-{#</header>#}
-{##}
-{#<!-- Main -->#}
-{#<main class="pt-[100px]">#}
-{#  {% block main %}{% endblock %}#}
-{#</main>#}
-{##}
-{#<!-- Footer -->#}
-{#<footer>#}
-{#  {% include 'base/footer.html' %}#}
-{#</footer>#}
-{##}
-{#<!-- پیام‌ها -->#}
-{#{% if messages %}#}
-{#<script>#}
-{#  const toastContainer = document.getElementById('toast-container');#}
-{##}
-{#  {% for message in messages %}#}
-{#    const toast = document.createElement('div');#}
-{#    toast.className = `animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300 w-full sm:w-auto max-w-sm text-sm text-center relative`;#}
-{##}
-{#    {% if message.tags == 'success' %}#}
-{#      toast.classList.add('bg-green-500');#}
-{#    {% elif message.tags == 'error' or message.tags == 'danger' %}#}
-{#      toast.classList.add('bg-red-500');#}
-{#    {% elif message.tags == 'warning' %}#}
-{#      toast.classList.add('bg-yellow-400', 'text-black');#}
-{#    {% else %}#}
-{#      toast.classList.add('bg-blue-500');#}
-{#    {% endif %}#}
-{##}
-{#    const messageSpan = document.createElement('span');#}
-{#    messageSpan.textContent = "{{ message|escapejs }}";#}
-{#    toast.appendChild(messageSpan);#}
-{##}
-{#    const closeBtn = document.createElement('button');#}
-{#    closeBtn.textContent = '×';#}
-{#    closeBtn.className = 'absolute top-1 right-2 text-white text-lg font-bold';#}
-{#    closeBtn.onclick = () => toast.remove();#}
-{#    toast.appendChild(closeBtn);#}
-{##}
-{#    toastContainer.appendChild(toast);#}
-{##}
-{#    setTimeout(() => {#}
-{#      toast.classList.add('opacity-0');#}
-{#      setTimeout(() => toast.remove(), 500);#}
-{#    }, 4000);#}
-{#  {% endfor %}#}
-{##}
-{#</script>#}
-{#{% endif %}#}
-{##}
-{#<script>#}
-{#  const body = document.getElementById('body');#}
-{#  const themeToggle = document.getElementById('theme-toggle');#}
-{#  const themeToggleMobile = document.getElementById('theme-toggle-mobile');#}
-{##}
-{#  // تابع تنظیم آیکون و متن دکمه‌ها بر اساس وضعیت تم#}
-{#  function updateThemeIcons() {#}
-{#    const isDark = body.classList.contains('dark');#}
-{#    const iconHTML = isDark ? '<i data-lucide="moon"></i> تم تاریک' : '<i data-lucide="sun"></i> تم روشن';#}
-{##}
-{#    if (themeToggle) themeToggle.innerHTML = iconHTML;#}
-{#    if (themeToggleMobile) themeToggleMobile.innerHTML = iconHTML;#}
-{##}
-{#    lucide.createIcons();#}
-{#  }#}
-{##}
-{#  // بارگذاری تم از localStorage هنگام بارگذاری صفحه#}
-{#  const savedTheme = localStorage.getItem('theme');#}
-{#  if (savedTheme === 'dark') {#}
-{#    body.classList.add('dark');#}
-{#  } else {#}
-{#    body.classList.remove('dark');#}
-{#  }#}
-{#  updateThemeIcons();#}
-{##}
-{#  // تغییر تم و ذخیره آن در localStorage#}
-{#  function toggleTheme() {#}
-{#    body.classList.toggle('dark');#}
-{#    const theme = body.classList.contains('dark') ? 'dark' : 'light';#}
-{#    localStorage.setItem('theme', theme);#}
-{#    updateThemeIcons();#}
-{#  }#}
-{##}
-{#  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);#}
-{#  if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);#}
-{#</script>#}
-{##}
-{#</body>#}
-{#</html>#}

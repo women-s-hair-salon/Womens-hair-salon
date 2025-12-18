@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from accounts.forms import UserRegistrationForm, VerifyCodeForm ,PhoneLoginForm ,OTPVerifyForm,ProfileUpdateForm
+from accounts.forms import UserRegistrationForm, VerifyCodeForm, PhoneLoginForm, OTPVerifyForm, ProfileUpdateForm, \
+    normalize_ir_mobile
 from accounts.models import CustomUser ,OtpCode
 import random
 from utils import send_otp_code
@@ -16,9 +17,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import jdatetime
 from datetime import datetime
 from django.http import JsonResponse
-
+from django.utils.translation import gettext as _
 # register
-
+OTP_LENGTH = 6  # ← طول OTP را اینجا یک‌جا کنترل کن
 logger = logging.getLogger(__name__)
 
 class UserRegisterView(View):
@@ -40,31 +41,39 @@ class UserRegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            phone_number = form.cleaned_data['phone_number']
-            random_code = random.randint(1000, 9999)
+            # 1) نرمال‌سازی شماره
+            phone_number = normalize_ir_mobile(form.cleaned_data['phone_number'])
+            # ۶ رقمی به‌صورت رشته
+            random_code = f"{random.randint(10 ** (OTP_LENGTH - 1), 10 ** OTP_LENGTH - 1)}"
 
             try:
-                send_otp_code(phone_number, random_code)
-                with transaction.atomic():
-                    OtpCode.objects.create(phone_number=phone_number, code=random_code)
+                # 2) ارسال
+                ok = send_otp_code(phone_number, random_code)
+                if not ok:
+                    messages.error(request, 'مشکلی در ارسال کد پیش آمد.')
+                    return render(request, self.template_name, {'form': form})
 
+                # 3) ⬅⬅ ذخیرهٔ درست OTP (کلید مشکل شما)
+                OtpCode.objects.update_or_create(
+                    phone_number=phone_number,
+                    defaults={'code': random_code}
+                )
+
+                # 4) سشن با شمارهٔ نرمال
                 request.session['user_registration_info'] = {
                     'phone_number': phone_number,
                     'otp_sent_at': timezone.now().timestamp(),
                 }
 
-                logger.info(f"OTP code sent to {phone_number} for registration.")
-                messages.success(request, 'We sent you a code', 'success')
+                messages.success(request, 'کد برای شما ارسال شد.', 'success')
                 return redirect('verify_code')
 
             except Exception as e:
                 logger.error(f"Failed to send OTP to {phone_number}: {str(e)}")
                 messages.error(request, 'مشکلی در ارسال کد پیش آمد.')
         else:
-            logger.warning("Signup form is invalid.")
             for field in form.errors:
                 for error in form.errors[field]:
-                    logger.debug(f"Validation error on field '{field}': {error}")
                     messages.error(request, error)
 
         return render(request, self.template_name, {'form': form})
@@ -90,37 +99,31 @@ class UserRegisterVerifyCodeView(View):
     def post(self, request):
         user_session = request.session.get('user_registration_info')
         if not user_session:
-            logger.warning("POST verify code called without session.")
             messages.error(request, 'اطلاعاتی برای تأیید یافت نشد.', 'danger')
             return redirect('signup')
 
-        phone = user_session['phone_number']
+        phone = normalize_ir_mobile(user_session['phone_number'])
         form = self.form_class(request.POST)
 
         try:
             code_instance = OtpCode.objects.get(phone_number=phone)
         except OtpCode.DoesNotExist:
-            logger.error(f"OTP not found for phone: {phone}")
             messages.error(request, 'کدی برای این شماره پیدا نشد.', 'danger')
             return redirect('verify_code')
 
         if form.is_valid():
-            entered_code = form.cleaned_data['code']
-            if entered_code == code_instance.code:
+            entered_code = int(form.cleaned_data['code'])
+            if entered_code == int(code_instance.code):
                 user, created = CustomUser.objects.get_or_create(phone_number=phone)
                 login(request, user)
                 code_instance.delete()
-                logger.info(f"User {phone} verified and {'created' if created else 'logged in'}.")
                 messages.success(request, 'ثبت‌نام با موفقیت انجام شد.', 'success')
                 return redirect('home')
             else:
-                logger.warning(f"Wrong OTP entered for {phone}: {entered_code}")
                 messages.error(request, 'کد وارد شده صحیح نیست.', 'danger')
         else:
-            logger.warning(f"Invalid form submitted during OTP verification for {phone}")
             for field in form.errors:
                 for error in form.errors[field]:
-                    logger.debug(f"Validation error on '{field}': {error}")
                     messages.error(request, error)
 
         return render(request, 'verify.html', {
@@ -128,6 +131,7 @@ class UserRegisterVerifyCodeView(View):
             'otp_sent_at': user_session.get('otp_sent_at'),
             'phone': phone,
         })
+
 
 # login
 
@@ -142,28 +146,33 @@ class UserLoginView(View):
     def post(self, request):
         form = PhoneLoginForm(request.POST)
         if form.is_valid():
-            phone = form.cleaned_data['phone_number']
+            phone = normalize_ir_mobile(form.cleaned_data['phone_number'])
             if CustomUser.objects.filter(phone_number=phone).exists():
                 try:
-                    code = random.randint(1000, 9999)
-                    send_otp_code(phone, code)
-                    OtpCode.objects.update_or_create(phone_number=phone, defaults={'code': code})
+                    code = f"{random.randint(10 ** (OTP_LENGTH - 1), 10 ** OTP_LENGTH - 1)}"
+                    ok = send_otp_code(phone, code)
+                    if not ok:
+                        messages.error(request, 'مشکلی در ارسال کد پیش آمد.')
+                        return render(request, 'login.html', {'form': form})
+
+                    # ⬅⬅ ذخیرهٔ درست OTP
+                    OtpCode.objects.update_or_create(
+                        phone_number=phone,
+                        defaults={'code': code}
+                    )
+
                     request.session['login_phone'] = phone
                     request.session['otp_sent_at'] = timezone.now().timestamp()
-                    logger.info(f"OTP sent to existing user {phone} for login.")
                     messages.success(request, 'کد برای شما ارسال شد.')
                     return redirect('verify_login_code')
                 except Exception as e:
                     logger.error(f"Error sending OTP to {phone}: {str(e)}")
                     messages.error(request, 'مشکلی در ارسال کد پیش آمد.')
             else:
-                logger.warning(f"Login attempt with unregistered phone: {phone}")
                 messages.error(request, 'این شماره ثبت نشده.')
         else:
-            logger.warning("Invalid login form submitted.")
             for field in form.errors:
                 for error in form.errors[field]:
-                    logger.debug(f"Validation error on '{field}': {error}")
                     messages.error(request, error)
 
         return render(request, 'login.html', {'form': form})
@@ -184,33 +193,28 @@ class UserLoginVerifyView(View):
     def post(self, request):
         phone = request.session.get('login_phone')
         if not phone:
-            logger.warning("Login verification attempted without phone in session.")
             return redirect('login')
+        phone = normalize_ir_mobile(phone)
 
         form = OTPVerifyForm(request.POST)
         if form.is_valid():
             try:
                 otp = OtpCode.objects.get(phone_number=phone)
             except OtpCode.DoesNotExist:
-                logger.error(f"OTP code not found for phone: {phone}")
                 messages.error(request, 'کدی برای این شماره پیدا نشد.')
                 return redirect('verify_login_code')
 
-            if otp.code == form.cleaned_data['code']:
+            if int(otp.code) == int(form.cleaned_data['code']):
                 user = CustomUser.objects.get(phone_number=phone)
                 login(request, user)
                 otp.delete()
-                logger.info(f"User {phone} successfully logged in.")
                 messages.success(request, 'با موفقیت وارد شدید.')
                 return redirect('home')
             else:
-                logger.warning(f"Wrong OTP entered for phone: {phone}")
                 messages.error(request, 'کد وارد شده صحیح نیست.')
         else:
-            logger.warning(f"Invalid OTP form submitted for {phone}")
             for field in form.errors:
                 for error in form.errors[field]:
-                    logger.debug(f"Validation error on '{field}': {error}")
                     messages.error(request, error)
 
         return render(request, 'verify_login.html', {
@@ -218,6 +222,7 @@ class UserLoginVerifyView(View):
             'otp_sent_at': request.session.get('otp_sent_at'),
             'phone': phone
         })
+
 
 # resend otp
 
@@ -231,60 +236,49 @@ class ResendOtpCodeView(View):
         login_phone = request.session.get('login_phone')
 
         if session_data:
-            phone = session_data.get('phone_number')
+            phone = normalize_ir_mobile(session_data.get('phone_number'))
             redirect_to = 'verify_code'
         elif login_phone:
-            phone = login_phone
+            phone = normalize_ir_mobile(login_phone)
             redirect_to = 'verify_login_code'
         else:
-            logger.warning("Resend OTP attempted without phone in session.")
             messages.error(request, 'شماره‌ای برای ارسال کد یافت نشد.', 'danger')
             return redirect('login')
 
-        logger.debug(f"Attempting to resend OTP for {phone}")
-
-        # حذف کدهای قدیمی‌تر از ۲۴ ساعت
-        OtpCode.clear_old_codes(phone)
-
-        # بررسی تعداد تلاش‌های موجود
-        daily_attempts = OtpCode.get_daily_attempts(phone)
-        remaining_attempts = MAX_ATTEMPTS_PER_DAY - daily_attempts
-
-        if remaining_attempts <= 0:
-            logger.warning(f"{phone} exceeded max resend attempts in 24 hours.")
-            messages.error(
-                request,
-                'شما ۵ بار در ۲۴ ساعت گذشته درخواست ارسال کد داشته‌اید. لطفاً فردا دوباره امتحان کنید.',
-                'danger'
-            )
-            return redirect(redirect_to)
-
+        # سیاست خودت را نگه می‌داریم (تاخیر 60 ثانیه/حداکثر روزانه) – اگر می‌خوای همین فعلی بماند، دخالت نمی‌کنم
         code_instance = OtpCode.objects.filter(phone_number=phone).first()
         if code_instance and not code_instance.is_resend_allowed():
-            logger.info(f"{phone} tried to resend OTP before 60 seconds.")
             messages.warning(request, 'لطفاً ۶۰ ثانیه صبر کنید و دوباره امتحان کنید.', 'warning')
             return redirect(redirect_to)
 
+        OtpCode.clear_old_codes(phone)
+        daily_attempts = OtpCode.get_daily_attempts(phone)
+        if daily_attempts >= MAX_ATTEMPTS_PER_DAY:
+            messages.error(request, '۵ بار در ۲۴ ساعت گذشته درخواست دادید. لطفاً فردا امتحان کنید.', 'danger')
+            return redirect(redirect_to)
+
         if code_instance:
-            logger.debug(f"Old OTP deleted for {phone}")
             code_instance.delete()
 
         try:
-            random_code = random.randint(1000, 9999)
-            send_otp_code(phone, random_code)
-            OtpCode.objects.create(phone_number=phone, code=random_code)
+            random_code = f"{random.randint(10 ** (OTP_LENGTH - 1), 10 ** OTP_LENGTH - 1)}"
+            ok = send_otp_code(phone, random_code)
+            if not ok:
+                messages.error(request, 'ارسال کد با خطا مواجه شد.', 'danger')
+                return redirect(redirect_to)
+
+            # ⬅⬅ ذخیرهٔ درست OTP
+            OtpCode.objects.update_or_create(
+                phone_number=phone,
+                defaults={'code': random_code}
+            )
 
             if session_data:
                 request.session['user_registration_info']['otp_sent_at'] = timezone.now().timestamp()
             elif login_phone:
                 request.session['otp_sent_at'] = timezone.now().timestamp()
 
-            logger.info(f"New OTP sent to {phone}. Remaining attempts: {remaining_attempts - 1}")
-            messages.success(
-                request,
-                f'کد جدید ارسال شد. شما {remaining_attempts - 1} تلاش دیگر دارید.',
-                'success'
-            )
+            messages.success(request, 'کد جدید ارسال شد.', 'success')
         except Exception as e:
             logger.error(f"Error sending OTP to {phone}: {str(e)}")
             messages.error(request, 'ارسال کد با خطا مواجه شد.', 'danger')
@@ -305,57 +299,52 @@ class UserLogoutView(View):
 # profile
 
 class ProfileUpdateView(LoginRequiredMixin, View):
-    form_class = ProfileUpdateForm
     template_name = 'profile.html'
+    form_class = ProfileUpdateForm
+
+    def _months(self):
+        return list(enumerate([
+            "فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور",
+            "مهر","آبان","آذر","دی","بهمن","اسفند"
+        ], start=1))
+
+    def _initial_birth_parts(self, user):
+        """ مقداردهی برای نمایش اولیه در قالب (اختیاری اگر از form.initial استفاده نکنی) """
+        if user and getattr(user, 'birthday', None):
+            g = user.birthday
+            j = jdatetime.date.fromgregorian(day=g.day, month=g.month, year=g.year)
+            return j.year, j.month, j.day
+        return None, None, None
 
     def get(self, request):
         form = self.form_class(instance=request.user)
-
-        # لیست ماه‌های فارسی
-        months = list(enumerate([
-            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-        ], start=1))
-
-        user = request.user
-        context = {
+        by, bm, bd = self._initial_birth_parts(request.user)
+        ctx = {
             'form': form,
-            'months': months,
-            'birth_year': user.birthday.year if user.birthday else None,
-            'birth_month': user.birthday.month if user.birthday else None,
-            'birth_day': user.birthday.day if user.birthday else None,
+            'months': self._months(),
+            'birth_year': by, 'birth_month': bm, 'birth_day': bd,
         }
-
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, ctx)
 
     def post(self, request):
         form = self.form_class(request.POST, instance=request.user)
-
         if form.is_valid():
-            try:
-                year = int(request.POST.get('year'))
-                month = int(request.POST.get('month'))
-                day = int(request.POST.get('day'))
-                g_date = jdatetime.date(year, month, day).togregorian()
+            form.save()
+            messages.success(request, "تغییرات پروفایل با موفقیت ذخیره شد.")
+            return redirect('profile')
+        # اگر خطا داشت، همان مقادیر انتخاب‌شده را دوباره به قالب بدهیم
+        by = request.POST.get('year')
+        bm = request.POST.get('month')
+        bd = request.POST.get('day')
+        ctx = {
+            'form': form,
+            'months': self._months(),
+            'birth_year': int(by) if by and by.isdigit() else None,
+            'birth_month': int(bm) if bm and str(bm).isdigit() else None,
+            'birth_day': int(bd) if bd and str(bd).isdigit() else None,
+        }
+        return render(request, self.template_name, ctx)
 
-                user = form.save(commit=False)
-                user.birthday = g_date
-                user.save()
-
-                return JsonResponse({
-                    'success': True,
-                    'message': 'اطلاعات پروفایل با موفقیت ذخیره شد.'
-                })
-            except (ValueError, TypeError):
-                return JsonResponse({
-                    'success': False,
-                    'message': 'تاریخ وارد شده معتبر نیست.'
-                })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'لطفاً اطلاعات را به‌درستی وارد کنید.'
-            })
 
 
 #

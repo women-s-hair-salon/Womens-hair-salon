@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+{% block title %}دسترسی مدیریت قفل شد{% endblock %}
+{% block main %}
+<div class="max-w-md mx-auto mt-12 bg-white p-6 rounded-2xl shadow">
+  <h1 class="text-xl font-extrabold mb-3">دسترسی مدیریت قفل شد</h1>
+  <p class="text-gray-600 text-sm leading-7">
+    برای ورود دوباره به بخش مدیریت، لطفاً رمز مدیریت را وارد کنید.
+  </p>
+  <div class="mt-6 flex gap-2">
+    <a href="{% url 'staff_stepup' %}" class="bg-gray-900 text-white px-4 py-2 rounded-lg">ورود مدیریت</a>
+    <a href="{% url 'home' %}" class="px-4 py-2 rounded-lg border">بازگشت به خانه</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,236 +1,212 @@
-<!-- templates/verify_login.html -->
-{#<!DOCTYPE html>#}
-{#<html lang="fa">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <title>تأیید کد</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h2>کد ارسال‌شده را وارد کنید</h2>#}
-{#    <form method="post">#}
-{#        {% csrf_token %}#}
-{#        {{ form.as_p }}#}
-{#        <button type="submit">ورود</button>#}
-{#    </form>#}
-{##}
-{#    {% if messages %}#}
-{#        <ul>#}
-{#        {% for message in messages %}#}
-{#            <li>{{ message }}</li>#}
-{#        {% endfor %}#}
-{#        </ul>#}
-{#    {% endif %}#}
-{#</body>#}
-{#</html>#}
-
-
-
-{# صفحه تایید کد OTP #}
-{#{% extends 'base/base.html' %}#}
-{#{% block title %}تایید کد{% endblock %}#}
-{#{% block main %}#}
-{#<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-pink-100 via-purple-100 to-red-100">#}
-{#  <div class="max-w-md w-full space-y-8 p-10 bg-white/90 backdrop-blur-md rounded-xl shadow-lg">#}
-{#    {% if messages %}#}
-{#      {% for message in messages %}#}
-{#        <div class="p-3 rounded-md text-sm font-medium text-center mb-4#}
-{#            {% if message.tags == 'success' %}bg-green-100 text-green-700#}
-{#            {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-100 text-red-700#}
-{#            {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800#}
-{#            {% else %}bg-blue-100 text-blue-700{% endif %}">#}
-{#          {{ message }}#}
-{#        </div>#}
-{#      {% endfor %}#}
-{#    {% endif %}#}
-{#    <div>#}
-{#      <h2 class="text-center text-3xl font-extrabold text-pink-700"> کد تایید پیامک شده</h2>#}
-{#      <p class="mt-2 text-center text-sm text-gray-600">#}
-{#        لطفاً کد تایید  <strong>{{ phone }}</strong>  را وارد کنید#}
-{#      </p>#}
-{#    </div>#}
-{#    <form class="mt-8 space-y-6" method="POST" action="{% url 'verify_login_code' %}">#}
-{#      {% csrf_token %}#}
-{#      <input type="hidden" name="phone" value="{{ phone }}">#}
-{#      <div class="rounded-md shadow-sm">#}
-{#        <div>#}
-{#          <label for="otp" class="sr-only">کد تایید</label>#}
-{#          <input id="otp" name="otp" type="text" required class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm" placeholder="کد تایید">#}
-{#        </div>#}
-{#      </div>#}
-{#      <div>#}
-{#        <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">#}
-{#          تایید و ادامه#}
-{#        </button>#}
-{#      </div>#}
-{#    </form>#}
-{#    <p class="text-sm text-center mt-6">#}
-{#        کدی دریافت نکردید؟#}
-{#        <a href="{% url 'resend_code' %}" id="resend-link" style="pointer-events: none; color: grey;">#}
-{#            ارسال مجدد کد (<span id="timer">60</span> ثانیه)#}
-{#        </a>#}
-{#    </p>#}
-{#    <script>#}
-{#        const resendLink = document.getElementById("resend-link");#}
-{#        const timerSpan = document.getElementById("timer");#}
-{##}
-{#        const countdownDuration = 60;#}
-{#        const now = Math.floor(Date.now() / 1000);#}
-{#        let expiresAt = sessionStorage.getItem("otp_expires_at");#}
-{##}
-{#        if (!expiresAt || parseInt(expiresAt) < now) {#}
-{#            expiresAt = now + countdownDuration;#}
-{#            sessionStorage.setItem("otp_expires_at", expiresAt);#}
-{#        }#}
-{##}
-{#        const interval = setInterval(() => {#}
-{#            const current = Math.floor(Date.now() / 1000);#}
-{#            const remaining = parseInt(expiresAt) - current;#}
-{##}
-{#            if (remaining <= 0) {#}
-{#                clearInterval(interval);#}
-{#                resendLink.textContent = "ارسال مجدد کد";#}
-{#                resendLink.style.pointerEvents = "auto";#}
-{#                resendLink.style.color = "#007bff";#}
-{#                sessionStorage.removeItem("otp_expires_at");#}
-{#            } else {#}
-{#                timerSpan.textContent = remaining;#}
-{#            }#}
-{#        }, 1000);#}
-{#    </script>#}
-{#  </div>#}
-{#</div>#}
-{#{% endblock %}#}
-
-
-
-
 {% extends 'base/base.html' %}
 {% block title %}تأیید ورود{% endblock %}
+
 {% block main %}
+<div class="min-h-[70vh] bg-gradient-to-br from-pink-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12">
+  <div class="max-w-md mx-auto px-4">
+    <div class="card p-6 space-y-6">
 
-<style>
-  @keyframes slideFade {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  .animate-slide-fade {
-    animation: slideFade 0.5s ease-out;
-  }
-</style>
+      <!-- عنوان و توضیح -->
+      <header class="space-y-1 text-center">
+        <h1 class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+          تأیید ورود
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          کد تأیید ارسال شده به
+          <span class="ltr font-bold text-gray-900 dark:text-gray-100">{{ phone }}</span>
+          را وارد کنید.
+        </p>
+      </header>
 
-{#<audio id="toast-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_33e729e5a8.mp3" preload="auto"></audio>#}
-{#<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>#}
+      {% if error %}
+        <div class="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm px-3 py-2">
+          {{ error }}
+        </div>
+      {% endif %}
 
-<div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-100 to-purple-100">
-  <div class="max-w-md w-full space-y-8 p-10 bg-white/90 backdrop-blur-md rounded-xl shadow-lg">
+      <!-- فرم -->
+      <form method="post" action="{% url 'verify_login_code' %}" novalidate id="otp-form" class="space-y-5">
+        {% csrf_token %}
 
-    <div>
-      <h2 class="text-center text-3xl font-extrabold text-pink-700">تأیید ورود</h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        لطفاً کد تأیید ارسال شده به شماره <strong>{{ phone }}</strong> را وارد کنید
-      </p>
+        <!-- فیلد نهایی که به سرور ارسال می‌شود -->
+        <input type="hidden" name="code" id="otp-joined" />
+
+        <!-- شش باکس تک‌رقمی -->
+        <div id="otp-wrapper"
+             dir="ltr"
+             class="flex items-center justify-center gap-2 select-none">
+          {% for i in "123456" %}
+          <input type="text"
+                 dir="ltr"
+                 inputmode="numeric"
+                 pattern="[0-9]*"
+                 maxlength="1"
+                 autocomplete="one-time-code"
+                 class="form-input !w-12 text-center text-lg tracking-widest font-mono !text-left"
+                 aria-label="رقم {{ forloop.counter }}"
+                 data-otp-index="{{ forloop.counter0 }}"
+                 {% if forloop.first %}autofocus{% endif %}>
+          {% endfor %}
+        </div>
+
+
+        <!-- اکشن‌ها -->
+        <div class="space-y-3">
+          <button type="submit" class="btn btn-primary w-full">
+            ورود به حساب
+          </button>
+
+          <!-- تایمر/ارسال مجدد -->
+          <p class="text-sm text-center">
+            کدی دریافت نکردید؟
+            <a href="{% url 'resend_code' %}" id="resend-link" class="font-bold text-pink-600 hover:underline">
+              ارسال مجدد کد (<span id="timer">60</span> ثانیه)
+            </a>
+          </p>
+        </div>
+      </form>
+
+      <!-- راهنمای کوچک -->
+      <div class="text-xs text-center text-gray-500 dark:text-gray-400">
+        در صورت بروز مشکل، بعد از اتمام تایمر، «ارسال مجدد کد» را بزنید.
+      </div>
     </div>
-
-    <form method="POST" class="mt-8 space-y-6" action="{% url 'verify_login_code' %}">
-      {% csrf_token %}
-      <div class="rounded-md shadow-sm">
-        <input id="otp" name="code" type="text" required
-               class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300
-               placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500
-               focus:z-10 sm:text-sm" placeholder="کد تأیید">
-      </div>
-      <div>
-        <button type="submit"
-                class="group relative w-full flex justify-center py-2 px-4 border border-transparent
-                       text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-purple-500
-                       hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2
-                       focus:ring-offset-2 focus:ring-pink-500">
-          ورود به حساب
-        </button>
-      </div>
-    </form>
-
-      <script>
-  // جلوگیری از کلیک مجدد روی دکمه
-  const form = document.querySelector("form");
-  const submitBtn = form?.querySelector("button[type=submit]");
-  form?.addEventListener("submit", () => {
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "در حال ارسال...";
-      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-    }
-  });
-</script>
-
-
-    <p class="text-sm text-center mt-6">
-      کدی دریافت نکردید؟
-      <a href="{% url 'resend_code' %}" id="resend-link">
-        ارسال مجدد کد (<span id="timer">60</span> ثانیه)
-      </a>
-    </p>
-
-    <script>
-      const resendLink = document.getElementById("resend-link");
-      const timerSpan = document.getElementById("timer");
-
-      const sentTime = {{ otp_sent_at|default:"0" }};
-      const now = Math.floor(Date.now() / 1000);
-      let remaining = Math.floor(60 - (now - sentTime));
-
-      if (remaining <= 0) {
-        resendLink.innerHTML = "ارسال مجدد کد";
-        resendLink.style.pointerEvents = "auto";
-        resendLink.style.color = "#007bff";
-      } else {
-        resendLink.style.pointerEvents = "none";
-        resendLink.style.color = "grey";
-        timerSpan.textContent = remaining;
-
-        const interval = setInterval(() => {
-          remaining -= 1;
-          if (remaining <= 0) {
-            clearInterval(interval);
-            resendLink.innerHTML = "ارسال مجدد کد";
-            resendLink.style.pointerEvents = "auto";
-            resendLink.style.color = "#007bff";
-          } else {
-            timerSpan.textContent = remaining;
-          }
-        }, 1000);
-      }
-    </script>
-
   </div>
 </div>
+{% endblock %}
 
-{#{% if messages %}#}
-{#<script>#}
-{#  const toastContainer = document.getElementById('toast-container');#}
-{#  const toastSound = document.getElementById('toast-sound');#}
-{#  {% for message in messages %}#}
-{#    const toast = document.createElement('div');#}
-{#    toast.className = "animate-slide-fade px-6 py-3 rounded-lg shadow-lg text-white transition transform duration-300";#}
-{#    {% if message.tags == 'success' %}#}
-{#      toast.classList.add('bg-green-500');#}
-{#    {% elif message.tags == 'error' or message.tags == 'danger' %}#}
-{#      toast.classList.add('bg-red-500');#}
-{#    {% elif message.tags == 'warning' %}#}
-{#      toast.classList.add('bg-yellow-500', 'text-black');#}
-{#    {% else %}#}
-{#      toast.classList.add('bg-blue-500');#}
-{#    {% endif %}#}
-{#    toast.textContent = "{{ message|escapejs }}";#}
-{#    toastContainer.appendChild(toast);#}
-{#    toastSound.currentTime = 0;#}
-{#    toastSound.play();#}
-{#    setTimeout(() => {#}
-{#      toast.classList.add('opacity-0');#}
-{#      setTimeout(() => toast.remove(), 500);#}
-{#    }, 4000);#}
-{#  {% endfor %}#}
-{#</script>#}
-{#{% endif %}#}
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  // رندر آیکن‌ها
+  if (window.lucide) lucide.createIcons();
 
+  // جلوگیری از ارسال دوباره + جلوگیری از ارسال اگر 6 رقم نشده
+  (function () {
+    const form = document.getElementById('otp-form');
+    const submitBtn = form?.querySelector('button[type=submit]');
+    const joined = document.getElementById('otp-joined');
+
+    form?.addEventListener('submit', (e) => {
+      if (!joined || joined.value.length !== 6) {
+        e.preventDefault();
+        // پیام ساده؛ Toast هم در base دارید
+        alert('کد تأیید باید ۶ رقم باشد.');
+        return;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        submitBtn.textContent = 'در حال ارسال...';
+      }
+    });
+  })();
+
+  // ورودی‌های ۶گانه OTP + تجمیع در #otp-joined
+  (function () {
+    const wrap = document.getElementById('otp-wrapper');
+    if (!wrap) return;
+    const inputs = Array.from(wrap.querySelectorAll('input[data-otp-index]'));
+    const joined = document.getElementById('otp-joined');
+
+    function fa2en(str) {
+      if (!str) return '';
+      const map = {'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+      return str.replace(/[۰-۹٠-٩]/g, d => map[d] || d);
+    }
+    function join() {
+      const code = inputs.map(i => (i.value || '')).join('');
+      if (joined) joined.value = code;
+    }
+
+    // فوکوس اولیه روی اولین باکس (اگر autofocus کار نکرد)
+    if (inputs.length) {
+      setTimeout(() => inputs[0].focus(), 0);
+    }
+
+    inputs.forEach((inp, idx) => {
+      // اطمینان از LTR روی هر باکس (اگر در HTML گذاشته‌اید، این لازم نیست)
+      inp.setAttribute('dir', 'ltr');
+
+      inp.addEventListener('input', (e) => {
+        const v = fa2en(e.target.value).replace(/\D/g, ''); // فقط عدد
+        e.target.value = v.slice(0, 1);
+        // رفتن به بعدی
+        if (v && idx < inputs.length - 1) inputs[idx + 1].focus();
+        join();
+      });
+
+      inp.addEventListener('keydown', (e) => {
+        // Backspace → رفتن به قبلی اگر خالی بود
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+        // جهت‌یابی طبیعی LTR
+        if (e.key === 'ArrowLeft' && idx > 0) {
+          e.preventDefault();
+          inputs[idx - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && idx < inputs.length - 1) {
+          e.preventDefault();
+          inputs[idx + 1].focus();
+        }
+      });
+
+      inp.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = fa2en((e.clipboardData || window.clipboardData).getData('text')).replace(/\D/g, '');
+        if (!text) return;
+        // پخش محتوا در باکس‌ها از چپ به راست
+        for (let i = 0; i < inputs.length; i++) {
+          inputs[i].value = text[i] || '';
+        }
+        join();
+        // فوکوس آخرین باکس پُر شده
+        const last = Math.min(text.length, inputs.length) - 1;
+        if (last >= 0) inputs[last].focus();
+      });
+    });
+  })();
+
+  // تایمر ارسال مجدد
+  (function () {
+    const resendLink = document.getElementById("resend-link");
+    const timerSpan = document.getElementById("timer");
+    if (!resendLink || !timerSpan) return;
+
+    // otp_sent_at را به‌صورت unix timestamp ثانیه‌ای از ویو پاس بده
+    const sentTime = {{ otp_sent_at|default:"0" }};
+    const now = Math.floor(Date.now() / 1000);
+    let remaining = Math.max(0, Math.floor(60 - (now - sentTime)));
+
+    function setDisabled(disabled) {
+      if (disabled) {
+        resendLink.style.pointerEvents = "none";
+        resendLink.classList.add('text-gray-400');
+        resendLink.classList.remove('text-pink-600');
+      } else {
+        resendLink.style.pointerEvents = "auto";
+        resendLink.classList.remove('text-gray-400');
+        resendLink.classList.add('text-pink-600');
+      }
+    }
+
+    if (remaining <= 0) {
+      resendLink.innerHTML = "ارسال مجدد کد";
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+      timerSpan.textContent = remaining;
+      const interval = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          resendLink.innerHTML = "ارسال مجدد کد";
+          setDisabled(false);
+        } else {
+          timerSpan.textContent = remaining;
+        }
+      }, 1000);
+    }
+  })();
+</script>
 {% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}پاسخ به پیام{% endblock %}
+
+{% block main %}
+
+    {% block extra_head %}
+<style>
+  .btn-delete-local{
+    background-color:#dc2626 !important;
+    color:#fff !important;
+    border:0 !important;
+    border-radius:.75rem;
+    padding:.5rem .8rem;
+    font-weight:800;
+    display:inline-flex; align-items:center; gap:.4rem;
+    box-shadow:0 1px 2px rgb(0 0 0 / 0.05);
+    transition:background-color .15s ease;
+  }
+  .btn-delete-local:hover{ background-color:#b91c1c !important; }
+  .dark .btn-delete-local{ background-color:#dc2626 !important; color:#fff !important; }
+  .btn-delete-local .txt{ line-height:1; }
+</style>
+{% endblock %}
+
+<section class="max-w-3xl mx-auto p-4 space-y-6">
+
+  <div class="card p-5 md:p-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl md:text-2xl font-extrabold">پیام کاربر</h1>
+      <div class="flex gap-2">
+        <a href="{% url 'staff_messages' %}" class="btn btn-outline">بازگشت</a>
+        <form method="post" action="{% url 'staff_message_delete' obj.pk %}"
+              onsubmit="return confirm('این پیام حذف شود؟')">
+          {% csrf_token %}
+          <button class="btn-delete-local" aria-label="حذف پیام">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span class="txt">حذف</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+
+    <div class="mt-4 space-y-2 text-sm">
+      <div><span class="text-gray-500">نام:</span> {{ obj.full_name }}</div>
+      <div><span class="text-gray-500">ایمیل:</span> {{ obj.email }}</div>
+      {% if obj.phone %}<div><span class="text-gray-500">تلفن:</span> {{ obj.phone }}</div>{% endif %}
+      <div class="text-xs text-gray-500 dark:text-gray-400">
+        ارسال: {{ obj.created_at|to_jalali_date }} - {{ obj.created_at|time:"H:i" }}
+        {% if obj.is_replied and obj.replied_at %} • پاسخ: {{ obj.replied_at|to_jalali_date }} - {{ obj.replied_at|time:"H:i" }}{% endif %}
+      </div>
+      <div class="mt-2 p-3 rounded-lg bg-white/70 dark:bg-zinc-900/50 ring-1 ring-gray-200 dark:ring-zinc-800">
+        {{ obj.message }}
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-5 md:p-6">
+    <h2 class="font-extrabold mb-3">پاسخ ایمیلی</h2>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        <label class="block text-sm font-semibold mb-1">موضوع</label>
+        {{ form.subject }}
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">متن پاسخ</label>
+        {{ form.body }}
+      </div>
+      {% if form.send_copy_to_me %}
+      <label class="inline-flex items-center gap-2 text-sm">
+        {{ form.send_copy_to_me }} یک نسخه برای من ارسال شود
+      </label>
+      {% endif %}
+      <div class="flex justify-end gap-2">
+        <a href="{% url 'staff_messages' %}" class="btn btn-outline">انصراف</a>
+        <button class="btn btn-primary">ارسال ایمیل</button>
+      </div>
+    </form>
+  </div>
+
+</section>
+{% endblock %}

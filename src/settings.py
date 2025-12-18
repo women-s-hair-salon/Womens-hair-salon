@@ -9,25 +9,70 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os
+
 from pathlib import Path
 from django.contrib.messages import constants as messages
-
+import environ ,os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env = environ.Env()
+# environ.Env.read_env(os.path.join(BASE_DIR, '..', '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tbhxbw(&&x5=u8_s+yopzmn8^o)5du%wz=6nd1uszm7dy2a5a_'
-
+SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
+# DEBUG = True
+# DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+# ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+# ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# 's3.ir-thr-at1.arvanstorage.ir'
+# 'womens-hair-salon'
+# 'da733931-c774-411f-a4b6-19e74f3acbf0'
+# 493e38a37b5a22b5ca0abb6a89beabe916295ca7bd377621a75e86324395bdd9
 
-ALLOWED_HOSTS = []
+AWS_S3_ENDPOINT_URL='s3.ir-thr-at1.arvanstorage.ir'
+AWS_STORAGE_BUCKET_NAME='womens-hair-salon'
+AWS_ACCESS_KEY_ID='da733931-c774-411f-a4b6-19e74f3acbf0'
+AWS_SECRET_ACCESS_KEY ='493e38a37b5a22b5ca0abb6a89beabe916295ca7bd377621a75e86324395bdd9'
+# Media روی آروان (S3 Compatible)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_S3_ENDPOINT_URL     = env('S3_ENDPOINT_URL')
+# AWS_STORAGE_BUCKET_NAME = env('S3_BUCKET_NAME')
+# AWS_ACCESS_KEY_ID       = env('S3_ACCESS_KEY')
+# AWS_SECRET_ACCESS_KEY    = env('S3_SECRET_KEY')
+AWS_S3_CUSTOM_DOMAIN     = env('S3_CDN_DOMAIN', default=None)
+AWS_DEFAULT_ACL          = None
+AWS_QUERYSTRING_AUTH     = False
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=31536000, public"}
+AWS_S3_FILE_OVERWRITE = False
+# MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/" if AWS_S3_CUSTOM_DOMAIN else f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
+# امنیت و دپلوی
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True           # بعد از گرفتن SSL فعال کن
+SECURE_HSTS_SECONDS = 31536000       # یک سال HSTS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+
+
+
+STAFF_STEPUP_MAX_AGE_MINUTES = 30  # مدت اعتبار تأیید رمز مدیریت
 
 # Application definition
 
@@ -42,11 +87,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'storages',
+
 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "csp.middleware.CSPMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,8 +136,15 @@ MESSAGE_TAGS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+        'CONN_MAX_AGE': 60,      # اتصال پایدار (بهتره PgBouncer هم داشته باشی)
     }
 }
 
@@ -124,12 +179,21 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = "/app/staticfiles"
+# STATIC_ROOT = BASE_DIR.parent / 'staticfiles'
+MEDIA_URL  = "/media/"
+# MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT  = "/app/media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -137,9 +201,42 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+# ZARINPAL_MERCHANT_ID = env('ZARINPAL_MERCHANT_ID')
+# ZARINPAL_CALLBACK_URL = env('ZARINPAL_CALLBACK_URL', default='https://example.com/payment/callback/')
+# --- Zarinpal ---
 
-MEDIA_URL = '/media/'  # URL prefix for media files
-MEDIA_ROOT = BASE_DIR / 'media'
+# ZARINPAL_MERCHANT_ID = env('ZARINPAL_MERCHANT_ID', '')  # ← در .env ست کن
+# # اختیاری: اگر خالی بگذاری، ما در ویو callback را داینامیک می‌سازیم
+# ZARINPAL_CALLBACK_URL = env('ZARINPAL_CALLBACK_URL', '')
+# ZARINPAL_MERCHANT_ID  = env('ZARINPAL_MERCHANT_ID',  default='')
+# ZARINPAL_CALLBACK_URL = env('ZARINPAL_CALLBACK_URL', default='')
+# # # برای توسعه بدون درگاه واقعی (اختیاری)
+# # ZARINPAL_SANDBOX = os.environ.get('ZARINPAL_SANDBOX', 'false').lower() in ('1','true','yes')
+# ZARINPAL_SANDBOX = env.bool('ZARINPAL_SANDBOX', default=True)
+
+ZARINPAL_SANDBOX = env.bool('ZARINPAL_SANDBOX', default=True)
+ZARINPAL_MERCHANT_ID  = env.str('ZARINPAL_MERCHANT_ID',  default='')   # می‌تونه خالی بمونه
+ZARINPAL_CALLBACK_URL = env.str('ZARINPAL_CALLBACK_URL', default='')   # تو ویو داینامیک می‌سازیم
+
+
+
+KAVENEGAR_API_KEY = env.str('KAVENEGAR_API_KEY', default='')   # از پنل کاوه‌نگار
+KAVENEGAR_SENDER  = env.str('KAVENEGAR_SENDER',  default='')   # اختیاری: شماره اختصاصی/ارسالی
+ADMIN_MOBILE      = env.str('ADMIN_MOBILE',      default='')   # یک یا چند شماره با کاما جدا
+
+OTP_CODE_LENGTH = env.int('OTP_CODE_LENGTH', default=4)
+OTP_EXPIRE_SECONDS = env.int('OTP_EXPIRE_SECONDS', default=180)       # انقضای کد (۳ دقیقه)
+OTP_RESEND_SECONDS = env.int('OTP_RESEND_SECONDS', default=60)        # حداقل فاصله ارسال مجدد
+OTP_MAX_VERIFY_ATTEMPTS = env.int('OTP_MAX_VERIFY_ATTEMPTS', default=5)  # تلاش برای وارد کردن کد
+OTP_MAX_SENDS_PER_DAY = env.int('OTP_MAX_SENDS_PER_DAY', default=5)      # سقف ارسال در ۲۴ ساعت
+
+SALON_NAME   = env.str('SALON_NAME',   default='سیندخت بیوتی')
+SALON_PHONE  = env.str('SALON_PHONE',  default='')
+SALON_ADDR   = env.str('SALON_ADDR',   default='تهران، ...')
+# ADMIN_MOBILE = env.str('ADMIN_MOBILE', default='')  # چندتا شماره با کاما
+
+
+
 
 
 
@@ -173,3 +270,84 @@ LOGGING = {
         },
     },
 }
+
+# (اختیاری) حدود حجم‌ها در DEV
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024   # 20MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024   # 25MB
+
+#       csp
+
+CSP_REPORT_ONLY = True  # اول فقط گزارش بده
+# CSP_REPORT_ONLY = False
+# CSP_INCLUDE_NONCE_IN = ("script-src",)
+# CSP_SCRIPT_SRC = (
+#     "'self'",
+#     "https://unpkg.com",
+#     "https://cdn.jsdelivr.net",
+#     # *بدون* 'unsafe-inline'
+# )
+
+CSP_DEFAULT_SRC = ("'self'",)
+
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",            # موقتی؛ بعداً حذف و از nonce استفاده کن
+    "https://unpkg.com",          # lucide
+    "https://cdn.jsdelivr.net",   # alpine
+)
+
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",            # چون inline style/ Tailwind JIT/… ممکنه داشته باشی
+    "https://fonts.googleapis.com",
+)
+
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com",
+    "data:",
+)
+
+CSP_IMG_SRC = (
+    "'self'",
+    "data:",
+    "blob:",
+    "https:",
+)
+
+CSP_MEDIA_SRC = (
+    "'self'",
+    "data:",
+    "blob:",
+)
+
+# برای iframe های آموزش
+CSP_FRAME_SRC = (
+    "'self'",
+    "https://www.youtube.com", "https://youtube.com", "https://youtu.be",
+    "https://player.vimeo.com",
+    "https://www.aparat.com", "https://aparat.com",
+    "https://www.instagram.com", "https://instagram.com", "https://instagr.am",
+    "https://www.tiktok.com", "https://tiktok.com",
+)
+
+# اگر Ajax/WebSocket داری:
+CSP_CONNECT_SRC = ("'self'",)
+
+# (اختیاری) مسیر گزارش‌ها
+# CSP_REPORT_URI = ("/csp-report/",)
+
+
+
+#       email
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@sindokht.local'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yourprovider.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'no-reply@yourdomain.com'
+EMAIL_HOST_PASSWORD = '***'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

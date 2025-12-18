@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# اجرای مدیریت‌کامند شما
+0 2 * * * cd /app && python manage.py purge_old_slots >> /var/log/cron.log 2>&1
+

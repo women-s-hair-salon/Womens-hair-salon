@@ -1,0 +1,324 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}کاربران{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── تم ثابت فقط برای این صفحه ─────────────────────────────── */
+  .users-static { --bg-grad-start:#fdf2f8; --bg-grad-end:#f5f3ff; --card:#ffffff; --text:#111827; --muted:#6b7280; --ring:#e5e7eb; --primary:#ec4899; }
+  .users-static .card{
+    background:var(--card) !important; color:var(--text) !important;
+    border:1px solid var(--ring); border-radius:16px; box-shadow:0 8px 22px rgba(0,0,0,.06);
+  }
+  .users-static .title{ color:var(--text) !important; font-weight:800; }
+  .users-static .muted{ color:var(--muted) !important; }
+  .users-static .btn{
+    display:inline-flex; align-items:center; gap:.5rem; font-weight:700; text-decoration:none;
+    padding:.6rem 1rem; border-radius:12px; background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff !important;
+    box-shadow:0 6px 16px rgba(236,72,153,.25);
+  }
+  .users-static .btn-outline{
+    display:inline-flex; align-items:center; gap:.5rem; font-weight:700; text-decoration:none;
+    padding:.55rem .95rem; border-radius:12px; background:#fff !important; color:#111827 !important; border:1px solid var(--ring);
+  }
+  .users-static .input{
+    width:100%; background:#fff !important; color:#111827 !important;
+    border:1px solid var(--ring); border-radius:12px; padding:.65rem .9rem; outline:none;
+  }
+  .users-static .input:focus{ border-color:#d946ef; box-shadow:0 0 0 3px rgba(217,70,239,.12); }
+  .users-static .chip{
+    display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .6rem; border-radius:999px;
+    background:#f3f4f6; color:#111827; font-weight:700;
+  }
+  .users-static .stat{
+    display:flex; flex-direction:column; gap:.25rem;
+  }
+  .users-static .stat .label{ color:var(--muted); font-size:.8rem; }
+  .users-static .stat .value{ font-weight:800; font-size:1.4rem; color:var(--text); }
+  .users-static .avatar{
+    width:2.25rem; height:2.25rem; border-radius:999px; background:#f3f4f6; color:#111827;
+    display:flex; align-items:center; justify-content:center; font-weight:800;
+    border:1px solid var(--ring);
+  }
+  .users-static .row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:1rem; padding:.9rem 1rem; flex-wrap:wrap; /* ← اضافه */
+  }
+  .users-static .row + .row{ border-top:1px solid var(--ring); }
+  .users-static .row .name{ font-weight:700; color:#111827; }
+  .users-static .row .phone{ color:#6b7280; font-size:.9rem; }
+  .users-static .row .date{
+    color:#6b7280; font-size:.85rem;
+    white-space:normal;            /* ← قبلی را بردار */
+    word-break:break-word;         /* ← اضافه، اگر کلمات بلند بود */
+  }
+  .users-static .pager a, .users-static .pager span{
+    border:1px solid var(--ring); border-radius:10px; padding:.45rem .8rem; background:#fff !important; color:#111827 !important; text-decoration:none;
+  }
+  .users-static .pager .active{ background:#f3f4f6 !important; }
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="users-static bg-gradient-to-br from-[color:var(--bg-grad-start)] to-[color:var(--bg-grad-end)] py-10 px-4">
+  <div class="max-w-screen-xl mx-auto space-y-6">
+
+    <!-- هدر -->
+    <header class="card p-5 md:p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h1 class="title text-xl md:text-2xl flex items-center gap-2">
+            <i data-lucide="users" class="w-6 h-6" style="color:#ec4899"></i>
+            کاربران
+          </h1>
+          <nav class="muted mt-1 text-xs md:text-sm" aria-label="Breadcrumb">
+            <ol class="flex items-center gap-1">
+              <li><a href="{% url 'staff_dashboard' %}" class="btn-outline !py-1 !px-2">داشبورد</a></li>
+              <li class="px-1">›</li>
+              <li><span class="muted">لیست کاربران</span></li>
+            </ol>
+          </nav>
+        </div>
+        <a href="{% url 'staff_dashboard' %}" class="btn-outline">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>بازگشت</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- آمار -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="card p-5 stat">
+        <div class="label">کل کاربران ثبت‌نام‌شده</div>
+        <div class="value tabular-nums">{{ total_users|default:0 }}</div>
+      </div>
+      <div class="card p-5 stat">
+        <div class="label">کل افرادی که رزرو نهایی دارند</div>
+        <div class="value tabular-nums">{{ total_booked_users|default:0 }}</div>
+      </div>
+      <div class="card p-5 stat">
+        <div class="label">کل رزروهای نهایی</div>
+        <div class="value tabular-nums">{{ total_booked_reservations|default:0 }}</div>
+      </div>
+    </section>
+
+    <!-- جستجو -->
+    <section class="card p-4 md:p-5">
+      <form method="get" class="flex flex-col sm:flex-row gap-3">
+        <input name="q" value="{{ request.GET.q }}" class="input" placeholder="جستجو بر اساس شماره / نام / نام‌خانوادگی">
+        <div class="flex items-center gap-2">
+          <button class="btn" type="submit"><i data-lucide="search" class="w-5 h-5"></i><span>جستجو</span></button>
+          {% if request.GET.q %}
+            <a href="?" class="btn-outline"><i data-lucide="x" class="w-5 h-5"></i><span>حذف فیلتر</span></a>
+          {% endif %}
+        </div>
+      </form>
+    </section>
+
+    <!-- لیست کاربران -->
+    <section class="card">
+      {% for u in users %}
+        <div class="row">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="avatar">
+              {% if is_paginated %}
+                {% with n=page_obj.start_index|add:forloop.counter0 %}{{ n }}{% endwith %}
+              {% else %}
+                {{ forloop.counter }}
+              {% endif %}
+            </div>
+            <div class="min-w-0">
+              <div class="name truncate">{{ u.full_name|default:"—" }}</div>
+              <div class="phone">{{ u.phone_number }}</div>
+            </div>
+          </div>
+          <div class="date">
+            {{ u.created_at|persian_weekday }} — {{ u.created_at|to_jalali_date }} &nbsp;ساعت&nbsp;{{ u.created_at|date:"H:i" }}
+          </div>
+        </div>
+      {% empty %}
+        <div class="p-5 muted text-center">کاربری یافت نشد.</div>
+      {% endfor %}
+    </section>
+
+    <!-- صفحه‌بندی -->
+    {% if is_paginated %}
+      <nav class="pager flex items-center gap-2">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">قبلی</a>
+        {% endif %}
+        <span class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">بعدی</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+</script>
+{% endblock %}
+
+
+
+{#{% extends 'base/base.html' %}#}
+{#{% load jalali %}#}
+{#{% block title %}کاربران{% endblock %}#}
+{##}
+{#{% block extra_head %}#}
+{#<style>#}
+{#  /* ── تم ثابت فقط برای این صفحه ─────────────────────────────── */#}
+{#  .users-static { --bg-grad-start:#fdf2f8; --bg-grad-end:#f5f3ff; --card:#ffffff; --text:#111827; --muted:#6b7280; --ring:#e5e7eb; --primary:#ec4899; }#}
+{#  .users-static .card{#}
+{#    background:var(--card) !important; color:var(--text) !important;#}
+{#    border:1px solid var(--ring); border-radius:16px; box-shadow:0 8px 22px rgba(0,0,0,.06);#}
+{#  }#}
+{#  .users-static .title{ color:var(--text) !important; font-weight:800; }#}
+{#  .users-static .muted{ color:var(--muted) !important; }#}
+{#  .users-static .btn{#}
+{#    display:inline-flex; align-items:center; gap:.5rem; font-weight:700; text-decoration:none;#}
+{#    padding:.6rem 1rem; border-radius:12px; background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff !important;#}
+{#    box-shadow:0 6px 16px rgba(236,72,153,.25);#}
+{#  }#}
+{#  .users-static .btn-outline{#}
+{#    display:inline-flex; align-items:center; gap:.5rem; font-weight:700; text-decoration:none;#}
+{#    padding:.55rem .95rem; border-radius:12px; background:#fff !important; color:#111827 !important; border:1px solid var(--ring);#}
+{#  }#}
+{#  .users-static .input{#}
+{#    width:100%; background:#fff !important; color:#111827 !important;#}
+{#    border:1px solid var(--ring); border-radius:12px; padding:.65rem .9rem; outline:none;#}
+{#  }#}
+{#  .users-static .input:focus{ border-color:#d946ef; box-shadow:0 0 0 3px rgba(217,70,239,.12); }#}
+{#  .users-static .chip{#}
+{#    display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .6rem; border-radius:999px;#}
+{#    background:#f3f4f6; color:#111827; font-weight:700;#}
+{#  }#}
+{#  .users-static .stat{#}
+{#    display:flex; flex-direction:column; gap:.25rem;#}
+{#  }#}
+{#  .users-static .stat .label{ color:var(--muted); font-size:.8rem; }#}
+{#  .users-static .stat .value{ font-weight:800; font-size:1.4rem; color:var(--text); }#}
+{#  .users-static .avatar{#}
+{#    width:2.25rem; height:2.25rem; border-radius:999px; background:#f3f4f6; color:#111827;#}
+{#    display:flex; align-items:center; justify-content:center; font-weight:800;#}
+{#    border:1px solid var(--ring);#}
+{#  }#}
+{#  .users-static .row{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding: .9rem 1rem; }#}
+{#  .users-static .row + .row{ border-top:1px solid var(--ring); }#}
+{#  .users-static .row .name{ font-weight:700; color:#111827; }#}
+{#  .users-static .row .phone{ color:#6b7280; font-size:.9rem; }#}
+{#  .users-static .row .date{ color:#6b7280; font-size:.85rem; white-space:nowrap; }#}
+{#  .users-static .pager a, .users-static .pager span{#}
+{#    border:1px solid var(--ring); border-radius:10px; padding:.45rem .8rem; background:#fff !important; color:#111827 !important; text-decoration:none;#}
+{#  }#}
+{#  .users-static .pager .active{ background:#f3f4f6 !important; }#}
+{#</style>#}
+{#{% endblock %}#}
+{##}
+{#{% block main %}#}
+{#<section class="users-static bg-gradient-to-br from-[color:var(--bg-grad-start)] to-[color:var(--bg-grad-end)] py-10 px-4">#}
+{#  <div class="max-w-screen-xl mx-auto space-y-6">#}
+{##}
+{#    <!-- هدر -->#}
+{#    <header class="card p-5 md:p-6">#}
+{#      <div class="flex items-center justify-between gap-3">#}
+{#        <div>#}
+{#          <h1 class="title text-xl md:text-2xl flex items-center gap-2">#}
+{#            <i data-lucide="users" class="w-6 h-6" style="color:#ec4899"></i>#}
+{#            کاربران#}
+{#          </h1>#}
+{#          <nav class="muted mt-1 text-xs md:text-sm" aria-label="Breadcrumb">#}
+{#            <ol class="flex items-center gap-1">#}
+{#              <li><a href="{% url 'staff_dashboard' %}" class="btn-outline !py-1 !px-2">داشبورد</a></li>#}
+{#              <li class="px-1">›</li>#}
+{#              <li><span class="muted">لیست کاربران</span></li>#}
+{#            </ol>#}
+{#          </nav>#}
+{#        </div>#}
+{#        <a href="{% url 'staff_dashboard' %}" class="btn-outline">#}
+{#          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>بازگشت</span>#}
+{#        </a>#}
+{#      </div>#}
+{#    </header>#}
+{##}
+{#    <!-- آمار -->#}
+{#    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">#}
+{#      <div class="card p-5 stat">#}
+{#        <div class="label">کل کاربران ثبت‌نام‌شده</div>#}
+{#        <div class="value tabular-nums">{{ total_users|default:0 }}</div>#}
+{#      </div>#}
+{#      <div class="card p-5 stat">#}
+{#        <div class="label">کل افرادی که رزرو نهایی دارند</div>#}
+{#        <div class="value tabular-nums">{{ total_booked_users|default:0 }}</div>#}
+{#      </div>#}
+{#      <div class="card p-5 stat">#}
+{#        <div class="label">کل رزروهای نهایی</div>#}
+{#        <div class="value tabular-nums">{{ total_booked_reservations|default:0 }}</div>#}
+{#      </div>#}
+{#    </section>#}
+{##}
+{#    <!-- جستجو -->#}
+{#    <section class="card p-4 md:p-5">#}
+{#      <form method="get" class="flex flex-col sm:flex-row gap-3">#}
+{#        <input name="q" value="{{ request.GET.q }}" class="input" placeholder="جستجو بر اساس شماره / نام / نام‌خانوادگی">#}
+{#        <div class="flex items-center gap-2">#}
+{#          <button class="btn" type="submit"><i data-lucide="search" class="w-5 h-5"></i><span>جستجو</span></button>#}
+{#          {% if request.GET.q %}#}
+{#            <a href="?" class="btn-outline"><i data-lucide="x" class="w-5 h-5"></i><span>حذف فیلتر</span></a>#}
+{#          {% endif %}#}
+{#        </div>#}
+{#      </form>#}
+{#    </section>#}
+{##}
+{#    <!-- لیست کاربران -->#}
+{#    <section class="card">#}
+{#      {% for u in users %}#}
+{#        <div class="row">#}
+{#          <div class="flex items-center gap-3 min-w-0">#}
+{#            <div class="avatar">#}
+{#              {% if is_paginated %}#}
+{#                {% with n=page_obj.start_index|add:forloop.counter0 %}{{ n }}{% endwith %}#}
+{#              {% else %}#}
+{#                {{ forloop.counter }}#}
+{#              {% endif %}#}
+{#            </div>#}
+{#            <div class="min-w-0">#}
+{#              <div class="name truncate">{{ u.full_name|default:"—" }}</div>#}
+{#              <div class="phone">{{ u.phone_number }}</div>#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="date">#}
+{#            {{ u.created_at|persian_weekday }} — {{ u.created_at|to_jalali_date }} &nbsp;ساعت&nbsp;{{ u.created_at|date:"H:i" }}#}
+{#          </div>#}
+{#        </div>#}
+{#      {% empty %}#}
+{#        <div class="p-5 muted text-center">کاربری یافت نشد.</div>#}
+{#      {% endfor %}#}
+{#    </section>#}
+{##}
+{#    <!-- صفحه‌بندی -->#}
+{#    {% if is_paginated %}#}
+{#      <nav class="pager flex items-center gap-2">#}
+{#        {% if page_obj.has_previous %}#}
+{#          <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">قبلی</a>#}
+{#        {% endif %}#}
+{#        <span class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>#}
+{#        {% if page_obj.has_next %}#}
+{#          <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">بعدی</a>#}
+{#        {% endif %}#}
+{#      </nav>#}
+{#    {% endif %}#}
+{##}
+{#  </div>#}
+{#</section>#}
+{#{% endblock %}#}
+{##}
+{#{% block extra_scripts %}#}
+{#<script nonce="{{ csp_nonce }}">#}
+{#  if (window.lucide) lucide.createIcons();#}
+{#</script>#}
+{#{% endblock %}#}

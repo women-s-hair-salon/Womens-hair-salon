@@ -1,9 +1,17 @@
 from django.contrib import admin
-
+from .models import ServiceCategory, ServiceItem ,AboutGalleryImage
 # Register your models here.
 
+#          AboutUs
+@admin.register(AboutGalleryImage)
+class AboutGalleryImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    search_fields = ('title',)
+
+
+
 # Service
-from .models import ServiceCategory, ServiceItem
 
 @admin.register(ServiceCategory)
 class ServiceCategoryAdmin(admin.ModelAdmin):

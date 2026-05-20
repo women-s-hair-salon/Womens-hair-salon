@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: salon_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: salon_dev
+      POSTGRES_USER: salon_user
+      POSTGRES_PASSWORD: salon_pass_dev
+      TZ: Asia/Tehran
+    volumes:
+      - pg_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salon_web_dev
+    restart: unless-stopped
+    env_file: .env.dev
+    depends_on:
+      - db
+    command: ["/app/entrypoint.sh"]
+    volumes:
+      - static_volume_dev:/app/staticfiles
+      - media_volume_dev:/app/media
+      - .:/app          # hot reload: کد لوکال مستقیم mount میشه
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: salon_nginx_dev
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"         # فقط HTTP، بدون SSL
+    volumes:
+      - ./deploy/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume_dev:/var/www/static:ro
+      - media_volume_dev:/var/www/media:ro
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.scheduler
+    container_name: salon_scheduler_dev
+    restart: unless-stopped
+    env_file: .env.dev
+    depends_on:
+      - db
+    
+#    command: >
+#      "echo '0 2 * * * cd /app && python manage.py purge_old_slots >> /var/log/cron.log 2>&1' > /etc/crontabs/root
+#       && touch /var/log/cron.log
+#       && crond -f -l 8"
+
+volumes:
+  pg_data_dev:
+  static_volume_dev:
+  media_volume_dev:

@@ -351,3 +351,12 @@ EMAIL_HOST_USER = 'no-reply@yourdomain.com'
 EMAIL_HOST_PASSWORD = '***'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+#   برای حالت لوکال
+
+if DEBUG:
+    try:
+        from .settings_dev import *
+    except ImportError:
+        pass

@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}انتخاب ساعت — {{ service.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* فوتر همیشه پایینِ صفحه (فقط همین صفحه) */
+  body{display:flex;min-height:100vh;flex-direction:column}
+  main#main{flex:1}
+
+  .ui-fixed-theme *{color:inherit}
+  .dark .ui-fixed-theme, .ui-fixed-theme{background:#f8fafc}
+  .ui-fixed-theme .title{font-weight:800;font-size:1.25rem;color:#111827 !important}
+
+  .ui-fixed-theme .slot{
+    background:#fff !important;border:1px solid #e5e7eb !important;border-radius:1rem;
+    padding:.8rem .95rem; box-shadow:0 6px 18px rgba(17,24,39,.05);
+    display:flex; align-items:center; justify-content:space-between; gap:.8rem; transition:transform .1s ease
+  }
+  .ui-fixed-theme .slot .t{font-weight:900;color:#111827}
+  .ui-fixed-theme .slot .c{font-size:.8rem;color:#6b7280}
+  .ui-fixed-theme input.peer{display:none}
+  .ui-fixed-theme .peer:checked + .slot{
+    border-color:#8b5cf6 !important; box-shadow:0 10px 22px rgba(139,92,246,.22);
+    outline:2px solid rgba(139,92,246,.28); outline-offset:2px; transform:translateY(-2px)
+  }
+  .ui-fixed-theme .slot.disabled{opacity:.55}
+
+  .ui-fixed-theme .btn-main{
+    display:inline-flex;align-items:center;gap:.5rem;border-radius:.9rem;font-weight:800;padding:.6rem .95rem;
+    background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff !important;border:0 !important
+  }
+  .ui-fixed-theme .btn-ghost{
+    display:inline-flex;align-items:center;gap:.5rem;border-radius:.9rem;font-weight:800;padding:.55rem .9rem;
+    background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb !important
+  }
+  .ui-fixed-theme .sub{font-size:.9rem;color:#374151}
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="ui-fixed-theme max-w-screen-xl mx-auto p-4">
+  <h1 class="title">
+    انتخاب ساعت برای {{ service.title }} —
+    <span class="sub">{{ date|persian_weekday }} {{ date|to_jalali_date }}</span>
+  </h1>
+
+  <form method="post" class="space-y-5">{% csrf_token %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {% for slot, remain in slots %}
+      <label class="block">
+        <input type="radio" name="slot_id" value="{{ slot.id }}" class="peer"
+               {% if remain == 0 %}disabled{% endif %} required />
+        <div class="slot {% if remain == 0 %}disabled{% endif %}">
+          <span class="t">{{ slot.start_time|time:'H:i' }} تا {{ slot.end_time|time:'H:i' }}</span>
+          <span class="c">ظرفیت: {{ remain }}</span>
+        </div>
+      </label>
+      {% empty %}
+        <p class="c">برای این تاریخ زمانی ثبت نشده است.</p>
+      {% endfor %}
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="btn-main">تأیید و پرداخت بیعانه</button>
+      <a href="{% url 'choose_date' service.slug %}" class="btn-ghost">بازگشت</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

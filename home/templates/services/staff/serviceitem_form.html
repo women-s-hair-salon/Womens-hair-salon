@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+{% block title %}ویرایش خدمت{% endblock %}
+
+{% block main %}
+<div class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-950 py-10 px-4">
+  <div class="max-w-3xl mx-auto space-y-6">
+
+    <section class="card p-5 md:p-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl md:text-2xl font-extrabold">ویرایش خدمت</h1>
+        <div class="flex gap-2">
+          <a href="{% url 'staff_catalog' %}" class="btn btn-outline">بازگشت</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card p-5 md:p-6">
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <div><label class="form-label">دسته‌بندی</label>{{ form.category }}</div>
+        <div><label class="form-label">نام خدمت</label>{{ form.name }}</div>
+        <div><label class="form-label">توضیحات</label>{{ form.description }}</div>
+        <div><label class="form-label">تصویر (۴×۳)</label>{{ form.image }}</div>
+        <div class="flex justify-end gap-2">
+          <a href="{% url 'staff_catalog' %}" class="btn btn-outline">انصراف</a>
+          <button class="btn btn-primary" type="submit"><i data-lucide="save"></i><span>ذخیره</span></button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}<script>if (window.lucide) lucide.createIcons();</script>{% endblock %}

@@ -2,56 +2,37 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 import uuid  # For generating unique recommender codes
-
+from django.utils import timezone
+from .managers import CustomUserManager
+from django.utils.functional import cached_property
+from django.conf import settings
 # Create your models here.
-class UserType(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-
-class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        # ref_codes=CustomUser.objects.all().values_list()
-        if not phone_number:
-            raise ValueError('The Phone Number field must be set')
-        user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, phone_number, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(phone_number, password, **extra_fields)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$')
+    phone_regex = RegexValidator(regex=r'^(\+?98|0)?9\d{9}$')
     phone_number = models.CharField(max_length=15, validators=[phone_regex], unique=True)  # Phone number
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    user_type = models.ForeignKey(UserType, on_delete=models.CASCADE, default=1)  # Default to 'customer'
-    date_joined = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     birthday = models.DateField(null=True)
-    referral_code = models.CharField(max_length=10,default=str(uuid.uuid4())[:8].upper())
-    referraler_code = models.CharField(max_length=8,blank=True,null=True)
-    referral_number = models.IntegerField(default=0)
 
 
 
     @property
     def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name} "
+
+    @cached_property
+    def is_completed(self):
+        return all([
+            self.full_name and self.full_name.strip(),
+            self.phone_number and self.phone_number.strip(),
+            self.birthday
+        ])
 
     objects = CustomUserManager()
 
@@ -61,3 +42,89 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.full_name} ({self.phone_number})"
 
+
+
+
+class OtpCode(models.Model):
+    phone_number = models.CharField(max_length=15, unique=True)  # 98xxxxxxxxxx
+    code = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # افزوده‌ها:
+    expires_at = models.DateTimeField(null=True, blank=True)
+    last_sent_at = models.DateTimeField(null=True, blank=True)
+    send_count_today = models.PositiveSmallIntegerField(default=0)
+    verify_attempts = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.phone_number} - {self.code} - {self.created_at}'
+
+    # برگشتی‌های سیاست از settings
+    @staticmethod
+    def _expire_seconds():
+        return int(getattr(settings, "OTP_EXPIRE_SECONDS", 180))
+
+    @staticmethod
+    def _resend_seconds():
+        return int(getattr(settings, "OTP_RESEND_SECONDS", 60))
+
+    @staticmethod
+    def _max_verify_attempts():
+        return int(getattr(settings, "OTP_MAX_VERIFY_ATTEMPTS", 5))
+
+    @staticmethod
+    def _max_sends_per_day():
+        return int(getattr(settings, "OTP_MAX_SENDS_PER_DAY", 5))
+
+    def is_expired(self) -> bool:
+        return bool(self.expires_at and timezone.now() > self.expires_at)
+
+    def can_resend(self) -> bool:
+        if not self.last_sent_at:
+            return True
+        return (timezone.now() - self.last_sent_at).total_seconds() >= self._resend_seconds()
+
+    def _same_day(self, dt1, dt2) -> bool:
+        if not dt1 or not dt2: return False
+        return dt1.date() == dt2.date()
+
+    def can_send_today(self) -> bool:
+        # اگر امروز اولین باره، OK؛ اگر نه، چک سقف
+        now = timezone.now()
+        if not self.last_sent_at or not self._same_day(self.last_sent_at, now):
+            return True  # روز تازه → شمارنده از نو
+        return self.send_count_today < self._max_sends_per_day()
+
+    def inc_send(self):
+        now = timezone.now()
+        if not self.last_sent_at or not self._same_day(self.last_sent_at, now):
+            self.send_count_today = 1
+        else:
+            self.send_count_today += 1
+        self.last_sent_at = now
+        self.expires_at = now + timezone.timedelta(seconds=self._expire_seconds())
+        self.verify_attempts = 0  # هر بار ارسال، شمارش تلاش تایید ریست می‌شود
+        self.save(update_fields=['send_count_today','last_sent_at','expires_at','verify_attempts','updated_at'])
+
+    def inc_verify(self):
+        self.verify_attempts += 1
+        self.save(update_fields=['verify_attempts','updated_at'])
+
+    def can_verify(self) -> bool:
+        return self.verify_attempts < self._max_verify_attempts()
+
+    # سازگار با متدهای قبلی‌ت (backward-compatible)
+    def is_resend_allowed(self):
+        return self.can_resend()
+
+    @classmethod
+    def get_daily_attempts(cls, phone_number):
+        # حالا به send_count_today متکی نباش؛ این متد دیگر استفاده نشود
+        obj = cls.objects.filter(phone_number=phone_number).first()
+        return obj.send_count_today if obj else 0
+
+    @classmethod
+    def clear_old_codes(cls, phone_number):
+        # دیگر لازم نیست؛ رکورد یک‌تاست. می‌تونی نادیده بگیری.
+        return

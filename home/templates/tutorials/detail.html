@@ -1,0 +1,233 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}{{ tutorial.title }} | آموزش‌ها{% endblock %}
+
+{% block extra_head %}
+<style>
+  .glass-card{background:rgba(255,255,255,.72);backdrop-filter:saturate(120%) blur(8px)}
+  .dark .glass-card{background:rgba(24,24,27,.55)}
+  .text-flow{white-space:normal;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+
+  /* ظرف استاندارد مدیا (برای iframe/video/img) */
+  .media-box{
+    position:relative; aspect-ratio:16/9; overflow:hidden; border-radius:14px;
+    background:#0a0a0a; /* بک‌دراپ تیره برای letterbox */
+  }
+  .media-box > iframe,
+  .media-box > video,
+  .media-box > img{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+  }
+  /* برای تصویر/ویدیو، برای جلوگیری از کِش‌آمدن */
+  .media-box > video,
+  .media-box > img{
+    object-fit:contain; background:#000; /* نوارهای سیاه طبیعی */
+  }
+
+  /* کارت سرفصل */
+  .ls-card{border-radius:16px;transition:box-shadow .25s, transform .25s}
+  .ls-card:hover{transform:translateY(-1px)}
+  .ls-active{box-shadow:0 10px 22px rgba(244,63,94,.12), 0 3px 10px rgba(0,0,0,.06);border-color: rgba(130, 2, 44, 0.35) !important}
+
+  /* بندانگشتی 16:9 */
+  .thumb-sm{position:relative;border-radius:12px;overflow:hidden}
+  .thumb-sm::before{content:"";display:block;padding-top:56.25%}
+  .thumb-sm>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+
+  /* اسکلِت */
+  .skeleton{position:relative;overflow:hidden}
+  .skeleton::before{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.08));
+    background-size:200% 100%, 100% 100%;
+    animation: shimmer 1.6s linear infinite;filter: blur(.3px)
+  }
+  @keyframes shimmer { to { background-position:-200% 0, 0 0; } }
+
+  /* موج محو در هدر */
+  .soft-wave{position:relative;isolation:isolate;overflow:hidden;border-radius:18px}
+  .soft-wave::after{
+    content:"";position:absolute;inset:-10% -10% auto -10%;height:36%;
+    background:radial-gradient(1000px 240px at 85% -10%, rgba(244,63,94,.12), transparent 60%),
+               radial-gradient(800px 220px at 8% 0%, rgba(236,72,153,.10), transparent 60%);
+    z-index:-1;pointer-events:none;
+  }
+
+  /* پنلِ باز شده زیر هر آیتم */
+  .lesson-panel{border-radius:14px}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="bg-gradient-to-br  py-10 px-4">
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- هدر: breadcrumb + شمارنده -->
+    <section class="card glass-card soft-wave p-5 md:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-xl md:text-2xl font-extrabold">{{ tutorial.title }}</h1>
+          <nav class="mt-2 text-xs md:text-sm text-gray-500 dark:text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center gap-1">
+              <li><a href="{% url 'home' %}" class="hover:text-pink-600">خانه</a></li>
+              <li>›</li>
+              <li><a href="{% url 'tutorials' %}" class="hover:text-pink-600">آموزش‌ها</a></li>
+              <li>›</li>
+              <li><span class="text-gray-700 dark:text-gray-300">{{ tutorial.title }}</span></li>
+            </ol>
+          </nav>
+        </div>
+        <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+          تعداد سرفصل‌ها: <strong class="tabular-nums">{{ lessons|length }}</strong>
+        </span>
+      </div>
+
+      {% if tutorial.description %}
+        <p class="mt-3 text-flow text-sm md:text-base text-gray-700 dark:text-gray-300 leading-7">{{ tutorial.description }}</p>
+      {% endif %}
+    </section>
+
+    <!-- فهرست سرفصل‌ها با پنلِ درجا -->
+    <section class="card glass-card p-4 md:p-6">
+      {% if lessons %}
+        <ol class="space-y-4">
+          {% for ls in lessons %}
+          <li>
+            <!-- کارت سرفصل -->
+            <button type="button"
+                    class="ls-card w-full text-right ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/70 dark:bg-zinc-900/50 hover:shadow p-3 md:p-4 flex items-center gap-3"
+                    data-id="{{ ls.id }}"
+                    data-video="{{ ls.video_url|default:'' }}"
+                    data-videofile="{% if ls.video_file %}{{ ls.video_file.url }}{% endif %}"
+                    data-image="{% if ls.image %}{{ ls.image.url }}{% endif %}"
+                    data-title="{{ ls.title|escape }}"
+                    data-desc="{{ ls.description|escape }}">
+              <div class="w-28 shrink-0">
+                <div class="thumb-sm">
+                  {% if ls.image %}
+                    <img src="{{ ls.image.url }}" alt="{{ ls.title }}" loading="lazy" decoding="async">
+                  {% else %}
+                    <img src="{% static 'images/placeholders/16x9.jpg' %}" alt="" loading="lazy" decoding="async">
+                  {% endif %}
+                </div>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="font-bold truncate">{{ forloop.counter }}. {{ ls.title }}</div>
+                {% if ls.description %}
+                  <div class="mt-0.5 text-xs md:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{{ ls.description }}</div>
+                {% endif %}
+              </div>
+              {% if ls.video_url or ls.video_file %}
+                <i data-lucide="play" class="w-5 h-5 text-pink-500"></i>
+              {% elif ls.image %}
+                <i data-lucide="image" class="w-5 h-5 text-pink-500"></i>
+              {% endif %}
+            </button>
+
+            <!-- پنل محتوا (در ابتدا مخفی) -->
+            <div id="panel-{{ ls.id }}" class="lesson-panel hidden mt-3 ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/75 dark:bg-zinc-900/60 p-3 md:p-4">
+              <div class="media-box ring-1 ring-gray-200 dark:ring-zinc-800 skeleton mb-3"></div>
+              <!-- محتوا با JS جایگزین می‌شود -->
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <div class="text-sm text-gray-500 dark:text-gray-400">سرفصلی ثبت نشده.</div>
+      {% endif %}
+    </section>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+
+  // تشخیص پلتفرم‌های ویدیو برای iframe
+  function detectProvider(u){
+    try{
+      const url = new URL(u);
+      const host = url.hostname.replace(/^www\./,'');
+      // YouTube
+      if (host === 'youtube.com' && url.pathname === '/watch' && url.searchParams.get('v'))
+        return {kind:'iframe', src:`https://www.youtube.com/embed/${url.searchParams.get('v')}?rel=0&modestbranding=1`};
+      if (host === 'youtu.be')
+        return {kind:'iframe', src:`https://www.youtube.com/embed/${url.pathname.slice(1)}?rel=0&modestbranding=1`};
+      if (host === 'youtube.com' && url.pathname.startsWith('/embed/'))
+        return {kind:'iframe', src:u};
+      // Vimeo
+      if (host === 'vimeo.com'){
+        const id = url.pathname.split('/').filter(Boolean)[0];
+        if (id) return {kind:'iframe', src:`https://player.vimeo.com/video/${id}`};
+      }
+      // Aparat
+      if (host === 'aparat.com'){
+        const parts = url.pathname.split('/').filter(Boolean);
+        const vIdx = parts.indexOf('v');
+        if (vIdx !== -1 && parts[vIdx+1]){
+          const hash = parts[vIdx+1];
+          return {kind:'iframe', src:`https://www.aparat.com/video/video/embed/videohash/${hash}/vt/frame`};
+        }
+      }
+      return {kind:'iframe', src:u};
+    }catch{ return {kind:'unknown'}; }
+  }
+
+  // باز/بستن پنل‌ها و رندر یکنواخت مدیا داخل .media-box
+  document.querySelectorAll('.ls-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const id    = card.dataset.id;
+      const vurl  = card.dataset.video || "";
+      const vfile = card.dataset.videofile || "";
+      const img   = card.dataset.image || "";
+      const pan   = document.getElementById('panel-'+id);
+
+      // بستن سایر پنل‌ها
+      document.querySelectorAll('.lesson-panel').forEach(p=>{
+        if (p !== pan) { p.classList.add('hidden'); p.innerHTML = '<div class="media-box ring-1 ring-gray-200 dark:ring-zinc-800 skeleton mb-3"></div>'; }
+      });
+      document.querySelectorAll('.ls-card').forEach(c=>c.classList.remove('ls-active'));
+
+      // باز/بستن همین یکی
+      const willOpen = pan.classList.contains('hidden');
+      pan.classList.toggle('hidden', !willOpen);
+      if (!willOpen) return;
+
+      // استایل فعال روی کارت
+      card.classList.add('ls-active');
+
+      // جایگذاری محتوا داخل قاب یکنواخت
+      if (vurl){
+        const info = detectProvider(vurl);
+        pan.innerHTML =
+          `<div class="media-box ring-1 ring-gray-200 dark:ring-zinc-800 mb-3">
+             <iframe
+               loading="lazy"
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+               referrerpolicy="origin-when-cross-origin"
+               allowfullscreen
+               src="${info.src}"></iframe>
+           </div>`;
+      } else if (vfile){
+        pan.innerHTML =
+          `<div class="media-box ring-1 ring-gray-200 dark:ring-zinc-800 mb-3">
+             <video controls controlsList="nodownload" playsinline preload="metadata" ${img ? `poster="${img}"` : ""}>
+               <source src="${vfile}">
+             </video>
+           </div>`;
+      } else if (img){
+        pan.innerHTML =
+          `<div class="media-box ring-1 ring-gray-200 dark:ring-zinc-800 mb-3">
+             <img src="${img}" alt="">
+           </div>`;
+      } else {
+        pan.innerHTML = `<div class="p-6 text-sm text-gray-500 dark:text-gray-400 text-center">محتوایی برای این سرفصل ثبت نشده.</div>`;
+      }
+    });
+  });
+</script>
+{% endblock %}

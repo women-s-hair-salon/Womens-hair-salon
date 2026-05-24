@@ -1,0 +1,67 @@
+{% extends 'base/base.html' %}
+{% block title %}{% if form.instance.pk %}ویرایش درس{% else %}ایجاد درس{% endif %}{% endblock %}
+
+{% block main %}
+<section class="max-w-3xl mx-auto py-8 px-4">
+  <div class="card p-5 md:p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-xl md:text-2xl font-extrabold">
+        {% if form.instance.pk %}ویرایش درس{% else %}درس جدید{% endif %}
+      </h1>
+      {# برگشت به فهرست آموزش‌ها در پنل سایت (بدون namespace) #}
+      <a href="{% url 'staff_tutorials' %}" class="btn btn-outline">بازگشت</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          {{ form.tutorial.label_tag }}
+          {{ form.tutorial }}
+          {% for e in form.tutorial.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form.title.label_tag }}
+          {{ form.title }}
+          {% for e in form.title.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div>
+        {{ form.description.label_tag }}
+        {{ form.description }}
+        {% for e in form.description.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          {{ form.image.label_tag }}
+          {{ form.image }}
+          {% for e in form.image.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+        </div>
+        <div></div>
+
+        <div>
+          {{ form.video_url.label_tag }}
+          {{ form.video_url }}
+          {% for e in form.video_url.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+        </div>
+        <div>
+          {{ form.video_file.label_tag }}
+          {{ form.video_file }}
+          {% for e in form.video_file.errors %}<div class="text-xs text-red-600 mt-1">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-500">یکی از «آدرس ویدیو» یا «فایل ویدیو» را پر کنید (نه هر دو).</p>
+
+      <div class="flex items-center justify-end gap-2">
+        <a href="{% url 'staff_tutorials' %}" class="btn btn-outline">انصراف</a>
+        <button class="btn btn-primary">ذخیره</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

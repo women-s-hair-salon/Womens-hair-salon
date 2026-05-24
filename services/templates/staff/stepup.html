@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+{% block title %}تأیید ورود مدیریت{% endblock %}
+{% block main %}
+<div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+  <h1 class="text-xl font-bold mb-4">تأیید ورود مدیریت</h1>
+  <p class="text-sm text-gray-500 mb-4">برای ورود به بخش مدیریت، رمز عبور اختصاصی خود را وارد کنید.</p>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.password.label_tag }}
+      {{ form.password }}
+      {% if form.password.errors %}
+        <div class="text-red-600 text-sm mt-1">{{ form.password.errors.0 }}</div>
+      {% endif %}
+    </div>
+    <button class="bg-gray-900 text-white px-4 py-2 rounded-lg">تأیید</button>
+  </form>
+</div>
+{% endblock %}

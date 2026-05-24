@@ -1,0 +1,212 @@
+{% extends 'base/base.html' %}
+{% block title %}تأیید ورود{% endblock %}
+
+{% block main %}
+<div class="min-h-[70vh] bg-gradient-to-br from-pink-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12">
+  <div class="max-w-md mx-auto px-4">
+    <div class="card p-6 space-y-6">
+
+      <!-- عنوان و توضیح -->
+      <header class="space-y-1 text-center">
+        <h1 class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+          تأیید ورود
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          کد تأیید ارسال شده به
+          <span class="ltr font-bold text-gray-900 dark:text-gray-100">{{ phone }}</span>
+          را وارد کنید.
+        </p>
+      </header>
+
+      {% if error %}
+        <div class="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm px-3 py-2">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <!-- فرم -->
+      <form method="post" action="{% url 'verify_code' %}" novalidate id="otp-form" class="space-y-5">
+        {% csrf_token %}
+
+        <!-- فیلد نهایی که به سرور ارسال می‌شود -->
+        <input type="hidden" name="code" id="otp-joined" />
+
+        <!-- شش باکس تک‌رقمی -->
+        <div id="otp-wrapper"
+             dir="ltr"
+             class="flex items-center justify-center gap-2 select-none">
+          {% for i in "123456" %}
+          <input type="text"
+                 dir="ltr"
+                 inputmode="numeric"
+                 pattern="[0-9]*"
+                 maxlength="1"
+                 autocomplete="one-time-code"
+                 class="form-input !w-12 text-center text-lg tracking-widest font-mono !text-left"
+                 aria-label="رقم {{ forloop.counter }}"
+                 data-otp-index="{{ forloop.counter0 }}"
+                 {% if forloop.first %}autofocus{% endif %}>
+          {% endfor %}
+        </div>
+
+
+        <!-- اکشن‌ها -->
+        <div class="space-y-3">
+          <button type="submit" class="btn btn-primary w-full">
+            ورود به حساب
+          </button>
+
+          <!-- تایمر/ارسال مجدد -->
+          <p class="text-sm text-center">
+            کدی دریافت نکردید؟
+            <a href="{% url 'resend_code' %}" id="resend-link" class="font-bold text-pink-600 hover:underline">
+              ارسال مجدد کد (<span id="timer">60</span> ثانیه)
+            </a>
+          </p>
+        </div>
+      </form>
+
+      <!-- راهنمای کوچک -->
+      <div class="text-xs text-center text-gray-500 dark:text-gray-400">
+        در صورت بروز مشکل، بعد از اتمام تایمر، «ارسال مجدد کد» را بزنید.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  // رندر آیکن‌ها
+  if (window.lucide) lucide.createIcons();
+
+  // جلوگیری از ارسال دوباره + جلوگیری از ارسال اگر 6 رقم نشده
+  (function () {
+    const form = document.getElementById('otp-form');
+    const submitBtn = form?.querySelector('button[type=submit]');
+    const joined = document.getElementById('otp-joined');
+
+    form?.addEventListener('submit', (e) => {
+      if (!joined || joined.value.length !== 6) {
+        e.preventDefault();
+        // پیام ساده؛ Toast هم در base دارید
+        alert('کد تأیید باید ۶ رقم باشد.');
+        return;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        submitBtn.textContent = 'در حال ارسال...';
+      }
+    });
+  })();
+
+  // ورودی‌های ۶گانه OTP + تجمیع در #otp-joined
+  (function () {
+    const wrap = document.getElementById('otp-wrapper');
+    if (!wrap) return;
+    const inputs = Array.from(wrap.querySelectorAll('input[data-otp-index]'));
+    const joined = document.getElementById('otp-joined');
+
+    function fa2en(str) {
+      if (!str) return '';
+      const map = {'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+      return str.replace(/[۰-۹٠-٩]/g, d => map[d] || d);
+    }
+    function join() {
+      const code = inputs.map(i => (i.value || '')).join('');
+      if (joined) joined.value = code;
+    }
+
+    // فوکوس اولیه روی اولین باکس (اگر autofocus کار نکرد)
+    if (inputs.length) {
+      setTimeout(() => inputs[0].focus(), 0);
+    }
+
+    inputs.forEach((inp, idx) => {
+      // اطمینان از LTR روی هر باکس (اگر در HTML گذاشته‌اید، این لازم نیست)
+      inp.setAttribute('dir', 'ltr');
+
+      inp.addEventListener('input', (e) => {
+        const v = fa2en(e.target.value).replace(/\D/g, ''); // فقط عدد
+        e.target.value = v.slice(0, 1);
+        // رفتن به بعدی
+        if (v && idx < inputs.length - 1) inputs[idx + 1].focus();
+        join();
+      });
+
+      inp.addEventListener('keydown', (e) => {
+        // Backspace → رفتن به قبلی اگر خالی بود
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+        // جهت‌یابی طبیعی LTR
+        if (e.key === 'ArrowLeft' && idx > 0) {
+          e.preventDefault();
+          inputs[idx - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && idx < inputs.length - 1) {
+          e.preventDefault();
+          inputs[idx + 1].focus();
+        }
+      });
+
+      inp.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = fa2en((e.clipboardData || window.clipboardData).getData('text')).replace(/\D/g, '');
+        if (!text) return;
+        // پخش محتوا در باکس‌ها از چپ به راست
+        for (let i = 0; i < inputs.length; i++) {
+          inputs[i].value = text[i] || '';
+        }
+        join();
+        // فوکوس آخرین باکس پُر شده
+        const last = Math.min(text.length, inputs.length) - 1;
+        if (last >= 0) inputs[last].focus();
+      });
+    });
+  })();
+
+  // تایمر ارسال مجدد
+  (function () {
+    const resendLink = document.getElementById("resend-link");
+    const timerSpan = document.getElementById("timer");
+    if (!resendLink || !timerSpan) return;
+
+    // otp_sent_at را به‌صورت unix timestamp ثانیه‌ای از ویو پاس بده
+    const sentTime = {{ otp_sent_at|default:"0" }};
+    const now = Math.floor(Date.now() / 1000);
+    let remaining = Math.max(0, Math.floor(60 - (now - sentTime)));
+
+    function setDisabled(disabled) {
+      if (disabled) {
+        resendLink.style.pointerEvents = "none";
+        resendLink.classList.add('text-gray-400');
+        resendLink.classList.remove('text-pink-600');
+      } else {
+        resendLink.style.pointerEvents = "auto";
+        resendLink.classList.remove('text-gray-400');
+        resendLink.classList.add('text-pink-600');
+      }
+    }
+
+    if (remaining <= 0) {
+      resendLink.innerHTML = "ارسال مجدد کد";
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+      timerSpan.textContent = remaining;
+      const interval = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          resendLink.innerHTML = "ارسال مجدد کد";
+          setDisabled(false);
+        } else {
+          timerSpan.textContent = remaining;
+        }
+      }, 1000);
+    }
+  })();
+</script>
+{% endblock %}

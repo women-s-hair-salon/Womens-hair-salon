@@ -1,0 +1,191 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+
+{% block title %}داشبورد مدیریت{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* محدودهٔ استایل ثابت تم (نورمالایز روی لایت) */
+  .dashboard-static { --card-bg:#ffffff; --text:#1f2937; --muted:#6b7280; --ring:#e5e7eb; }
+  .dashboard-static .static-card{
+    background:var(--card-bg) !important; color:var(--text) !important;
+    border:1px solid var(--ring); border-radius:16px;
+    box-shadow:0 8px 20px rgba(0,0,0,.06);
+  }
+  .dashboard-static .static-muted{ color:var(--muted) !important; }
+  .dashboard-static .static-title{ color:var(--text) !important; font-weight:800; }
+  .dashboard-static .static-btn{
+    display:inline-flex; align-items:center; gap:.5rem; font-weight:700;
+    padding:.6rem 1rem; border-radius:12px; text-decoration:none;
+    background:linear-gradient(135deg,#ec4899, #8b5cf6); color:#fff !important;
+    box-shadow:0 6px 16px rgba(236,72,153,.25);
+  }
+  .dashboard-static .static-btn:hover{ transform:translateY(-1px); transition:.15s; }
+  .dashboard-static .static-btn-outline{
+    display:inline-flex; align-items:center; gap:.5rem; font-weight:700;
+    padding:.55rem .95rem; border-radius:12px; text-decoration:none;
+    background:#fff !important; color:#111827 !important; border:1px solid #e5e7eb;
+  }
+  .dashboard-static .static-chip{
+    display:inline-flex; align-items:center; gap:.4rem; font-weight:700;
+    padding:.35rem .6rem; border-radius:999px; background:#f3f4f6; color:#111827;
+  }
+  .dashboard-static .icon-pill{
+    width:3rem; height:3rem; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    background:#fee2e2; /* ثابت: قرمز خیلی ملایم */
+  }
+  /* کارت‌های اکشن */
+  .dashboard-static .action-card{
+    border-radius:16px; border:1px solid #e5e7eb; background:#fff !important; color:#111827 !important;
+    padding:1.1rem; box-shadow:0 8px 20px rgba(0,0,0,.06);
+  }
+  .dashboard-static .action-card:hover{ transform:translateY(-2px); box-shadow:0 12px 24px rgba(0,0,0,.08); transition:.15s; }
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="dashboard-static bg-gradient-to-br from-pink-50 to-purple-50 py-10 px-4">
+  <div class="max-w-screen-xl mx-auto space-y-6">
+
+    <!-- هدر -->
+    <header class="static-card p-5 md:p-6">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h1 class="static-title text-xl md:text-2xl flex items-center gap-2">
+            <i data-lucide="layout-dashboard" class="w-6 h-6" style="color:#ec4899"></i>
+            داشبورد مدیریت
+          </h1>
+          <p class="static-muted mt-1 text-sm">
+            کنترل سریع کاربران، خدمات، تایم‌ها، آموزش‌ها و پیام‌ها — همه در یک نگاه.
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <a href="{% url 'staff_users' %}" class="static-btn-outline">
+            <i data-lucide="users" class="w-5 h-5"></i><span>مشاهده کاربران</span>
+          </a>
+          <a href="{% url 'staff_lock' %}" class="static-btn-outline">
+            <i data-lucide="lock" class="w-5 h-5"></i><span>قفل مدیریت</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- میانبرها (فقط استاف) -->
+    {% if request.user.is_authenticated and request.user.is_staff %}
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+      <a href="{% url 'staff_catalog' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="layers" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">مدیریت کاتالوگ خدمات</div>
+            <div class="static-muted text-xs">دسته‌ها و آیتم‌های خدمات</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="{% url 'staff_messages' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="mail" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">پیام‌های کاربران</div>
+            <div class="static-muted text-xs">مشاهده/پاسخ/حذف پیام‌ها</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="{% url 'staff_tutorials' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="graduation-cap" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">کاتالوگ آموزش‌ها</div>
+            <div class="static-muted text-xs">آموزش‌ها و سرفصل‌ها</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="{% url 'staff_services' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="briefcase" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">مدیریت سرویس‌ها</div>
+            <div class="static-muted text-xs">سرویس‌ها و وضعیت انتشار</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="{% url 'staff_slots' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="calendar-range" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">مدیریت تایم‌ها</div>
+            <div class="static-muted text-xs">ایجاد/ویرایش/آرشیو زمان‌بندی</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="{% url 'staff_reservations' %}" class="action-card">
+        <div class="flex items-center gap-4">
+          <div class="icon-pill"><i data-lucide="clipboard-check" class="w-6 h-6" style="color:#dc2626"></i></div>
+          <div class="min-w-0">
+            <div class="static-title text-base">رزروهای نهایی</div>
+            <div class="static-muted text-xs">پیگیری و مدیریت رزروها</div>
+          </div>
+        </div>
+      </a>
+
+    </section>
+    {% endif %}
+
+    <!-- آمار کلان -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="static-card p-5">
+        <div class="static-muted text-sm">کاربران</div>
+        <div class="static-title text-2xl mt-1 tabular-nums">{{ users_count }}</div>
+      </div>
+      <div class="static-card p-5">
+        <div class="static-muted text-sm">رزروهای در انتظار</div>
+        <div class="static-title text-2xl mt-1 tabular-nums">{{ pending_res_count }}</div>
+      </div>
+      <div class="static-card p-5">
+        <div class="static-muted text-sm">رزروهای نهایی</div>
+        <div class="static-title text-2xl mt-1 tabular-nums">{{ booked_res_count }}</div>
+      </div>
+      <div class="static-card p-5">
+        <div class="static-muted text-sm">سرویس‌های فعال</div>
+        <div class="static-title text-2xl mt-1 tabular-nums">{{ services|length }}</div>
+      </div>
+    </section>
+
+    <!-- ۱۰ تایم آینده -->
+    <section class="static-card p-5">
+      <div class="flex items-center justify-between">
+        <div class="static-title">۱۰ تایم آینده</div>
+        <span class="static-chip"><i data-lucide="alarm-clock" class="w-4 h-4"></i> نزدیک‌ترین‌ها</span>
+      </div>
+      <div class="divide-y" style="border-color:#f3f4f6">
+        {% for s in upcoming_slots %}
+        <div class="py-3 flex items-center justify-between">
+          <div class="text-sm">
+            <div class="font-semibold" style="color:#111827">{{ s.service.title }}</div>
+            <div class="static-muted">
+              {{ s.date|to_jalali_date }} — {{ s.start_time|time:"H:i" }} تا {{ s.end_time|time:"H:i" }}
+            </div>
+          </div>
+          <div class="text-xs static-muted">ظرفیت: <span class="tabular-nums">{{ s.capacity }}</span></div>
+        </div>
+        {% empty %}
+        <div class="py-6 text-center static-muted">تایمی ثبت نشده است.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

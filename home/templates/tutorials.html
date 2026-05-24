@@ -1,0 +1,88 @@
+{# templates/tutorials.html #}
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}آموزش‌ها{% endblock %}
+
+{% block extra_head %}
+<style>
+  .text-flow{white-space:normal;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+  .thumb{position:relative}
+  .thumb::before{content:"";display:block;padding-top:56.25%} /* 16:9 */
+  .thumb>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+  .skeleton{position:absolute;inset:0;background:
+    linear-gradient(100deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.35) 50%,rgba(255,255,255,0) 60%),
+    linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.08));
+    background-size:200% 100%,100% 100%;animation:sh 1.6s linear infinite;filter:blur(.5px)}
+  @keyframes sh{to{background-position:-200% 0,0 0}}
+  /* کارت دوره */
+  .course-card{display:flex;flex-direction:column;overflow:hidden}
+  .course-body{display:flex;flex-direction:column;gap:.5rem;flex:1 1 auto}
+  .pill{border-radius:9999px;padding:.15rem .5rem;font-size:.7rem}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-950 py-10 px-4">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- هدر صفحه -->
+    <section class="card p-5 md:p-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl md:text-2xl font-extrabold flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-5 h-5 text-pink-500"></i>
+          آموزش‌ها
+        </h1>
+        <a href="{% url 'home' %}" class="btn btn-outline">بازگشت</a>
+      </div>
+      <p class="mt-3 text-sm md:text-base text-gray-700 dark:text-gray-300 leading-7">
+        مهارتت رو با دوره‌های تخصصی سیندخت ارتقا بده؛ از طراحی ناخن تا رنگ‌ومش و مراقبت پوست.
+      </p>
+    </section>
+
+    {# اگر courses را در ویو اضافه کنی، این بخش لیست را نشان می‌دهد #}
+    {% if courses %}
+      <section class="card p-5 md:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+          {% for c in courses %}
+          <article class="course-card rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 bg-white/80 dark:bg-zinc-900/60 shadow-lg hover:shadow-xl transition">
+            <div class="thumb">
+              <div class="skeleton"></div>
+              <img src="{{ c.thumb|default:'%s'|format:static('images/placeholders/16x9.jpg') }}" alt="{{ c.title }}"
+                   loading="lazy" decoding="async"
+                   onload="this.previousElementSibling?.remove()">
+            </div>
+            <div class="course-body p-5">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-lg font-extrabold text-zinc-900 dark:text-zinc-100">{{ c.title }}</h3>
+                <span class="pill bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300">{{ c.level|default:"عمومی" }}</span>
+              </div>
+              {% if c.short %}
+                <p class="text-flow text-sm text-gray-700 dark:text-gray-300 leading-7">{{ c.short }}</p>
+              {% endif %}
+              <div class="mt-3 flex flex-wrap gap-2">
+                <a href="{{ c.url|default:'#' }}" class="btn btn-primary">
+                  <i data-lucide="book-open"></i><span>جزئیات دوره</span>
+                </a>
+                <a href="{% url 'contact' %}" class="btn btn-outline">مشاوره ثبت‌نام</a>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% else %}
+      <section class="card p-8 text-center">
+        <i data-lucide="hourglass" class="w-10 h-10 mx-auto text-gray-400"></i>
+        <h3 class="mt-3 font-extrabold">به‌زودی دوره‌ها منتشر می‌شوند</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">اگر مایل هستید اطلاع‌رسانی شود، از طریق
+          <a class="underline" href="{% url 'contact' %}">تماس با ما</a> پیغام بگذارید.</p>
+      </section>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">if (window.lucide) lucide.createIcons();</script>
+{% endblock %}

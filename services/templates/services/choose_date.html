@@ -1,0 +1,113 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% load jalali %}
+{% block title %}انتخاب تاریخ — {{ service.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* فوتر همیشه پایینِ صفحه (فقط همین صفحه) */
+  body{display:flex;min-height:100vh;flex-direction:column}
+  main#main{flex:1}
+
+  .ui-fixed-theme *{color:inherit}
+  .dark .ui-fixed-theme, .ui-fixed-theme{background:#f8fafc}
+  .ui-fixed-theme .title{font-weight:800;font-size:1.25rem;color:#111827 !important}
+  .ui-fixed-theme .sub{font-size:.9rem;color:#374151}
+  .ui-fixed-theme .bar{display:flex;align-items:center;justify-content:space-between;margin:.25rem 0 1rem}
+
+  .ui-fixed-theme .tile{
+    background:#fff !important;border:1px solid #e5e7eb !important;border-radius:1rem;
+    padding:.9rem .75rem;text-align:center;box-shadow:0 6px 18px rgba(17,24,39,.05);
+    transition:transform .1s ease, border-color .15s ease, box-shadow .15s ease
+  }
+  .ui-fixed-theme .tile .w{font-size:.75rem;color:#6b7280}
+  .ui-fixed-theme .tile .d{font-size:1.15rem;font-weight:900;color:#111827}
+  .ui-fixed-theme .tile .m{font-size:.8rem;color:#374151}
+  .ui-fixed-theme input.peer{display:none}
+  .ui-fixed-theme .peer:checked + .tile{
+    border-color:#8b5cf6 !important; box-shadow:0 10px 22px rgba(139,92,246,.22);
+    outline:2px solid rgba(139,92,246,.28); outline-offset:2px; transform:translateY(-2px)
+  }
+
+  .ui-fixed-theme .btn-main{
+    display:inline-flex;align-items:center;gap:.5rem;border-radius:.9rem;font-weight:800;padding:.6rem .95rem;
+    background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff !important;border:0 !important
+  }
+  .ui-fixed-theme .btn-ghost{
+    display:inline-flex;align-items:center;gap:.5rem;border-radius:.9rem;font-weight:800;padding:.55rem .9rem;
+    background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb !important
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="ui-fixed-theme max-w-screen-xl mx-auto p-4">
+  <h1 class="title">انتخاب تاریخ برای «{{ service.title }}»</h1>
+
+  <form method="post" class="space-y-5">{% csrf_token %}
+    <div class="bar">
+      <div class="sub">خدمت: <strong>{{ service.title }}</strong></div>
+      <div class="sub">بیعانه: <strong>{{ service.deposit_amount_toman|intcomma }}</strong> تومان</div>
+    </div>
+
+    <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-3">
+  {% for d in available_dates %}
+  <label class="block group">
+    <input type="radio" name="date" value="{{ d|date:'Y-m-d' }}" class="peer hidden" required />
+    <div class="rounded-2xl border border-slate-200 bg-white px-3 py-4 text-center text-sm shadow-sm
+                peer-checked:border-indigo-600 peer-checked:ring-2 peer-checked:ring-indigo-500/40
+                group-hover:border-indigo-400 transition">
+      <!-- خط ۱: نام روز -->
+      <div class="text-base font-semibold text-slate-600">{{ d|persian_weekday }}</div>
+
+      <!-- جداکنندهٔ استاندارد (نه در یک خط) -->
+      <span class="block my-1 h-px w-8 mx-auto bg-slate-200"></span>
+
+      <!-- خط ۲: تاریخ جلالی -->
+      <div class="text-base font-extrabold tabular-nums text-slate-900">{{ d|to_jalali_date }}</div>
+    </div>
+  </label>
+  {% empty %}
+    <p>برای این خدمت تاریخی ثبت نشده است.</p>
+  {% endfor %}
+</div>
+
+
+    <div class="flex gap-3">
+      <button type="submit" class="btn-main">تأیید و ادامه</button>
+      <a href="{% url 'services_list' %}" class="btn-ghost">بازگشت</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
+<script nonce="{{ csp_nonce }}">
+  (function(){
+    const weekdaysFa = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+    const monthsFa   = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+    document.querySelectorAll('[data-gdate]').forEach(tile=>{
+      const iso = tile.getAttribute('data-gdate'); // YYYY-MM-DD
+      if (!iso) return;
+      const [gy, gm, gd] = iso.split('-').map(Number);
+
+      // روز هفته بر اساس UTC (بدون جابه‌جایی به خاطر تایم‌زون/دی‌اس‌تی)
+      const dowUTC = new Date(Date.UTC(gy, gm-1, gd)).getUTCDay(); // 0..6
+
+      // تبدیل تاریخ گرگوری به جلالی
+      const { jy, jm, jd } = window.jalaali.toJalaali(gy, gm, gd);
+
+      const wEl = tile.querySelector('[data-j-weekday]');
+      const dEl = tile.querySelector('[data-j-day]');
+      const mEl = tile.querySelector('[data-j-month]');
+
+      if (wEl) wEl.textContent = weekdaysFa[dowUTC];
+      if (dEl) dEl.textContent = jd.toLocaleString('fa-IR');
+      if (mEl) mEl.textContent = `${monthsFa[jm-1]} ${jy.toLocaleString('fa-IR')}`;
+    });
+  })();
+</script>
+{% endblock %}
+

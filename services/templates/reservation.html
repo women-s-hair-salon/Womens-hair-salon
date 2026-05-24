@@ -1,0 +1,159 @@
+{% extends 'base/base.html' %}
+{% block title %}رزرو نوبت{% endblock %}
+{% block main %}
+
+{% if not request.user.is_authenticated %}
+  <div class="text-center py-10 text-red-500 font-bold">
+    لطفاً ابتدا وارد حساب کاربری شوید.
+  </div>
+{% else %}
+
+  {% if not user_completed %}
+    <div class="text-center py-10 text-yellow-500 font-bold">
+      لطفاً پروفایل را کامل کنید.
+      <br>
+      <a href="{% url 'profile' %}" class="underline text-blue-600">تکمیل پروفایل</a>
+    </div>
+  {% else %}
+
+    <div x-data="reservationForm()" x-init="loadServices()" class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 my-10 transition-all">
+      <h1 class="text-2xl font-bold mb-6 text-center">رزرو نوبت</h1>
+
+      <div class="flex justify-center gap-2 mb-6">
+        <template x-for="(step, index) in steps">
+          <div :class="{'bg-blue-600 text-white': currentStep === index, 'bg-gray-300 text-gray-800': currentStep !== index}"
+              class="w-10 h-10 flex items-center justify-center rounded-full font-bold transition-all duration-300">
+            <span x-text="index + 1"></span>
+          </div>
+        </template>
+      </div>
+
+      <div>
+        <div x-show="currentStep === 0" class="space-y-4">
+          <template x-for="service in services">
+            <button @click="selectService(service)" class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg shadow-md hover:scale-105 transition-all">
+              <span x-text="service.name"></span>
+            </button>
+          </template>
+        </div>
+
+        <div x-show="currentStep === 1" class="space-y-4">
+          <label>تاریخ را انتخاب کنید:</label>
+          <input type="text" id="datepicker" x-model="selectedDate" @date-selected.window="selectedDate = $event.detail">
+
+{#            <input type="text" id="datepicker" x-model="selectedDate" class="w-full py-3 px-4 rounded-lg border border-gray-300 dark:bg-gray-700">#}
+          <button @click="loadTimes()" :disabled="!selectedDate" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg shadow-md">مرحله بعد</button>
+        </div>
+
+        <div x-show="currentStep === 2" class="space-y-4">
+          <label>ساعت را انتخاب کنید:</label>
+          <div class="grid grid-cols-2 gap-3">
+            <template x-for="time in availableTimes">
+              <button :disabled="time.isBooked" @click="selectedTime = time.time; next()"
+                :class="time.isBooked ? 'bg-gray-300 text-gray-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:scale-105'"
+                class="w-full py-3 px-4 rounded-lg shadow-md transition-all">
+                <span x-text="time.time"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <div x-show="currentStep === 3" class="space-y-6">
+          <h2 class="text-center text-xl font-bold">بررسی نهایی</h2>
+          <ul class="space-y-2">
+            <li>سرویس: <strong x-text="selectedService ? selectedService.name : ''"></strong></li>
+            <li>تاریخ: <strong x-text="selectedDate"></strong></li>
+            <li>ساعت: <strong x-text="selectedTime"></strong></li>
+            <li>بیعانه: <strong x-text="selectedService ? (selectedService.deposit + ' تومان') : ''"></strong></li>
+          </ul>
+          <button @click="proceedToPayment()" class="w-full bg-green-600 text-white py-3 rounded-lg shadow-md">ادامه به پرداخت</button>
+        </div>
+      </div>
+
+    </div>
+
+  {% endif %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+
+document.addEventListener('alpine:init', () => {
+  Alpine.data('reservationForm', () => ({
+    currentStep: 0,
+    steps: ['سرویس', 'تاریخ', 'ساعت', 'تایید'],
+    services: [],
+    selectedService: null,
+    selectedDate: '',
+    selectedTime: '',
+    availableTimes: [],
+
+    async loadServices() {
+      const res = await fetch('/services/api/services/');
+      this.services = await res.json();
+    },
+
+    selectService(service) {
+      this.selectedService = service;
+      this.next();
+    },
+
+    async loadTimes() {
+      const dateIso = this.selectedDate.replaceAll('/', '-');
+      const res = await fetch(`/services/api/timeslots/?service=${this.selectedService.id}&date=${dateIso}`);
+      this.availableTimes = await res.json();
+      this.next();
+    },
+
+    next() { this.currentStep++; },
+
+    async proceedToPayment() {
+  const res = await fetch('/services/api/create-reservation/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      service_id: this.selectedService.id,
+      slot_id: this.availableTimes.find(t => t.time === this.selectedTime).id
+    })
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    window.location.href = data.payment_url;
+  } else {
+    alert("خطا در ثبت رزرو! لطفاً مجدداً تلاش کنید.");
+  }
+}
+
+  }));
+});
+
+
+</script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+
+
+<script>
+
+$(document).ready(function(){
+  $("#datepicker").persianDatepicker({
+    format: 'YYYY/MM/DD',
+    autoClose: true,
+    onSelect: function(unix){
+      const miladi = new persianDate(unix).toCalendar('gregorian').format('YYYY-MM-DD');
+      document.querySelector('#datepicker').dispatchEvent(new CustomEvent('date-selected', {detail: miladi}));
+    }
+  });
+});
+
+
+</script>
+{% endblock %}

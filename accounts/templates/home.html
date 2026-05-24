@@ -1,42 +1,428 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحه اصلی</title>
-    <!-- اضافه کردن فایل‌های CSS (اختیاری) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .home-container {
-            max-width: 800px;
-            margin: 100px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .home-container h1 {
-            color: #333;
-        }
-        .logout-link {
-            color: #dc3545;
-            text-decoration: none;
-        }
-        .logout-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="home-container">
-        <h1>خوش آمدید، {{ user.phone_number }}!</h1>
-        <p>شما با موفقیت وارد سیستم شده‌اید.</p>
-        <a href="{% url 'logout' %}" class="logout-link">خروج</a>
+{% extends 'base/base.html' %}
+{% block title %}خانه | Sindokht Beauty{% endblock %}
+{% load static %}
+{% block extra_head %}
+<style>
+/* ——— Home: حذف هر فاصلهٔ بیرونی اول/آخر صفحه ——— */
+  header{ margin-bottom:0 !important; }
+  main{ padding-top:80px !important; }            /* اگر در base برای main پدینگ گذاشته‌ای خنثی می‌شود */
+  main > section:first-child{ margin-top:0 !important; }   /* هیرو */
+  main > section:last-child{  margin-bottom:0 !important; }/* CTA پایانی */
+  footer{ margin-top:0 !important; }
+
+  /* اگر در پروژه «فاصلهٔ عمومی بین سکشن‌ها» داری (مثل main > * + * {margin-top:...})،
+     فقط برای این صفحه صفرش می‌کنیم: */
+  main > * + * { margin-top: 0 !important; }
+
+  /* هیرو: ارتفاع پاسخ‌گرا و بدون فاصلهٔ بیرونی */
+  .hero-wrap{ min-height: clamp(420px, 52vh, 680px); margin:0 !important; }
+  /* پدینگ داخلی هیرو برای چیدمان محتوا (بدون ایجاد فاصله با هدر/فوتر) */
+  .hero-wrap > .max-w-screen-xl{
+    padding-block: clamp(2.25rem, 7vw, 6rem) clamp(2rem, 6.5vw, 5.5rem);
+  }
+  /* --- اسلایدشو بک‌گراند --- */
+  .hero-wrap { position:relative; isolation:isolate; }
+
+  /* ارتفاع استاندارد هیرو؛ اگر محتوا بیشتر شد، باکس بزرگ‌تر می‌شود (چیزی مخفی نمی‌شود) */
+  .hero-wrap{ min-height: clamp(420px, 52vh, 680px); }
+
+  /* پدینگ محتوا در هیرو به‌صورت پاسخ‌گرا (جایگزین کلاس‌های pt/pb بدون نیاز به تغییر HTML) */
+  .hero-wrap > .max-w-screen-xl{
+    padding-block: clamp(2.25rem, 7vw, 6rem) clamp(2rem, 6.5vw, 5.5rem);
+  }
+
+  .hero-bg   { position:absolute; inset:0; z-index:-2; overflow:hidden; }
+  .hero-slide{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center;
+    opacity:0; transition:opacity 1100ms ease-in-out;
+    filter:saturate(105%) contrast(105%);
+  }
+  .hero-slide.is-active{ opacity:1; }
+
+  /* اسکرایم/گرادیان اصلی برای خوانایی */
+  .hero-scrim{
+    position:absolute; inset:0; z-index:-1;
+    background:
+      linear-gradient(to top, rgba(0,0,0,var(--scrim-strong,0.45)), rgba(0,0,0,0) 40%),
+      linear-gradient(to bottom, rgba(0,0,0,var(--scrim-soft,0.25)), rgba(0,0,0,0) 40%);
+  }
+
+  /* ویگنت لبه‌ها برای هر تصویری (قابل تنظیم) */
+  .hero-vignette::after{
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:-1;
+    mask-image: radial-gradient(120% 100% at 50% 60%, transparent 0, transparent 45%, rgba(0,0,0,1) 100%);
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 60%, transparent 0, transparent 45%, rgba(0,0,0,1) 100%);
+    background: rgba(0,0,0,var(--vignette,0.22));
+  }
+
+  /* مولتی‌پلای برای متعادل‌سازی نور تصویر */
+  .hero-multiply{ position:absolute; inset:0; background:rgba(0,0,0,.20); mix-blend-mode:multiply; z-index:-1; }
+
+  /* پنل شیشه‌ایِ محتوا */
+  .hero-panel{
+    --glass-bg: rgba(0,0,0,.35);
+    background: var(--glass-bg);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+
+  /* ردیف مزایا؛ همیشه خوانا */
+  .benefit-pill{
+    background: rgba(0,0,0,.38);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius: 9999px;
+    padding: 6px 10px;
+  }
+
+  /* فاصله بین سکشن‌ها */
+  .section-gap{ padding-block: 3.5rem; }
+  .section-gap-lg{ padding-block: 5rem; }
+
+  /* سکشن‌هایی با روبان پس‌زمینه */
+  .section-with-ribbons{ position:relative; isolation:isolate; overflow:hidden; }
+  .section-with-ribbons .ribbons-bg{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+  .section-with-ribbons .ribbons-inner{ position:relative; z-index:1; }
+
+  /* الگوی عمومی روبان صورتی */
+  .ribbons-bg svg{
+    position:absolute; top:-3rem; right:-2rem;
+    width:min(100vw,1100px); height:auto;
+    transform:rotate(-12deg); opacity:.95;
+    filter:drop-shadow(0 24px 40px rgba(0,0,0,.25));
+  }
+  @media (max-width:768px){
+    .ribbons-bg svg{ top:-2rem; right:-3rem; width:min(120vw,900px); transform:rotate(-9deg); }
+  }
+
+  /* نسخه‌ی ملایم‌تر برای دسته‌بندی‌ها (چرخش مخالف و شفاف‌تر) */
+  .ribbons-soft svg{
+    left:-2rem; right:auto; top:-4rem;
+    transform:rotate(10deg);
+    opacity:.6; filter:drop-shadow(0 18px 28px rgba(0,0,0,.18));
+  }
+
+  /* CTA با روبان کوچک */
+  .ribbons-mini{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+  .ribbons-mini svg{
+    position:absolute; top:-3rem; right:-2rem; width:min(70vw,680px); height:auto;
+    transform:rotate(-12deg); opacity:.55; filter:drop-shadow(0 16px 28px rgba(0,0,0,.18));
+  }
+  @media (max-width:768px){
+    .ribbons-mini svg{ top:-2rem; right:-2rem; width:min(95vw,560px); transform:rotate(-9deg); opacity:.45; }
+  }
+  .ribbons-inner{ position:relative; z-index:1; }
+</style>
+{% endblock %}
+
+{% block main %}
+
+<!-- =================== HERO با اسلایدشو =================== -->
+<section class="hero-wrap hero-vignette relative">
+  <!-- بک‌گراند اسلایدشو -->
+  <div class="hero-bg" aria-hidden="true">
+    <img src="{% static 'images/hero/0A9A7601.jpg' %}" class="hero-slide is-active" alt="" loading="eager">
+    <img src="{% static 'images/hero/Copy of Your paragraph text_20241027_175012_0000.png' %}" class="hero-slide" alt="" loading="lazy">
+    <img src="{% static 'images/hero/Screenshot from 2025-09-12 21-08-46.png' %}" class="hero-slide" alt="" loading="lazy">
+    <img src="{% static 'images/hero/Screenshot from 2025-09-12 21-08-22.png' %}" class="hero-slide" alt="" loading="lazy">
+  </div>
+
+  <!-- اسکرایم‌ها -->
+  <div class="hero-scrim" style="--scrim-strong:.50; --scrim-soft:.25;"></div>
+  <div class="hero-multiply"></div>
+
+  <!-- محتوا -->
+  <div class="max-w-screen-xl mx-auto px-4 pt-28 md:pt-36 pb-20 md:pb-28">
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+
+      <!-- پنل شیشه‌ای -->
+      <div class="hero-panel p-5 md:p-7 text-white">
+        <div class="mb-3">
+          <span class="badge !bg-white/80 !text-zinc-800">سالن زیبایی سیندخت</span>
+        </div>
+
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+          زیبایی طبیعی شما،
+          <br class="hidden md:block"> درخشش ماست ✨
+        </h1>
+
+        <p class="mt-4 text-sm md:text-base leading-7 text-zinc-100/95 drop-shadow-[0_1px_10px_rgba(0,0,0,0.55)] max-w-prose">
+          تجربه‌ای ممتاز از خدمات زیبایی در محیطی آرام و حرفه‌ای. با تیمی متخصص و استفاده از جدیدترین متدهای روز دنیا.
+        </p>
+
+        <div class="mt-5 flex flex-col sm:flex-row gap-3">
+          <a href="{% url 'services_list' %}" class="btn btn-primary">
+            <i data-lucide="calendar"></i><span>رزرو نوبت</span>
+          </a>
+          <a href="{% url 'servicesss_list' %}" class="btn btn-outline !bg-white/80 hover:!bg-white">
+            <i data-lucide="sparkles"></i><span>مشاهده خدمات</span>
+          </a>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-2 text-[12.5px] text-zinc-50/95">
+          <span class="benefit-pill inline-flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-300"></i>پرداخت امن بیعانه
+          </span>
+          <span class="benefit-pill inline-flex items-center gap-1">
+            <i data-lucide="users" class="w-4 h-4 text-pink-200"></i>تیم حرفه‌ای
+          </span>
+          <span class="benefit-pill inline-flex items-center gap-1">
+            <i data-lucide="timer" class="w-4 h-4 text-purple-200"></i>مدیریت دقیق زمان
+          </span>
+        </div>
+      </div>
+
+      <!-- کارت ویزیول -->
+      <div class="card p-0 overflow-hidden bg-white/80 dark:bg-zinc-900/60">
+        <div class="aspect-[4/3] flex items-center justify-center">
+          <div class="text-center p-6">
+            <i data-lucide="flower-2" class="w-16 h-16 text-pink-400 mx-auto mb-4"></i>
+            <p class="text-sm md:text-base text-zinc-700 dark:text-zinc-200">
+              سیندخت؛ همراه شما برای درخشش در هر لحظه از روز.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
-</body>
-</html>
+  </div>
+</section>
+
+<!-- فاصله واضح بین سکشن‌ها -->
+{#<div class="section-gap"></div>#}
+
+<!-- =================== ویژگی‌ها =================== -->
+<section class="section-with-ribbons py-20 md:py-24 bg-gray-50 dark:bg-zinc-950">
+  <!-- روبان صورتی (پس‌زمینه) -->
+  <div class="ribbons-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="r1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#f43f5e" stop-opacity=".95"/>
+          <stop offset="50%" stop-color="#ec4899" stop-opacity=".92"/>
+          <stop offset="100%" stop-color="#f9a8d4" stop-opacity=".88"/>
+        </linearGradient>
+        <linearGradient id="r2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#f472b6" stop-opacity=".95"/>
+          <stop offset="60%" stop-color="#fb7185" stop-opacity=".9"/>
+          <stop offset="100%" stop-color="#fde68a" stop-opacity=".8"/>
+        </linearGradient>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="40%" stop-color="#ffffff" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="12"/>
+        </filter>
+        <filter id="softer" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="24"/>
+        </filter>
+      </defs>
+
+      <!-- روبان محوِ عقب -->
+      <path d="M1150 40 C 980 120, 820 220, 610 320 S 300 540, 60 720"
+            fill="none" stroke="url(#r2)" stroke-width="120" stroke-linecap="round"
+            opacity=".55" filter="url(#softer)"/>
+      <!-- روبان اصلی -->
+      <path d="M1140 90 C 930 180, 760 270, 560 360 S 260 560, 40 740"
+            fill="none" stroke="url(#r1)" stroke-width="90" stroke-linecap="round"
+            opacity=".9" filter="url(#softBlur)"/>
+      <!-- رگه روشن وسط -->
+      <path d="M1140 90 C 930 180, 760 270, 560 360 S 260 560, 40 740"
+            fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="16" stroke-linecap="round"/>
+      <!-- خطوط سفید نازک -->
+      <path d="M1120 60 C 930 150, 740 245, 520 335 S 180 540, 30 700"
+            fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+      <path d="M1150 140 C 940 220, 770 300, 560 390 S 250 600, 70 760"
+            fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+      <!-- فلرهای نور -->
+      <circle cx="820" cy="240" r="80" fill="url(#glow)" opacity=".9"/>
+      <circle cx="500" cy="480" r="70" fill="url(#glow)" opacity=".85"/>
+    </svg>
+  </div>
+
+  <div class="ribbons-inner max-w-screen-xl mx-auto px-4">
+    <header class="text-center mb-12">
+      <h2 class="text-xl md:text-2xl font-extrabold text-black">چرا سیندخت؟</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">تجربه، کیفیت، آرامش</p>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+      <div class="card p-5 hover:shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <i data-lucide="award" class="w-6 h-6 text-amber-500"></i>
+          <h3 class="font-bold">متخصصان با تجربه</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-7">تیم حرفه‌ای و آموزش‌دیده برای بهترین نتیجه.</p>
+      </div>
+      <div class="card p-5 hover:shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <i data-lucide="leaf" class="w-6 h-6 text-emerald-500"></i>
+          <h3 class="font-bold">محصولات با کیفیت</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-7">استفاده از برندهای معتبر و مواد استاندارد.</p>
+      </div>
+      <div class="card p-5 hover:shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <i data-lucide="sofa" class="w-6 h-6 text-pink-500"></i>
+          <h3 class="font-bold">محیط آرام و لوکس</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-7">فضایی دلنشین برای تجربه‌ای آرام‌بخش.</p>
+      </div>
+      <div class="card p-5 hover:shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <i data-lucide="credit-card" class="w-6 h-6 text-purple-500"></i>
+          <h3 class="font-bold">رزرو آنلاین آسان</h3>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-7">انتخاب سرویس، زمان‌بندی، و پرداخت بیعانه آنلاین.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- فاصله واضح بین سکشن‌ها -->
+{#<div class="py-8"></div>#}
+
+<!-- =================== دسته‌بندی خدمات (داینامیک) =================== -->
+<section class="section-with-ribbons py-20 md:py-24">
+  <!-- روبان نرم‌تر -->
+  <div class="ribbons-bg ribbons-soft" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="r1b" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#ec4899" stop-opacity=".75"/>
+          <stop offset="55%" stop-color="#fb7185" stop-opacity=".7"/>
+          <stop offset="100%" stop-color="#f9a8d4" stop-opacity=".65"/>
+        </linearGradient>
+        <filter id="softBlurB" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="16"/>
+        </filter>
+      </defs>
+      <path d="M60 80 C 260 170, 430 260, 640 350 S 980 560, 1160 720"
+            fill="none" stroke="url(#r1b)" stroke-width="110" stroke-linecap="round"
+            opacity=".5" filter="url(#softBlurB)"/>
+    </svg>
+  </div>
+
+  <div class="ribbons-inner max-w-screen-xl mx-auto px-4">
+    <header class="text-center mb-12">
+      <h2 class="text-xl md:text-2xl font-extrabold">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">دسته‌بندی‌های خدمات</span>
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">از بین دسته‌ها انتخاب کنید و وارد جزئیات شوید.</p>
+    </header>
+
+    {% if home_categories %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for cat in home_categories %}
+        <article class="card group p-0 overflow-hidden hover:shadow-xl transition">
+          <div class="aspect-[4/3] relative">
+            {% if cat.image %}
+              <img src="{{ cat.image.url }}" alt="{{ cat.title }}" class="absolute inset-0 w-full h-full object-cover">
+            {% else %}
+              <div class="absolute inset-0 bg-gray-100 dark:bg-zinc-800"></div>
+            {% endif %}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-70 group-hover:opacity-60 transition"></div>
+          </div>
+          <div class="p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-zinc-900 dark:text-zinc-100">{{ cat.title }}</h3>
+              <span class="badge">+{{ cat.services.count }} سرویس</span>
+            </div>
+            {% if cat.description %}
+              <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-7">
+                {{ cat.description }}
+              </p>
+            {% endif %}
+            <div class="pt-2">
+              <a href="{% url 'service_category_detail' slug=cat.slug %}" class="btn btn-outline">مشاهده جزئیات</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="text-center mt-10">
+        <a href="{% url 'servicesss_list' %}" class="btn btn-primary">
+          مشاهده همهٔ دسته‌ها
+        </a>
+      </div>
+    {% else %}
+      <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+        دسته‌بندی‌ای برای نمایش موجود نیست.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- فاصله واضح بین سکشن‌ها -->
+{#<div class="py-8"></div>#}
+
+<!-- =================== CTA پایانی =================== -->
+<section class="section-with-ribbons py-16 bg-gray-50 dark:bg-zinc-950">
+  <!-- روبان کوچک گوشه بالا-راست -->
+  <div class="ribbons-mini" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="ctaR1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#f43f5e" stop-opacity=".9"/>
+          <stop offset="55%" stop-color="#ec4899" stop-opacity=".85"/>
+          <stop offset="100%" stop-color="#f9a8d4" stop-opacity=".75"/>
+        </linearGradient>
+        <filter id="ctaBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="12"/>
+        </filter>
+      </defs>
+      <path d="M1100 60 C 900 150, 720 230, 520 320" fill="none"
+            stroke="url(#ctaR1)" stroke-width="90" stroke-linecap="round"
+            opacity=".8" filter="url(#ctaBlur)"/>
+      <path d="M1100 60 C 900 150, 720 230, 520 320" fill="none"
+            stroke="#ffffff" stroke-opacity=".35" stroke-width="14" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="ribbons-inner max-w-screen-xl mx-auto px-4">
+    <div class="card p-6 md:p-8 md:flex items-center justify-between gap-6">
+      <div>
+        <h3 class="text-lg md:text-xl font-extrabold">آماده‌ای بدرخشی؟</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+          نوبت دلخواه‌ت را همین حالا رزرو کن؛ تیم سیندخت همراه توست.
+        </p>
+      </div>
+      <div class="mt-4 md:mt-0 flex gap-2">
+        <a href="{% url 'services_list' %}" class="btn btn-primary">شروع رزرو</a>
+        <a href="{% url 'contact' %}" class="btn btn-outline">تماس با ما</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+  // اسلایدشو: هر 5.5 ثانیه
+  (function() {
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    if (slides.length < 2) return;
+    let i = 0;
+    setInterval(() => {
+      const prev = slides[i];
+      i = (i + 1) % slides.length;
+      const next = slides[i];
+      prev.classList.remove('is-active');
+      next.classList.add('is-active');
+    }, 5500);
+  })();
+</script>
+{% endblock %}

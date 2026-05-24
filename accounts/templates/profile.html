@@ -1,13 +1,143 @@
-<!DOCTYPE html>
-<html lang="per">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>Welcome, {{ user.full_name }}</h1>
-<h1>{{user.referral_code}}</h1>
+{% extends 'base/base.html' %}
+{% load static %}
+{% load custom_filters %}
 
-    <a href="passwordchange">Change Password</a>
-</body>
-</html>
+{% block title %}پروفایل من{% endblock %}
+
+{% block main %}
+<div class="bg-gradient-to-br  py-10 px-4">
+  <div class="max-w-3xl mx-auto space-y-6">
+
+    <!-- عنوان صفحه -->
+    <section class="card p-5 md:p-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl md:text-2xl font-extrabold flex items-center gap-2">
+          <i data-lucide="user-round" class="w-5 h-5 text-pink-500"></i>
+          پروفایل من
+        </h1>
+        <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400 ltr">
+          {{ request.user.phone_number|default:"—" }}
+        </span>
+      </div>
+    </section>
+
+    <!-- خطاهای کلی فرم -->
+    {% if form.non_field_errors %}
+    <div class="card border border-red-200 dark:border-red-900/50 p-4 text-red-700 dark:text-red-300 text-sm">
+      {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- فرم پروفایل (POST معمولی) -->
+    <section class="card p-5 md:p-6">
+      <h2 class="text-lg md:text-xl font-extrabold mb-4">ویرایش اطلاعات شخصی</h2>
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- نام و نام‌خانوادگی -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label" for="first_name">نام</label>
+            <input type="text" id="first_name" name="first_name"
+                   value="{{ form.first_name.value|default_if_none:'' }}"
+                   class="form-input">
+            {% for e in form.first_name.errors %}
+              <div class="text-xs text-red-600 mt-1">{{ e }}</div>
+            {% endfor %}
+          </div>
+
+          <div>
+            <label class="form-label" for="last_name">نام خانوادگی</label>
+            <input type="text" id="last_name" name="last_name"
+                   value="{{ form.last_name.value|default_if_none:'' }}"
+                   class="form-input">
+            {% for e in form.last_name.errors %}
+              <div class="text-xs text-red-600 mt-1">{{ e }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- تاریخ تولد -->
+        <div x-data="{ open: true }" class="rounded-2xl ring-1 ring-gray-200 dark:ring-zinc-800 overflow-hidden">
+          <button type="button" @click="open = !open"
+                  class="w-full flex items-center justify-between px-4 py-3 bg-white/80 dark:bg-zinc-900/60">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calendar" class="w-5 h-5 text-pink-500"></i>
+              <span class="font-bold">تاریخ تولد</span>
+            </div>
+            <i :class="open ? 'rotate-180' : ''" data-lucide="chevron-down"
+               class="w-5 h-5 text-gray-500 transition-transform"></i>
+          </button>
+
+          <div x-show="open" x-transition
+               class="bg-white/60 dark:bg-zinc-900/40 p-4 md:p-5 border-t border-gray-200 dark:border-zinc-800">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label" for="year">سال</label>
+                <select id="year" name="year" class="form-select">
+                  <option disabled selected>سال</option>
+                  {% for y in 1300|to:1403 %}
+                    <option value="{{ y }}" {% if birth_year == y %}selected{% endif %}>{{ y }}</option>
+                  {% endfor %}
+                </select>
+                {% for e in form.year.errors %}
+                  <div class="text-xs text-red-600 mt-1">{{ e }}</div>
+                {% endfor %}
+              </div>
+              <div>
+                <label class="form-label" for="month">ماه</label>
+                <select id="month" name="month" class="form-select">
+                  <option disabled selected>ماه</option>
+                  {% for idx, name in months %}
+                    <option value="{{ idx }}" {% if birth_month == idx %}selected{% endif %}>{{ name }}</option>
+                  {% endfor %}
+                </select>
+                {% for e in form.month.errors %}
+                  <div class="text-xs text-red-600 mt-1">{{ e }}</div>
+                {% endfor %}
+              </div>
+              <div>
+                <label class="form-label" for="day">روز</label>
+                <select id="day" name="day" class="form-select">
+                  <option disabled selected>روز</option>
+                  {% for d in 1|to:32 %}
+                    <option value="{{ d }}" {% if birth_day == d %}selected{% endif %}>{{ d }}</option>
+                  {% endfor %}
+                </select>
+                {% for e in form.day.errors %}
+                  <div class="text-xs text-red-600 mt-1">{{ e }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- اکشن‌ها -->
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <a href="{% url 'home' %}" class="btn btn-outline">بازگشت</a>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="save"></i>
+            <span>ذخیره تغییرات</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- نکته -->
+    <section class="card p-4 md:p-5">
+      <div class="flex items-start gap-3 text-sm">
+        <i data-lucide="info" class="w-5 h-5 text-blue-500 shrink-0"></i>
+        <p class="leading-7">اطلاعات شما نزد سیندخت محفوظ است.</p>
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script nonce="{{ csp_nonce }}">
+  if (window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

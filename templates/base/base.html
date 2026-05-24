@@ -1,35 +1,139 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>{% block title %}{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        html {
-            scroll-behavior: smooth; /* اسکرول نرم */
-        }
-    </style>
+  {% block meta %}
+  <title>{% block title %}Sindokht Beauty{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}سالن زیبایی سیندخت؛ رزرو آنلاین، خدمات تخصصی و آموزش‌های حرفه‌ای.{% endblock %}">
+  <meta name="theme-color" content="#ffffff" id="meta-theme-color">
+  {% endblock %}
+
+  <!-- جلوگیری از فلیکر تم -->
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      const isDark = localStorage.getItem('theme') === 'dark';
+      if (isDark) document.documentElement.classList.add('dark');
+      const meta = document.getElementById('meta-theme-color');
+      if (meta) meta.setAttribute('content', isDark ? '#000000' : '#f3f4f6');
+    })();
+  </script>
+
+  <!-- فونت -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- فقط CSS محلی -->
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
+  <!-- آیکن‌ها و Alpine -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  {% block extra_head %}{% endblock %}
 </head>
-<body>
-<header>
-    {% include 'base/header.html' %}
-</header>
-{% block main %}
-{% endblock %}
 
-<footer>
-    {% include 'base/footer.html' %}
+<body x-data class="min-h-screen flex flex-col bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100 font-[Vazirmatn] antialiased">
 
-</footer>
+  <!-- لینک دسترسی سریع برای دسترس‌پذیری -->
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:right-2 focus:z-50 focus:bg-amber-300 focus:text-black focus:px-3 focus:py-1 rounded">پرش به محتوا</a>
+
+  <!-- Toasts -->
+  <div id="toast-container"
+       class="fixed z-50 top-4 md:top-6 left-1/2 md:left-auto md:right-6 -translate-x-1/2 md:translate-x-0 w-[92%] md:w-96 space-y-3"></div>
+
+  <!-- هدر -->
+  <header>{% include 'base/header.html' %}</header>
+
+  <!-- فاصله برای فیکس‌هدِر -->
+  <main id="main" class="pt-24 flex-1">
+    {% block main %}{% endblock %}
+  </main>
+
+  <!-- فوتر -->
+  <footer class="mt-16">{% include 'base/footer.html' %}</footer>
+
+  <!-- نمایش پیام‌های Django به صورت Toast -->
+  {% if messages %}
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      const container = document.getElementById('toast-container');
+
+      function pushToast(text, level) {
+        const wrap = document.createElement('div');
+        wrap.className = "card shadow-lg flex items-start gap-3 p-3 border border-gray-200";
+        const color = ({
+          success: 'bg-emerald-500',
+          error:   'bg-red-500',
+          warning: 'bg-amber-400',
+          info:    'bg-blue-500',
+          debug:   'bg-zinc-500'
+        })[level] || 'bg-blue-500';
+
+        wrap.innerHTML = `
+          <div class="w-1.5 ${color} rounded"></div>
+          <div class="flex-1">
+            <div class="text-sm leading-6">${text}</div>
+            <div class="h-1 mt-2 rounded bg-gray-200/70 overflow-hidden">
+              <div class="h-full ${color} w-full animate-[shrink_4s_linear_forwards] origin-left"></div>
+            </div>
+          </div>
+          <button class="btn btn-outline !px-2 !py-1 !text-xs" aria-label="بستن" title="بستن">&times;</button>
+        `;
+        wrap.querySelector('button').addEventListener('click', () => wrap.remove());
+        container.appendChild(wrap);
+        setTimeout(() => wrap.remove(), 4200);
+      }
+
+      {% for message in messages %}
+        pushToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+      {% endfor %}
+    })();
+  </script>
+  {% endif %}
+
+  <!-- Alpine Store سراسری برای تم و منوی موبایل (نسخه پایدار) -->
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      function initUIStore() {
+        const savedDark = localStorage.getItem('theme') === 'dark';
+
+        Alpine.store('ui', {
+          isDark: savedDark,
+          mobileMenu: false,
+
+          get themeLabel() {
+            return this.isDark ? 'تم روشن' : 'تم تاریک';
+          },
+
+          toggleTheme() {
+            this.isDark = !this.isDark;
+            document.documentElement.classList.toggle('dark', this.isDark);
+            localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+            const meta = document.getElementById('meta-theme-color');
+            if (meta) meta.setAttribute('content', this.isDark ? '#000000' : '#f3f4f6');
+            if (window.lucide) requestAnimationFrame(() => lucide.createIcons());
+          },
+
+          openMobile()  { this.mobileMenu = true;  },
+          closeMobile() { this.mobileMenu = false; },
+        });
+
+        // اعمال تم بر اساس مقدار ذخیره‌شده
+        document.documentElement.classList.toggle('dark', Alpine.store('ui').isDark);
+        if (window.lucide) lucide.createIcons();
+      }
+
+      if (window.Alpine) {
+        initUIStore();
+      } else {
+        document.addEventListener('alpine:init', initUIStore);
+      }
+    })();
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>
+

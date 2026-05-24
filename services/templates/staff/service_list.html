@@ -1,0 +1,115 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% block title %}مدیریت سرویس‌ها{% endblock %}
+
+{% block extra_head %}
+<style>
+  .btn-static{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.55rem .9rem;border-radius:.75rem;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff !important;box-shadow:0 6px 16px rgba(236,72,153,.25)}
+  .btn-static-outline{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb}
+  .btn-static-light{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#f3f4f6;color:#111827;border:1px solid #e5e7eb}
+  .btn-edit{background:#f59e0b;color:#111827;border:0;border-radius:.6rem;padding:.4rem .7rem;font-weight:800}
+  .btn-delete{background:#dc2626;color:#fff;border:0;border-radius:.6rem;padding:.4rem .7rem;font-weight:800}
+  .pill{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:.6rem;font-weight:800;font-size:.75rem}
+  .pill-green{background:#059669;color:#fff;border:0}
+  .pill-gray{background:#e5e7eb;color:#111827;border:0}
+  .table-wrap{overflow:auto;border-radius:1rem;border:1px solid #e5e7eb;background:#fff;box-shadow:0 6px 20px rgba(17,24,39,.06)}
+  thead th{background:#fafafa;color:#374151;font-weight:800;white-space:nowrap}
+  tbody td{color:#111827;vertical-align:middle}
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="max-w-screen-xl mx-auto p-4 space-y-6">
+
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-xl md:text-2xl font-extrabold">مدیریت سرویس‌ها</h1>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'staff_service_create' %}" class="btn-static">+ سرویس جدید</a>
+      <a href="{% url 'staff_dashboard' %}" class="btn-static-outline">بازگشت</a>
+    </div>
+  </div>
+
+  <form method="get" class="flex flex-col md:flex-row gap-2">
+    <select name="state" class="form-select md:w-48">
+      <option value="all" {% if request.GET.state == 'all' or not request.GET.state %}selected{% endif %}>همه</option>
+      <option value="active" {% if request.GET.state == 'active' %}selected{% endif %}>فقط فعال</option>
+      <option value="inactive" {% if request.GET.state == 'inactive' %}selected{% endif %}>فقط غیرفعال</option>
+    </select>
+    <input name="q" value="{{ request.GET.q }}" class="form-input md:w-80" placeholder="جستجو در عنوان/اسلاگ/توضیحات">
+    <button class="btn-static-light">اعمال</button>
+    {% if request.GET.q or request.GET.state %}
+      <a href="{% url 'staff_services' %}" class="btn-static-outline">حذف فیلتر</a>
+    {% endif %}
+  </form>
+
+  <div class="table-wrap">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-right">تصویر</th>
+          <th class="px-4 py-3 text-right">عنوان</th>
+          <th class="px-4 py-3 text-right">Slug</th>
+          <th class="px-4 py-3 text-right whitespace-nowrap">بیانه (تومان)</th>
+          <th class="px-4 py-3 text-right">مدت</th>
+          <th class="px-4 py-3 text-right">اسلات‌های آینده</th>
+          <th class="px-4 py-3 text-right">رزروهای نهایی</th>
+          <th class="px-4 py-3 text-right">فعال؟</th>
+          <th class="px-4 py-3 text-left">عملیات</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for s in services %}
+        <tr>
+          <td class="px-4 py-3">
+            {% if s.image %}
+              <img src="{{ s.image.url }}" class="w-16 h-12 object-cover rounded border" alt="{{ s.title }}">
+            {% else %}
+              <span class="text-xs" style="color:#6b7280">—</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 font-semibold">{{ s.title }}</td>
+          <td class="px-4 py-3 ltr" style="color:#374151">{{ s.slug }}</td>
+          <td class="px-4 py-3">{{ s.deposit_amount_toman|intcomma }}</td>
+          <td class="px-4 py-3">
+            {% if s.duration_label %}{{ s.duration_label }}{% else %}{{ s.duration_minutes|intcomma }} دقیقه{% endif %}
+          </td>
+          <td class="px-4 py-3"><span class="pill pill-gray">{{ s.upcoming_slots|default:0 }}</span></td>
+          <td class="px-4 py-3"><span class="pill pill-gray">{{ s.booked_count|default:0 }}</span></td>
+          <td class="px-4 py-3">
+            <form method="post" action="{% url 'staff_service_toggle' s.pk %}">
+              {% csrf_token %}
+              <button class="pill {{ s.is_active|yesno:'pill-green,pill-gray' }}">{{ s.is_active|yesno:'فعال,غیرفعال' }}</button>
+            </form>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex flex-wrap gap-2">
+              <a href="{% url 'staff_service_edit' s.pk %}" class="btn-edit">ویرایش</a>
+              <form method="post" action="{% url 'staff_service_delete' s.pk %}" onsubmit="return confirm('حذف سرویس؟');">
+                {% csrf_token %}
+                <button class="btn-delete">حذف</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="px-4 py-6 text-center" style="color:#6b7280">سرویسی ثبت نشده است.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="mt-4 flex flex-wrap gap-2">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&state={{ request.GET.state }}" class="btn-static-outline">قبلی</a>
+    {% endif %}
+    <span class="btn-static-light">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&state={{ request.GET.state }}" class="btn-static-outline">بعدی</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}<script>if(window.lucide) lucide.createIcons();</script>{% endblock %}

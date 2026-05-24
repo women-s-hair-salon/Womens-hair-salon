@@ -1,0 +1,26 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TZ=Asia/Tehran
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cron tzdata build-essential libpq-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# کل پروژه لازم است تا manage.py و apps در دسترس باشند
+COPY . /app/
+
+# فایل کران
+COPY deploy/crontab /etc/cron.d/cleaner
+RUN chmod 0644 /etc/cron.d/cleaner && crontab /etc/cron.d/cleaner
+
+# لاگ‌ها به stdout
+CMD ["bash", "-lc", "cron && touch /var/log/cron.log && tail -f /var/log/cron.log"]
+

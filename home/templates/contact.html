@@ -1,0 +1,105 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}تماس با ما{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* کارت شکیل با رینگ گرادیانی و سایه نرم */
+  .contact-card{
+    position:relative; border-radius:16px;
+    background:rgba(255,255,255,.9);
+  }
+  .dark .contact-card{ background:rgba(24,24,27,.9); }
+  .contact-card::before{
+    content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
+    background:linear-gradient(135deg, rgba(244,63,94,.35), rgba(236,72,153,.35), rgba(167,139,250,.35));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+  }
+
+  /* تمرکز و هاور تمیز برای ورودی‌ها */
+  .contact-input{ transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+  .contact-input:focus{
+    outline:0; border-color:#ec4899 !important;
+    box-shadow:0 0 0 4px rgba(236,72,153,.15);
+    background-color:rgba(255,255,255,.95);
+  }
+  .dark .contact-input:focus{ background-color:rgba(39,39,42,.95); }
+
+  /* پیام خطا زیر فیلد */
+  .field-error{ margin-top:.35rem; font-size:.82rem; color:#ef4444; }
+
+  /* اسکرول‌بار ظریف */
+  *{scrollbar-width:thin; scrollbar-color:rgba(236,72,153,.45) transparent}
+  *::-webkit-scrollbar{height:8px;width:8px}
+  *::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#f43f5e77,#ec489977);border-radius:999px}
+  *::-webkit-scrollbar-track{background:transparent}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition:none!important}
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="max-w-3xl mx-auto px-4 py-16">
+  <div class="contact-card shadow-xl hover:shadow-2xl transition-shadow border border-gray-200 dark:border-gray-700 p-8 md:p-10 space-y-8">
+
+    <h2 class="text-3xl font-extrabold text-center text-pink-600 dark:text-pink-400">تماس با ما</h2>
+
+    <form method="post" novalidate class="space-y-6">
+      {% csrf_token %}
+
+      {# خطاهای کلی فرم (در صورت وجود) #}
+      {% if form.non_field_errors %}
+        <div class="text-sm text-red-600">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="id_full_name" class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-200">نام کامل</label>
+          <input type="text" name="full_name" id="id_full_name"
+                 value="{{ form.full_name.value|default_if_none:'' }}"
+                 class="contact-input form-input w-full border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+          {% if form.full_name.errors %}<p class="field-error">{{ form.full_name.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label for="id_email" class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-200">ایمیل</label>
+          <input type="email" name="email" id="id_email" dir="ltr"
+                 value="{{ form.email.value|default_if_none:'' }}"
+                 class="contact-input form-input w-full border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+          {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <label for="id_phone" class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-200">شماره موبایل</label>
+        <input type="text" name="phone" id="id_phone" dir="ltr" inputmode="numeric"
+               value="{{ form.phone.value|default_if_none:'' }}"
+               placeholder="مثلاً 09123456789"
+               class="contact-input form-input w-full border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+        {% if form.phone.errors %}<p class="field-error">{{ form.phone.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label for="id_message" class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-200">پیام</label>
+        <textarea name="message" id="id_message" rows="6"
+                  class="contact-input form-textarea w-full border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  placeholder="پیامتان را بنویسید…">{{ form.message.value|default_if_none:'' }}</textarea>
+        {% if form.message.errors %}<p class="field-error">{{ form.message.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="text-center pt-2">
+        <button type="submit"
+          class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold shadow-md hover:shadow-lg hover:from-purple-600 hover:to-pink-600 transition">
+          ارسال پیام
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script nonce="{{ csp_nonce }}">if(window.lucide) lucide.createIcons();</script>
+{% endblock %}

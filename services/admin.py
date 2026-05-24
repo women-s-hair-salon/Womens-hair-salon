@@ -1,26 +1,37 @@
-
 from django.contrib import admin
-from .models import Categories, Service, Reservation
+from .models import Service, AppointmentSlot, Reservation
 
-# 1️⃣ Admin for Categories
-@admin.register(Categories)
-class CategoriesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'price', 'slug')  # Fields shown in the list view
-    search_fields = ('name',)  # Enable search by category name
-    prepopulated_fields = {'slug': ('name',)}  # Auto-generate slug from name
+class AppointmentSlotInline(admin.TabularInline):
+    model = AppointmentSlot
+    extra = 1
+    fields = ('date','start_time','end_time','capacity')
+    ordering = ('-date','start_time')
 
-# 2️⃣ Admin for Services
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category', 'price', 'active')
-    list_filter = ('category', 'active')  # Filter services by category & status
-    search_fields = ('name',)
-    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('title','deposit_amount_toman','duration_minutes','is_active')
+    list_filter = ('is_active',)
+    search_fields = ('title','description')
+    prepopulated_fields = {'slug':('title',)}
+    inlines = [AppointmentSlotInline]
 
-# 3️⃣ Admin for Reservations
+@admin.register(AppointmentSlot)
+class SlotAdmin(admin.ModelAdmin):
+    list_display = ('service','date','start_time','end_time','capacity')
+    list_filter = ('service','date')
+    search_fields = ('service__title',)
+    ordering = ('-date','start_time')
+
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'service', 'date', 'time', 'created_at')
-    list_filter = ('date', 'service')  # Filter by date & service
-    search_fields = ('user__username', 'service__name')  # Search by user & service name
-    ordering = ('-created_at',)  # Show newest reservations first
+    list_display = ('id','user_phone','service','slot_date','time_range','status','amount_toman','zarinpal_ref_id','created_at')
+    list_filter = ('status','service','slot__date')
+    search_fields = ('id','user__phone_number','zarinpal_ref_id')
+    readonly_fields = ('created_at','updated_at','zarinpal_authority','zarinpal_ref_id')
+    def user_phone(self, obj): return getattr(obj.user,'phone_number','-')
+    user_phone.short_description = 'موبایل'
+    def slot_date(self, obj): return obj.slot.date
+    slot_date.short_description = 'تاریخ'
+    def time_range(self, obj): return f"{obj.slot.start_time.strftime('%H:%M')} تا {obj.slot.end_time.strftime('%H:%M')}"
+    time_range.short_description = 'بازه'
+

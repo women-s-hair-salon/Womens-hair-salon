@@ -1,0 +1,139 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}{% if object %}ویرایش تایم{% else %}ایجاد تایم جدید{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .ui-fixed-theme *{color:inherit}
+  .dark .ui-fixed-theme, .ui-fixed-theme{background:#f8fafc}
+  .ui-fixed-theme .card-white{background:#fff !important;border:1px solid #e5e7eb !important;border-radius:1rem;box-shadow:0 8px 24px rgba(17,24,39,.06)}
+  .ui-fixed-theme .title{font-weight:800;font-size:1.25rem;color:#111827 !important}
+
+  .ui-fixed-theme .btn-main{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem .95rem;border-radius:.8rem;font-weight:800;
+    color:#fff !important;background:linear-gradient(135deg,#ec4899,#8b5cf6) !important;border:0 !important}
+  .ui-fixed-theme .btn-ghost{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:.8rem;font-weight:800;
+    background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb !important}
+
+  .ui-fixed-theme .label{display:block;font-size:.9rem;font-weight:700;margin-bottom:.35rem;color:#111827 !important}
+  .ui-fixed-theme .err{color:#dc2626 !important;font-size:.75rem;margin-top:.35rem}
+  .ui-fixed-theme .hint{font-size:.75rem;color:#6b7280 !important;margin-top:.35rem}
+  .ui-fixed-theme input,.ui-fixed-theme select{background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb !important;border-radius:.65rem;padding:.55rem .75rem}
+  .ui-fixed-theme input:focus,.ui-fixed-theme select:focus{outline:0 !important;border-color:#ec4899 !important;box-shadow:0 0 0 .2rem rgba(236,72,153,.18) !important}
+
+  /* سوییچ ثابت برای آرشیو */
+  .ui-fixed-theme .toggle{display:inline-flex;align-items:center;gap:.6rem;cursor:pointer;user-select:none}
+  .ui-fixed-theme .toggle input{position:absolute;opacity:0;pointer-events:none}
+  .ui-fixed-theme .toggle .track{width:46px;height:26px;border-radius:999px;background:#e5e7eb;position:relative;transition:background .2s}
+  .ui-fixed-theme .toggle .dot{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.1);transition:transform .2s}
+  .ui-fixed-theme .toggle input:checked ~ .track{background:#ef4444}
+  .ui-fixed-theme .toggle input:checked ~ .track .dot{transform:translateX(20px)}
+  .ui-fixed-theme .toggle .txt{font-weight:700;color:#111827}
+
+  /* رنگ ثابت برای سایر چک‌باکس/رادیو */
+  .ui-fixed-theme input[type="checkbox"], .ui-fixed-theme input[type="radio"]{accent-color:#ec4899 !important}
+
+  /* === آیکن تقویم داخل اینپوت === */
+  .ui-fixed-theme .date-wrap{position:relative}
+  .ui-fixed-theme .date-wrap input{padding-right:2.8rem !important}
+  .ui-fixed-theme .date-btn{
+    position:absolute; right:.45rem; top:50%; transform:translateY(-50%);
+    width:2.25rem; height:2.25rem; display:inline-flex; align-items:center; justify-content:center;
+    background:#f3f4f6; border:1px solid #e5e7eb; border-radius:.6rem; color:#6b7280;
+  }
+  .ui-fixed-theme .date-btn:hover{background:#e5e7eb}
+  .ui-fixed-theme .date-btn i{width:18px;height:18px}
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="ui-fixed-theme max-w-xl mx-auto p-4">
+  <div class="flex items-center justify-between gap-3 mb-3">
+    <h1 class="title">{% if object %}ویرایش تایم{% else %}ایجاد تایم جدید{% endif %}</h1>
+    <a href="{% url 'staff_slots' %}" class="btn-ghost">بازگشت</a>
+  </div>
+
+  <form method="post" novalidate class="card-white p-5 md:p-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="mb-3 err">
+        {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="mb-4">
+      <label class="label">سرویس</label>
+      {{ form.service }}
+      {% for e in form.service.errors %}<div class="err">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-4">
+      <label class="label">تاریخ </label>
+      <div class="date-wrap">
+        {{ form.jalali_date }}
+        <button type="button" id="btn-jcal" class="date-btn" aria-label="انتخاب تاریخ">
+          <i data-lucide="calendar"></i>
+        </button>
+      </div>
+      <div class="hint">مثال: 1404/06/12</div>
+      {% for e in form.jalali_date.errors %}<div class="err">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="label">ساعت شروع</label>
+        {{ form.start_time }}
+        {% for e in form.start_time.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+      <div>
+        <label class="label">ساعت پایان</label>
+        {{ form.end_time }}
+        {% for e in form.end_time.errors %}<div class="err">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <label class="label">ظرفیت</label>
+      {{ form.capacity }}
+      {% for e in form.capacity.errors %}<div class="err">{{ e }}</div>{% endfor %}
+    </div>
+
+    {% if form.is_archived %}
+      <div class="mb-5">
+        <label class="toggle">
+          {{ form.is_archived }}
+          <span class="track"><span class="dot"></span></span>
+          <span class="txt">آرشیو شود</span>
+        </label>
+      </div>
+    {% endif %}
+
+    <div class="flex flex-wrap gap-2">
+      <button class="btn-main">{% if object %}ذخیره تغییرات{% else %}ایجاد{% endif %}</button>
+      <a href="{% url 'staff_slots' %}" class="btn-ghost">لغو</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.js"></script>
+  <script nonce="{{ csp_nonce }}">
+    $(function () {
+      if (window.lucide) lucide.createIcons();
+
+      $('#id_jalali_date').pDatepicker({
+        format:'YYYY/MM/DD', calendarType:'persian', initialValue:true, initialValueType:'persian',
+        autoClose:true, observer:true, calendar:{ persian:{locale:'fa',leapYearMode:'algorithmic'}, gregorian:{locale:'en'} }
+      });
+
+      $('#btn-jcal').on('click', function (e) {
+        e.preventDefault();
+        $('#id_jalali_date').pDatepicker('show');
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+{% load jalali %}
+{% block title %}رزروهای نهایی{% endblock %}
+
+{% block extra_head %}
+<style>
+  .btn-static{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.55rem .9rem;border-radius:.75rem;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff !important;box-shadow:0 6px 16px rgba(236,72,153,.25)}
+  .btn-static-outline{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#fff !important;color:#111827 !important;border:1px solid #e5e7eb}
+  .btn-static-light{display:inline-flex;align-items:center;gap:.45rem;font-weight:800;text-decoration:none;padding:.5rem .85rem;border-radius:.75rem;background:#f3f4f6;color:#111827;border:1px solid #e5e7eb}
+  .stat{padding:1rem;border-radius:.9rem;background:#fff;box-shadow:0 6px 18px rgba(17,24,39,.06);border:1px solid #e5e7eb}
+  .stat .k{font-size:.75rem;color:#6b7280}
+  .stat .v{font-size:1.25rem;font-weight:800;color:#111827}
+  .table-wrap{overflow:auto;border-radius:1rem;border:1px solid #e5e7eb;background:#fff;box-shadow:0 6px 20px rgba(17,24,39,.06)}
+  thead th{background:#fafafa;color:#374151;font-weight:800;white-space:nowrap}
+  tbody td{color:#111827;vertical-align:middle}
+</style>
+{% endblock %}
+
+{% block main %}
+<section class="max-w-screen-xl mx-auto p-4 space-y-6">
+
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-xl md:text-2xl font-extrabold">رزروهای نهایی</h1>
+    <a href="{% url 'staff_dashboard' %}" class="btn-static-outline">بازگشت</a>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="stat"><div class="k">کل کاربران ثبت‌نام‌شده</div><div class="v">{{ total_users|default:0 }}</div></div>
+    <div class="stat"><div class="k">کل افرادی که رزرو نهایی دارند</div><div class="v">{{ total_booked_users|default:0 }}</div></div>
+    <div class="stat"><div class="k">کل رزروهای نهایی</div><div class="v">{{ total_booked_reservations|default:0 }}</div></div>
+  </div>
+
+  <form method="get" class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
+    <input name="q" value="{{ request.GET.q }}" class="form-input" placeholder="نام/نام‌خانوادگی/شماره/سرویس">
+    <button class="btn-static-light">جستجو</button>
+  </form>
+
+  <div class="table-wrap">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-right w-16">ردیف</th>
+          <th class="px-4 py-3 text-right">کاربر</th>
+          <th class="px-4 py-3 text-right">شماره</th>
+          <th class="px-4 py-3 text-right">تاریخ تولد</th>
+          <th class="px-4 py-3 text-right">سرویس</th>
+          <th class="px-4 py-3 text-right">تاریخ</th>
+          <th class="px-4 py-3 text-right">ساعت</th>
+          <th class="px-4 py-3 text-right">RefID</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for r in items %}
+        <tr>
+          <td class="px-4 py-3" style="color:#6b7280">
+            {% if is_paginated %}
+              {% with n=page_obj.start_index|add:forloop.counter0 %}{{ n }}{% endwith %}
+            {% else %}{{ forloop.counter }}{% endif %}
+          </td>
+          <td class="px-4 py-3">{{ r.user.full_name|default:"—" }}</td>
+          <td class="px-4 py-3 ltr">{{ r.user.phone_number }}</td>
+          <td class="px-4 py-3">{{ r.user.birthday|to_jalali_date }}</td>
+          <td class="px-4 py-3">{{ r.service.title }}</td>
+          <td class="px-4 py-3">{{ r.slot.date|to_jalali_date }}</td>
+          <td class="px-4 py-3">{{ r.slot.start_time|time:"H:i" }} تا {{ r.slot.end_time|time:"H:i" }}</td>
+          <td class="px-4 py-3">{{ r.zarinpal_ref_id|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="px-4 py-6 text-center" style="color:#6b7280">موردی یافت نشد.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="mt-4 flex flex-wrap gap-2">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&date={{ request.GET.date }}" class="btn-static-outline">قبلی</a>
+    {% endif %}
+    <span class="btn-static-light">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&date={{ request.GET.date }}" class="btn-static-outline">بعدی</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}<script>if(window.lucide) lucide.createIcons();</script>{% endblock %}
